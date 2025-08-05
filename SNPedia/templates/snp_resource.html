@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/kendo.common-material.min.css" />
     <link rel="stylesheet" href="css/kendo.material.min.css" />
     <link rel="stylesheet" href="css/kendo.material.mobile.min.css" />
+    <link rel="stylesheet" href="css/kendo-font-icons.css" />
 
     <script src="js/jszip.min.js"></script>
     <script src="js/jquery.min.js"></script>
@@ -36,16 +37,16 @@
 
         .grid {
             float: right;
-            width: calc(100% - 350px);
+            width: 100%;
         }
 
         @media (max-width: 1000px) {
-            .image { width: 125px; }
-            .grid { width: calc(100% - 125px); }
+            /* .image { width: 125px; } */
+            .grid { width: 100%; }
         }
 
         @media (max-width: 800px) {
-            .image { display: none; }
+            /* .image { display: none; } */
             .grid { float: none; width: 100%; }
         }
     </style>
@@ -53,7 +54,7 @@
 
 <body>
 
-    <div class="image"></div>
+    <!-- <div class="image"></div> -->
     <div class="grid">
         <div id="grid"></div>
         <script>

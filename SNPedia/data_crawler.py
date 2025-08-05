@@ -45,8 +45,8 @@ class SNPCrawl:
                 and delay_count != self.delay_count
             ):
                 self.delay_count = delay_count
-                logger.info("Sleeping for 5 seconds...")
-                time.sleep(5)
+                logger.info("Sleeping for 30 seconds...")
+                time.sleep(30)
         logger.info("Done")
 
     def grab_table(self: Self, rsid: str):  # noqa C901

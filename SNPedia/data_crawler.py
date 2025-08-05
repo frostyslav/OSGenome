@@ -132,23 +132,56 @@ class SNPCrawl:
             data.append([ele for ele in cols if ele])
         return data
 
+    def flip_alleles(self: Self, genotype: str, stabilized_orientation: str) -> dict:
+        if stabilized_orientation == "minus" and genotype != "":
+            original_genotype = genotype
+            modified_genotype = [None] * 2
+
+            for i, allele in enumerate(original_genotype.strip("()").split(";")):
+                if allele == "A":
+                    modified_genotype[i] = "T"
+                    continue
+                if allele == "T":
+                    modified_genotype[i] = "A"
+                    continue
+                if allele == "C":
+                    modified_genotype[i] = "G"
+                    continue
+                if allele == "G":
+                    modified_genotype[i] = "C"
+                    continue
+                modified_genotype[i] = allele
+            updated_genotype = "({};{})".format(
+                modified_genotype[0], modified_genotype[1]
+            )
+            return {"genotype": updated_genotype, "flipped": True}
+        else:
+            return {"genotype": genotype, "flipped": False}
+
     def make(
         self: Self,
         rsid: str,
         description: str,
         variations: list,
         stabilized_orientation: str,
+        is_flipped: bool,
+        is_interesting: bool,
     ) -> dict:
+        genotype = ""
+        if rsid.lower() in self.personal_snps.keys():
+            genotype = self.personal_snps[rsid.lower()]
+            if is_flipped:
+                genotype += "<br><i>flipped</i>"
+        else:
+            genotype = "(-;-)"
+
         return {
             "Name": rsid,
             "Description": description,
-            "Genotype": (
-                self.personal_snps[rsid.lower()]
-                if rsid.lower() in self.personal_snps.keys()
-                else "(-;-)"
-            ),
+            "Genotype": str(genotype),
             "Variations": str.join("<br>", variations),
             "StabilizedOrientation": stabilized_orientation,
+            "IsInteresting": "★" if is_interesting else "",
         }
 
     def format_cell(
@@ -158,17 +191,28 @@ class SNPCrawl:
         if (
             rsid.lower() in self.personal_snps.keys()
             and self.personal_snps[rsid.lower()] == genotype
-            and stabilized_orientation == "plus"
+            # and stabilized_orientation == "plus"
         ):
             return "<b>" + str.join(" ", variation) + "</b>"
         else:
             return str.join(" ", variation)
+
+    def is_interesting(self: Self, variation: list) -> bool:
+        if len(variation) > 2 and not variation[2].startswith("common"):
+            return True
+
+        return False
 
     def create_list(self: Self):
         messaged_once = False
         for rsid, values in self.rsid_info.items():
             if "StabilizedOrientation" in values:
                 stbl_orient = values["StabilizedOrientation"]
+                flipped_data = self.flip_alleles(
+                    genotype=self.personal_snps[rsid.lower()],
+                    stabilized_orientation=stbl_orient,
+                )
+                self.personal_snps[rsid.lower()] = flipped_data["genotype"]
             else:
                 stbl_orient = "Old Data Format"
                 if not messaged_once:
@@ -177,12 +221,26 @@ class SNPCrawl:
                     )
                     logger.error("See ReadMe for more details")
                     messaged_once = True
+
+            interesting_snp = False
+            for variation in values["Variations"]:
+                if self.is_interesting(variation):
+                    interesting_snp = True
+                    continue
+
             variations = [
                 self.format_cell(rsid, variation, stbl_orient)
                 for variation in values["Variations"]
             ]
 
-            maker = self.make(rsid, values["Description"], variations, stbl_orient)
+            maker = self.make(
+                rsid,
+                values["Description"],
+                variations,
+                stbl_orient,
+                flipped_data["flipped"],
+                interesting_snp,
+            )
 
             self.rsid_list.append(maker)
 

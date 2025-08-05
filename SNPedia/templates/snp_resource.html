@@ -119,11 +119,12 @@
                         pageSize: 50
                     },
                     columns: [
-                        { field: "Name", width: '190px', title: "Name" },
-                        { field: "Description", width: '290px', title: "Short Description" },
-                        { field: "StabilizedOrientation", width: '200px', title: "Stabilized Orientation", encoded: false },
-                        { field: "Genotype", width: '190px', title: "Individual Genotype" },
-                        { field: "Variations", width: '490px', title: "Genotype variations", encoded: false }
+                        { field: "Name", title: "Name" },
+                        { field: "Description", title: "Short Description" },
+                        { field: "StabilizedOrientation", title: "Stabilized Orientation", encoded: false },
+                        { field: "Genotype", title: "Individual Genotype", encoded: false },
+                        { field: "Variations", title: "Genotype variations", encoded: false },
+                        { field: "IsInteresting", title: "Interesting genotype" }
                     ],
                     height: '100%',
                     filterable: true,

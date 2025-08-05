@@ -5,7 +5,7 @@ import os
 import urllib.request
 
 from bs4 import BeautifulSoup
-from GenomeImporter import PersonalData
+from genome_importer import PersonalData
 from typing_extensions import Self
 
 logger = logging.getLogger("data_crawler")

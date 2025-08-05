@@ -3,7 +3,7 @@ import io
 import logging
 import os
 
-from DataCrawler import SNPCrawl
+from data_crawler import SNPCrawl
 from flask import (
     Flask,
     jsonify,

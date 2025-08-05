@@ -1,128 +1,163 @@
 import argparse
-import os
-import string
 import json
+import logging
+import os
+
 import requests
-import pprint
+from typing_extensions import Self
+
 
 class PersonalData:
-    def __init__(self, filepath):
-        if os.path.exists(filepath):
-            self.readData(filepath)
+    def __init__(self: Self, file_path: str) -> None:
+        if os.path.exists(file_path):
+            self.read_data(file_path)
             self.export()
 
-    def readData(self, filepath):
-        
-        
-        with open(filepath) as file:
-            relevantdata = [line for line in file.readlines() if line[0] != "#"]
-            file.close()
-        
+    def read_data(self: Self, file_path: str) -> None:
+        # grab relevant data from the raw DNA file
+        relevant_data = []
+        with open(file_path) as file:
+            for line in file.readlines():
+                if line.startswith("#") or line.startswith(
+                    "rsid"
+                ):  # this is specific to Ancestry raw file
+                    # skip comments and headers
+                    continue
+                relevant_data.append(line.strip())
 
-        ap = Approved()
-        approved = dict(zip(ap.accepted,[i for i in range(len(ap.accepted))]))
-        personaldata = [line.split("\t") for line in relevantdata]
-        self.personaldata = [pd for pd in personaldata if pd[0].lower() in approved]
-        
-        self.snps = [item[0].lower() for item in self.personaldata]
-        self.snpdict = {item[0].lower(): "(" + item[3].rstrip()[0] + ";" + item[3].rstrip()[-1] + ")" \
-                        for item in self.personaldata}
+        # crawl SNPedia for the available RSIDs
+        snpedia_rsids = SNPediaRSIDs()
+        known_rsids = dict(
+            zip(snpedia_rsids.known, [i for i in range(len(snpedia_rsids.known))])
+        )  # use dict for faster lookups
 
-    def hasGenotype(self, rsid):
-        genotype = self.snpdict[rsid]
+        personal_data = []
+        # split lines into separate items
+        for line in relevant_data:
+            personal_data.append(line.split("\t"))
+
+        self.personal_data = []
+        # we will work only with rsids that exist both in personal raw and inside snpedia
+        for item in personal_data:
+            snp = item[0]
+            if snp.lower() in known_rsids:
+                self.personal_data.append(item)
+
+        self.snps = {}
+        for item in self.personal_data:
+            rsid = item[0]
+            allele1 = item[3].strip()
+            allele2 = item[4].strip()
+            self.snps[rsid] = "({};{})".format(allele1, allele2)
+
+    def hasGenotype(self: Self, rsid: str) -> bool:
+        genotype = self.snps[rsid]
         return not genotype == "(-;-)"
 
-    def export(self):
+    def export(self: Self) -> None:
         if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir,"SNPedia")
+            joiner = os.path.join(os.path.curdir, "SNPedia")
         else:
             joiner = os.path.curdir
 
-        filepath = os.path.join(joiner, "data", 'snpDict.json')
-        with open(filepath, "w") as jsonfile:
-            json.dump(self.snpdict, jsonfile)
+        file_path = os.path.join(joiner, "data", "personal_snps.json")
+        with open(file_path, "w") as json_file:
+            json.dump(self.snps, json_file)
 
 
-class Approved:
-    def __init__(self):
-        if not self.lastsessionexists():
+class SNPediaRSIDs:
+    def __init__(self: Self) -> None:
+        if not self.last_session_exists():
             self.crawl()
             self.export()
         else:
             self.load()
 
-    def load(self):
+    def load(self: Self) -> None:
         if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir,"SNPedia")
+            joiner = os.path.join(os.path.curdir, "SNPedia")
         else:
             joiner = os.path.curdir
 
-        filepath = os.path.join(joiner, "data", 'approved.json')
+        filepath = os.path.join(joiner, "data", "snpedia_snps.json")
         with open(filepath) as f:
-            self.accepted = json.load(f)
+            self.known = json.load(f)
 
-    def lastsessionexists(self):
+    def last_session_exists(self: Self) -> None:
         if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir,"SNPedia")
+            joiner = os.path.join(os.path.curdir, "SNPedia")
         else:
             joiner = os.path.curdir
 
-        filepath = os.path.join(joiner, "data", 'approved.json')
+        filepath = os.path.join(joiner, "data", "snpedia_snps.json")
         return os.path.isfile(filepath)
 
-    def crawl(self, cmcontinue=None):
-        members = []
+    def crawl(self: Self, cmcontinue: str = None) -> None:
         count = 0
-        self.accepted = []
-        print("Grabbing approved SNPs")
+        self.known = []
+
+        category_member_limit = 500
+        snpedia_initial_url = "https://bots.snpedia.com/api.php?action=query&list=categorymembers&cmtitle=Category:Is_a_snp&cmlimit={}&format=json".format(
+            category_member_limit
+        )
+
+        logger.info("Grabbing known SNPs")
         if not cmcontinue:
-            curgen = "https://bots.snpedia.com/api.php?action=query&list=categorymembers&cmtitle=Category:Is_a_snp&cmlimit=500&format=json"
+            curgen = snpedia_initial_url
             response = requests.get(curgen)
             jd = response.json()
 
             cur = jd["query"]["categorymembers"]
             for item in cur:
-                self.accepted += [item["title"].lower()]
+                self.known += [item["title"].lower()]
             cmcontinue = jd["continue"]["cmcontinue"]
 
         while cmcontinue:
-            curgen = "https://bots.snpedia.com/api.php?action=query&list=categorymembers&cmtitle=Category:Is_a_snp&cmlimit=500&format=json&cmcontinue=" \
-                    + cmcontinue
+            curgen = "{}&cmcontinue={}".format(snpedia_initial_url, cmcontinue)
             response = requests.get(curgen)
             jd = response.json()
             cur = jd["query"]["categorymembers"]
             for item in cur:
-                self.accepted += [item["title"].lower()]
+                self.known += [item["title"].lower()]
             try:
                 cmcontinue = jd["continue"]["cmcontinue"]
             except KeyError:
                 cmcontinue = None
             count += 1
-    def export(self):
+
+    def export(self: Self) -> None:
         if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir,"SNPedia")
+            joiner = os.path.join(os.path.curdir, "SNPedia")
         else:
             joiner = os.path.curdir
 
-        filepath = os.path.join(joiner, "data", 'approved.json')
+        filepath = os.path.join(joiner, "data", "snpedia_snps.json")
         with open(filepath, "w") as jsonfile:
-            json.dump(self.accepted, jsonfile)
-
-#https://bots.snpedia.com/api.php?action=query&list=categorymembers&cmtitle=Category:Is_a_snp&cmlimit=500&format=json
+            json.dump(self.known, jsonfile)
 
 
 if __name__ == "__main__":
-
-    
+    logger = logging.getLogger("genome_importer")
+    logging.basicConfig()
+    logger.setLevel("INFO")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--filepath', help='Filepath for json dump to be used for import', required=False)
+    parser.add_argument(
+        "-f",
+        "--filepath",
+        help="Filepath for json dump to be used for import",
+        required=False,
+    )
 
     args = vars(parser.parse_args())
 
     if args["filepath"]:
-        pd = PersonalData(filepath=args["filepath"])
-        print(len(pd.personaldata))
-        print(pd.snps[:50])
-        print(list(pd.snpdict.keys())[:10])
-        print(list(pd.snpdict.values())[:10])
+        pd = PersonalData(file_path=args["filepath"])
+        logger.info(
+            "Number of SNPs in the raw data that correlate to the SNPedia: {}".format(
+                len(pd.personal_data)
+            )
+        )
+        # print(pd.snps[:50])
+        # print(list(pd.snpdict.keys())[:10])
+        # print(list(pd.snpdict.values())[:10])

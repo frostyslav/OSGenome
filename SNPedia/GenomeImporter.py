@@ -6,6 +6,10 @@ import os
 import requests
 from typing_extensions import Self
 
+logger = logging.getLogger("genome_importer")
+logging.basicConfig()
+logger.setLevel("INFO")
+
 
 class PersonalData:
     def __init__(self: Self, file_path: str) -> None:
@@ -46,9 +50,10 @@ class PersonalData:
         self.snps = {}
         for item in self.personal_data:
             rsid = item[0]
-            allele1 = item[3].strip()
-            allele2 = item[4].strip()
-            self.snps[rsid] = "({};{})".format(allele1, allele2)
+            if len(item) > 3:
+                allele1 = item[3].strip()
+                allele2 = item[4].strip()
+                self.snps[rsid] = "({};{})".format(allele1, allele2)
 
     def hasGenotype(self: Self, rsid: str) -> bool:
         genotype = self.snps[rsid]
@@ -137,10 +142,6 @@ class SNPediaRSIDs:
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger("genome_importer")
-    logging.basicConfig()
-    logger.setLevel("INFO")
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-f",
@@ -155,9 +156,6 @@ if __name__ == "__main__":
         pd = PersonalData(file_path=args["filepath"])
         logger.info(
             "Number of SNPs in the raw data that correlate to the SNPedia: {}".format(
-                len(pd.personal_data)
+                len(pd.snps)
             )
         )
-        # print(pd.snps[:50])
-        # print(list(pd.snpdict.keys())[:10])
-        # print(list(pd.snpdict.values())[:10])

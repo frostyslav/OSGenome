@@ -1,67 +1,81 @@
-from flask import Flask, render_template, request, send_file, send_from_directory, jsonify
 import base64
-from DataCrawler import SNPCrawl
-import os
 import io
+import logging
+import os
 
-app = Flask(__name__, template_folder='templates')
+from DataCrawler import SNPCrawl
+from flask import (
+    Flask,
+    jsonify,
+    render_template,
+    request,
+    send_file,
+    send_from_directory,
+)
 
-@app.route("/", methods=['GET', 'POST'])
+logger = logging.getLogger("ui")
+logging.basicConfig()
+logger.setLevel("DEBUG")
+
+app = Flask(__name__, template_folder="templates")
+
+
+@app.route("/", methods=["GET", "POST"])
 def main():
     print(vars(request.form))
-    if os.path.exists("SNPedia"):
-        joiner = os.path.join(os.path.curdir,"SNPedia")
-    else:
-        joiner = os.path.curdir
-    filepath = os.path.join(joiner, "templates", 'snp_resource.html')
-    return render_template('snp_resource.html')
+    # if os.path.exists("SNPedia"):
+    #     joiner = os.path.join(os.path.curdir, "SNPedia")
+    # else:
+    #     joiner = os.path.curdir
+    # filepath = os.path.join(joiner, "templates", "snp_resource.html")
+    return render_template("snp_resource.html")
 
-@app.route("/excel", methods=['GET', 'POST'])
+
+@app.route("/excel", methods=["GET", "POST"])
 def create_file():
     content = request.form
 
-    filename = content['fileName']
-    filecontents = content['base64']
+    filename = content["fileName"]
+    filecontents = content["base64"]
     filecontents = base64.b64decode(filecontents)
 
     bytesIO = io.BytesIO()
     bytesIO.write(filecontents)
     bytesIO.seek(0)
 
-    return send_file(bytesIO,
-                     attachment_filename=filename,
-                     as_attachment=True)
+    return send_file(bytesIO, attachment_filename=filename, as_attachment=True)
 
 
-@app.route('/images/<path:path>')
+@app.route("/images/<path:path>")
 def send_image(path):
-    return send_from_directory('images', path)
+    return send_from_directory("images", path)
 
 
-@app.route('/js/<path:path>')
+@app.route("/js/<path:path>")
 def send_js(path):
-    return send_from_directory('js', path)
+    return send_from_directory("js", path)
 
 
-@app.route('/css/<path:path>')
+@app.route("/css/<path:path>")
 def send_css(path):
-    return send_from_directory('css', path)
+    return send_from_directory("css", path)
 
 
-@app.route("/api/rsids", methods=['GET'])
+@app.route("/api/rsids", methods=["GET"])
 def get_types():
-    return jsonify({"results":dfCrawl.rsidList})
+    return jsonify({"results": dfCrawl.rsid_list})
+
 
 if __name__ == "__main__":
     if os.path.exists("SNPedia"):
-        joiner = os.path.join(os.path.curdir,"SNPedia")
+        joiner = os.path.join(os.path.curdir, "SNPedia")
     else:
         joiner = os.path.curdir
-    filepath = os.path.join(joiner, "data", 'rsidDict.json')
-    snppath = os.path.join(joiner, "data", 'snpDict.json')
+    filepath = os.path.join(joiner, "data", "results.json")
+    snppath = os.path.join(joiner, "data", "personal_snps.json")
     if os.path.isfile(filepath):
         if os.path.isfile(snppath):
-            dfCrawl = SNPCrawl(filepath=filepath, snppath=snppath)
+            dfCrawl = SNPCrawl(file_path=filepath, snp_path=snppath)
         else:
-            dfCrawl = SNPCrawl(filepath=filepath)
+            dfCrawl = SNPCrawl(file_path=filepath)
     app.run(debug=True)

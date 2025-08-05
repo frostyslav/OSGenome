@@ -1,209 +1,237 @@
-import sys
-
+import argparse
+import json
+import logging
+import os
+import urllib.request
 
 from bs4 import BeautifulSoup
-from random import shuffle
-
-import urllib.request
-import pprint
-import json
-import argparse
-import os
-import random
-
-
-from SNPGen import GrabSNPs
 from GenomeImporter import PersonalData
+from typing_extensions import Self
+
+logger = logging.getLogger("data_crawler")
+logging.basicConfig()
+logger.setLevel("DEBUG")
 
 
 class SNPCrawl:
-    def __init__(self, rsids=[], filepath=None, snppath=None):
-        if filepath and os.path.isfile(filepath):
-            self.importDict(filepath)
-            self.rsidList = []
+    def __init__(self: Self, file_path: str = None, snp_path: str = None):
+        if file_path and os.path.isfile(file_path):
+            self.rsid_info = self.import_json(filepath=file_path)
         else:
-            self.rsidDict = {}
-            self.rsidList = []
+            self.rsid_info = {}
 
-        if snppath and os.path.isfile(snppath):
-            self.importSNPs(snppath)
+        if snp_path and os.path.isfile(snp_path):
+            self.personal_snps = self.import_json(filepath=snp_path)
         else:
-            self.snpdict = {}
+            self.personal_snps = {}
 
-        rsids = [item.lower() for item in rsids]
-        if rsids:
-            self.initcrawl(rsids)
+        if os.path.exists("SNPedia"):
+            joiner = os.path.join(os.path.curdir, "SNPedia")
+        else:
+            joiner = os.path.curdir
+
+        file_path = os.path.join(joiner, "data", "results.json")
+        if file_path and os.path.isfile(file_path):
+            with open(file_path) as jsonfile:
+                self.rsid_info = json.load(jsonfile)
+        else:
+            self.rsid_info = {}
+
+        self.rsid_list = []
+
+        if self.personal_snps:
+            self.init_crawl(self.personal_snps)
         self.export()
-        self.createList()
+        self.create_list()
 
-    def initcrawl(self, rsids):
+    def init_crawl(self: Self, rsids: dict):
         count = 0
-        for rsid in rsids:
-            print(rsid)
-            self.grabTable(rsid)
-            print("")
+        for rsid, gene in rsids.items():
+            logger.info("Grabbing data about SNP: {}".format(rsid))
+            self.grab_table(rsid)
             count += 1
-            if count % 100 == 0:
-                print("%i out of %s completed" % (count, len(rsids)))
+            if count % 10 == 0:
+                logger.info("%i out of %s completed" % (count, len(rsids)))
+                logger.info("Exporting current results...")
                 self.export()
-                print("exporting current results")
-        pp = pprint.PrettyPrinter(indent=1)
-        #pp.pprint(self.rsidDict)
+                break
 
-    def grabTable(self, rsid):
+    def grab_table(self, rsid):  # noqa C901
         try:
             url = "https://bots.snpedia.com/index.php/" + rsid
-            if rsid not in self.rsidDict.keys():
-                self.rsidDict[rsid.lower()] = {
+            if rsid not in self.rsid_info.keys():
+                self.rsid_info[rsid.lower()] = {
                     "Description": "",
                     "Variations": [],
-                    "StabilizedOrientation": ""
+                    "StabilizedOrientation": "",
                 }
                 response = urllib.request.urlopen(url)
                 html = response.read()
                 bs = BeautifulSoup(html, "html.parser")
                 table = bs.find("table", {"class": "sortable smwtable"})
-                description = bs.find('table', {'style': 'border: 1px; background-color: #FFFFC0; border-style: solid; margin:1em; width:90%;'})
-                
-                #Orientation Finder
+                description = bs.find(
+                    "table",
+                    {
+                        "style": "border: 1px; background-color: #FFFFC0; border-style: solid; margin:1em; width:90%;"
+                    },
+                )
+
+                # Orientation Finder
                 orientation = bs.find("td", string="Rs_StabilizedOrientation")
                 if orientation:
-                    plus = orientation.parent.find("td",string="plus")
-                    minus = orientation.parent.find("td",string="minus")
+                    plus = orientation.parent.find("td", string="plus")
+                    minus = orientation.parent.find("td", string="minus")
                     if plus:
-                        self.rsidDict[rsid]["StabilizedOrientation"] = "plus"
+                        self.rsid_info[rsid]["StabilizedOrientation"] = "plus"
                     if minus:
-                        self.rsidDict[rsid]["StabilizedOrientation"] = "minus" 
+                        self.rsid_info[rsid]["StabilizedOrientation"] = "minus"
                 else:
-                      link = bs.find("a",{"title":"StabilizedOrientation"})
-                      if link:
+                    link = bs.find("a", {"title": "StabilizedOrientation"})
+                    if link:
                         table_row = link.parent.parent
-                        plus = table_row.find("td",string="plus")
-                        minus = table_row.find("td",string="minus")
+                        plus = table_row.find("td", string="plus")
+                        minus = table_row.find("td", string="minus")
                         if plus:
-                            self.rsidDict[rsid]["StabilizedOrientation"] = "plus"
+                            self.rsid_info[rsid]["StabilizedOrientation"] = "plus"
                         if minus:
-                            self.rsidDict[rsid]["StabilizedOrientation"] = "minus" 
+                            self.rsid_info[rsid]["StabilizedOrientation"] = "minus"
 
+                logger.info(
+                    "{} stabilized orientation: {}".format(
+                        rsid, self.rsid_info[rsid]["StabilizedOrientation"]
+                    )
+                )
 
                 if description:
-                    d1 = self.tableToList(description)
-                    self.rsidDict[rsid]["Description"] = d1[0][0]
-                    print(d1[0][0].encode("utf-8"))
+                    d1 = self.table_to_list(description)
+                    self.rsid_info[rsid]["Description"] = d1[0][0]
+                    logger.info(
+                        "{} description: {}".format(
+                            rsid, self.rsid_info[rsid]["Description"]
+                        )
+                    )
                 if table:
-                    d2 = self.tableToList(table)
-                    self.rsidDict[rsid]["Variations"] = d2[1:]
-                    print(d2[1:])
+                    d2 = self.table_to_list(table)
+                    self.rsid_info[rsid]["Variations"] = d2[1:]
+                    logger.info(
+                        "{} variations: {}".format(
+                            rsid, self.rsid_info[rsid]["Variations"]
+                        )
+                    )
         except urllib.error.HTTPError:
-            print(url + " was not found or contained no valid information")
+            logger.error(
+                "{} was not found or contained no valid information".format(url)
+            )
 
-    def tableToList(self, table):
-        rows = table.find_all('tr')
+    def table_to_list(self, table):
+        rows = table.find_all("tr")
         data = []
         for row in rows:
-            cols = row.find_all('td')
+            cols = row.find_all("td")
             cols = [ele.text.strip() for ele in cols]
             data.append([ele for ele in cols if ele])
         return data
 
-    def createList(self):
-        make = lambda rsname, description, variations, stbl_orientation: \
-            {"Name": rsname,
-             "Description": description,
-             "Genotype": self.snpdict[rsname.lower()] \
-                if rsname.lower() in self.snpdict.keys() else "(-;-)", \
-             "Variations": str.join("<br>", variations), \
-                "StabilizedOrientation":stbl_orientation 
-            }
+    def make(
+        self: Self,
+        rsid: str,
+        description: str,
+        variations: list,
+        stabilized_orientation: str,
+    ) -> dict:
+        return {
+            "Name": rsid,
+            "Description": description,
+            "Genotype": (
+                self.personal_snps[rsid.lower()]
+                if rsid.lower() in self.personal_snps.keys()
+                else "(-;-)"
+            ),
+            "Variations": str.join("<br>", variations),
+            "StabilizedOrientation": stabilized_orientation,
+        }
 
-        formatCell = lambda rsid, variation, stbl_orient : \
-            "<b>" + str.join(" ", variation) + "</b>" \
-                if rsid.lower() in self.snpdict.keys() and \
-                   self.snpdict[rsid.lower()] == variation[0] \
-                    and stbl_orient == "plus" \
-                else str.join(" ", variation)
+    def format_cell(
+        self: Self, rsid: str, variation: list, stabilized_orientation: str
+    ) -> str:
+        genotype = variation[0]
+        if (
+            rsid.lower() in self.personal_snps.keys()
+            and self.personal_snps[rsid.lower()] == genotype
+            and stabilized_orientation == "plus"
+        ):
+            return "<b>" + str.join(" ", variation) + "</b>"
+        else:
+            return str.join(" ", variation)
 
+    def create_list(self: Self):
         messaged_once = False
-        for rsid in self.rsidDict.keys():
-            curdict = self.rsidDict[rsid]
-            if "StabilizedOrientation" in curdict:
-                stbl_orient = curdict["StabilizedOrientation"]
+        for rsid, values in self.rsid_info.items():
+            if "StabilizedOrientation" in values:
+                stbl_orient = values["StabilizedOrientation"]
             else:
                 stbl_orient = "Old Data Format"
                 if not messaged_once:
-                    print("Old Data Detected, Will not display variations bolding with old data.") 
-                    print("See ReadMe for more details")
+                    logger.error(
+                        "Old Data Detected, Will not display variations bolding with old data."
+                    )
+                    logger.error("See ReadMe for more details")
                     messaged_once = True
-            variations = [formatCell(rsid, variation, stbl_orient) for variation in curdict["Variations"]]
-            
-            maker = make(rsid, curdict["Description"], variations, stbl_orient)
-            
-            self.rsidList.append(maker)
+            variations = [
+                self.format_cell(rsid, variation, stbl_orient)
+                for variation in values["Variations"]
+            ]
 
+            maker = self.make(rsid, values["Description"], variations, stbl_orient)
 
+            self.rsid_list.append(maker)
 
-        #print(self.rsidList[:5])
+        logger.debug(self.rsid_list[:5])
 
-    def importDict(self, filepath):
-        with open(filepath, 'r') as jsonfile:
-            self.rsidDict = json.load(jsonfile)
-
-    def importSNPs(self, snppath):
-        with open(snppath, 'r') as jsonfile:
-            self.snpdict = json.load(jsonfile)
+    def import_json(self, filepath) -> dict:
+        with open(filepath) as jsonfile:
+            return json.load(jsonfile)
 
     def export(self):
-        #data = pd.DataFrame(self.rsidDict)
-        #data = data.fillna("-")
-        #data = data.transpose()
-        #datapath = os.path.join(os.path.curdir, "data", 'rsidDict.csv')
-        #data.to_csv(datapath)
         if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir,"SNPedia")
+            joiner = os.path.join(os.path.curdir, "SNPedia")
         else:
             joiner = os.path.curdir
-        filepath = os.path.join(joiner, "data", 'rsidDict.json')
-        with open(filepath,"w") as jsonfile:
-            json.dump(self.rsidDict, jsonfile)
-
-
-parser = argparse.ArgumentParser()
-
-
-parser.add_argument('-f', '--filepath', help='Filepath for 23andMe data to be used for import', required=False)
-
-args = vars(parser.parse_args())
-
-
-#Some interesting SNPs to get started with
-rsid = ["rs1815739", "Rs53576", "rs4680", "rs1800497", "rs429358", "rs9939609", "rs4988235", "rs6806903", "rs4244285"]
-rsid += ["rs1801133"]
-
-#os.chdir(os.path.dirname(__file__))
-
-
-if args["filepath"]:
-    personal = PersonalData(args["filepath"])
-    snpsofinterest = [snp for snp in personal.snps if personal.hasGenotype(snp)]
-    count_of_interest = len(snpsofinterest)
-    print("Found " + str(count_of_interest) + " SNPS to be mapped to SNPedia")
-    sp = GrabSNPs(crawllimit=60, snpsofinterest=snpsofinterest, target=100)
-    rsid += sp.snps
-    print(len(sp.snps))
-    temp = personal.snps
-    random.shuffle(temp)
-    print(temp[:10])
-    rsid += temp[:50]
+        filepath = os.path.join(joiner, "data", "results.json")
+        with open(filepath, "w") as jsonfile:
+            json.dump(self.rsid_info, jsonfile)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-f",
+        "--filepath",
+        help="Filepath for Ancestry raw data to be used for import",
+        required=False,
+    )
+
+    args = vars(parser.parse_args())
+
+    if args["filepath"]:
+        personal = PersonalData(args["filepath"])
+        snps_of_interest = {}
+        for rsid, gene in personal.snps.items():
+            if personal.hasGenotype(rsid):
+                snps_of_interest[rsid] = gene
+        logger.info(
+            "Found {} SNPs to be mapped to SNPedia".format(len(snps_of_interest))
+        )
+
     if os.path.exists("SNPedia"):
-        joiner = os.path.join(os.path.curdir,"SNPedia")
+        joiner = os.path.join(os.path.curdir, "SNPedia")
     else:
         joiner = os.path.curdir
-    filepath = os.path.join(joiner, "data", 'rsidDict.json')
-    if os.path.isfile(filepath):
-        dfCrawl = SNPCrawl(rsids=rsid, filepath=filepath)
-
+    file_path = os.path.join(joiner, "data", "personal_snps.json")
+    if os.path.isfile(file_path):
+        #     with open(file_path) as jsonfile:
+        #         rsids = json.load(jsonfile)
+        dfCrawl = SNPCrawl(snp_path=file_path)
     else:
-        dfCrawl = SNPCrawl(rsids=rsid)
+        logger.info("No SNPs to crawl")

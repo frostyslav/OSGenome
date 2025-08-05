@@ -18,13 +18,13 @@ All of your genetic data (your raw data) is stored and used locally on your comp
 
 
 ## How do I grab my raw SNP Data?
-Since it's quite possible 23AndMe will change the way you download the raw data... this might change from time to time. Just look up how to download 23AndMe raw data in Google, and you might just find a link to 23AndMe to download the raw data. It'll be in a comma separated format. 
+Since it's quite possible 23AndMe will change the way you download the raw data... this might change from time to time. Just look up how to download 23AndMe raw data in Google, and you might just find a link to 23AndMe to download the raw data. It'll be in a comma separated format.
 
 ## Orientation (Important)
-SNPedia reports SNPs of an  initial build it was made out of. Current vendors of Genomic Testing use a different build. To handle this SNPedia introduced a Stabilized Orientation and Orientation field. OSGenome automatically relays the Stabilized Orientation, but to avoid confusion, does not map the corrected genotype and also does not highlight the correct variation. This is done as builds might change one day and this fix might not be needed as well as the presence of ambiguous genotype mappings. 
-[See here for more information by SNPedia authors](https://www.reddit.com/r/promethease/comments/3ayg64/orientation_confusion/). 
+SNPedia reports SNPs of an  initial build it was made out of. Current vendors of Genomic Testing use a different build. To handle this SNPedia introduced a Stabilized Orientation and Orientation field. OSGenome automatically relays the Stabilized Orientation, but to avoid confusion, does not map the corrected genotype and also does not highlight the correct variation. This is done as builds might change one day and this fix might not be needed as well as the presence of ambiguous genotype mappings.
+[See here for more information by SNPedia authors](https://www.reddit.com/r/promethease/comments/3ayg64/orientation_confusion/).
 
-In best words, if the orientation is minus and you are using 23AndMe for instance (which only reports on positive, last checked: October|2022), there is a layer of ambiguity to your test results for the SNP as this is a result of build differences across what SNPedia was built on, and what 23AndMe and others genome testing report. A tutorial and more information can be found [here](https://www.snpedia.com/index.php/Orientation#:~:text=Orientation%20indicates%20the%20orientation%20reported,reference%20build%20is%20shown%20next). 
+In best words, if the orientation is minus and you are using 23AndMe for instance (which only reports on positive, last checked: October|2022), there is a layer of ambiguity to your test results for the SNP as this is a result of build differences across what SNPedia was built on, and what 23AndMe and others genome testing report. A tutorial and more information can be found [here](https://www.snpedia.com/index.php/Orientation#:~:text=Orientation%20indicates%20the%20orientation%20reported,reference%20build%20is%20shown%20next).
 For conditions of Stabilized Orientation equaling Minus and using 23AndMe raw data, try flipping them as such:
 - A->T
 - T->A
@@ -43,7 +43,7 @@ Currently, there is a script I can upload to convert the formats. MyFamilyTree.c
 
 
 ## How much data will OS Genome grab?
-Last checked, 23AndMe had over 610,000 SNPs that comes from their raw SNP file, while MyFamilyTree.com had over 700,000 SNPs. OS Genome crawls a couple hundred each time. Each time you run step 1, it'll add additional several hundred SNPs to your result for you to examine. This was done to reduce the amount of data that needs to be crawled before you have something to examine. OSGenome relies on the SNPs that SNPedia has covered. Last checked, there were 110402 SNPS. So it will keep growing as SNPedia adds more SNPs into their database.  Feel free to run step 1 as often as you'd like to gain additional data, and no worries... it keeps track of your progress. 
+Last checked, 23AndMe had over 610,000 SNPs that comes from their raw SNP file, while MyFamilyTree.com had over 700,000 SNPs. OS Genome crawls a couple hundred each time. Each time you run step 1, it'll add additional several hundred SNPs to your result for you to examine. This was done to reduce the amount of data that needs to be crawled before you have something to examine. OSGenome relies on the SNPs that SNPedia has covered. Last checked, there were 110402 SNPS. So it will keep growing as SNPedia adds more SNPs into their database.  Feel free to run step 1 as often as you'd like to gain additional data, and no worries... it keeps track of your progress.
 
 ## It maxes out at 20,000 SNPs?
 At current, if you cross reference a 23andMe report with SNPedia, it will have a valid set of 20,000 SNPs. I've created a modification to the application to only get the SNPs that SNPedia approves as requested in their terms (this prevents it from denying entry). Running this script on a sample 23andMe output has revealed that there are a maximum of around 20,000 SNPs in their encyclopedia for analysis of 23andMe reports. The modification is found within the GenomeImporter. It continously crawls the API endpoint for finding the approved SNPs and uses a dictionary to take advantage of the time complexity of the hash function. It then creates a JSON file within the data directory called approved.json. If after awhile you want to revisit this application. This is one of the files to delete.
@@ -75,7 +75,7 @@ Step 1 (option 1):
 ```
 python3 SNPedia/DataCrawler.py -f [Absolute path of your downloaded raw 23andMe data]
 ```
-This sets up the datacrawler using your data as a means to highlight what SNPs are relevant to you. 
+This sets up the datacrawler using your data as a means to highlight what SNPs are relevant to you.
 
 
 Step 1 (option 2):
@@ -95,7 +95,7 @@ This sets us the Flask server
 Access http://127.0.0.1:5000 (the ip address also known as localhost, it's all hosted on your local machine) to look at your Genome
 
 ## arv support
-There exists a library arv ([GitHub: cslarsen/arv - A fast 23andMe DNA parser and inferrer for Python](https://github.com/cslarsen/arv)) that allows for rule based matching of health and trait attributes using a hash table of the raw data of 23andMe. It is possible to alter the rsidDict.json to allow for automatically populating the rule matching conditions. I will be designing this functionality in a python script that will be able to be used to import the JSON as a dictionary that can be called within the rule matching. Please keep in mind its respective disclaimers before using the service. 
+There exists a library arv ([GitHub: cslarsen/arv - A fast 23andMe DNA parser and inferrer for Python](https://github.com/cslarsen/arv)) that allows for rule based matching of health and trait attributes using a hash table of the raw data of 23andMe. It is possible to alter the rsidDict.json to allow for automatically populating the rule matching conditions. I will be designing this functionality in a python script that will be able to be used to import the JSON as a dictionary that can be called within the rule matching. Please keep in mind its respective disclaimers before using the service.
 
 ## Example
 ![Example of Kendo Grid](https://github.com/mentatpsi/OSGenome/blob/master/images/OSGenome6.PNG)

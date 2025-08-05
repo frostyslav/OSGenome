@@ -1,65 +1,59 @@
 import argparse
 import json
-import logging
-import os
+import time
 import urllib.request
 
 from bs4 import BeautifulSoup
 from genome_importer import PersonalData
+from logger import logger
 from typing_extensions import Self
-
-logger = logging.getLogger("data_crawler")
-logging.basicConfig()
-logger.setLevel("DEBUG")
+from utils import export_to_file, load_from_file
 
 
 class SNPCrawl:
-    def __init__(self: Self, file_path: str = None, snp_path: str = None):
-        if file_path and os.path.isfile(file_path):
-            self.rsid_info = self.import_json(filepath=file_path)
-        else:
-            self.rsid_info = {}
-
-        if snp_path and os.path.isfile(snp_path):
-            self.personal_snps = self.import_json(filepath=snp_path)
-        else:
-            self.personal_snps = {}
-
-        if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir, "SNPedia")
-        else:
-            joiner = os.path.curdir
-
-        file_path = os.path.join(joiner, "data", "results.json")
-        if file_path and os.path.isfile(file_path):
-            with open(file_path) as jsonfile:
-                self.rsid_info = json.load(jsonfile)
-        else:
-            self.rsid_info = {}
-
+    def __init__(self: Self, rsid_file: str = None, snp_file: str = None):
+        self.rsid_info = load_from_file(filename=rsid_file)
+        self.personal_snps = load_from_file(filename=snp_file)
         self.rsid_list = []
 
         if self.personal_snps:
             self.init_crawl(self.personal_snps)
-        self.export()
-        self.create_list()
+            self.export()
+            self.create_list()
+        else:
+            logger.error("No SNPs to crawl")
 
     def init_crawl(self: Self, rsids: dict):
         count = 0
-        for rsid, gene in rsids.items():
-            logger.info("Grabbing data about SNP: {}".format(rsid))
+        delay_count = 0
+        self.delay_count = 0
+
+        for rsid in rsids.keys():
+            if rsid not in self.rsid_info.keys():
+                delay_count += 1
             self.grab_table(rsid)
             count += 1
-            if count % 10 == 0:
+            if count > 0 and count % 10 == 0:
                 logger.info("%i out of %s completed" % (count, len(rsids)))
-                logger.info("Exporting current results...")
+                logger.info("Exporting intermediate results...")
                 self.export()
-                break
+                self.create_list()
+            # add delay for snpedia crawling
+            if (
+                delay_count > 0
+                and delay_count % 10 == 0
+                and delay_count != self.delay_count
+            ):
+                self.delay_count = delay_count
+                logger.info("Sleeping for 5 seconds...")
+                time.sleep(5)
+        logger.info("Done")
 
-    def grab_table(self, rsid):  # noqa C901
+    def grab_table(self: Self, rsid: str):  # noqa C901
         try:
             url = "https://bots.snpedia.com/index.php/" + rsid
             if rsid not in self.rsid_info.keys():
+                logger.info("Grabbing data about SNP: {}".format(rsid))
                 self.rsid_info[rsid.lower()] = {
                     "Description": "",
                     "Variations": [],
@@ -96,7 +90,7 @@ class SNPCrawl:
                         if minus:
                             self.rsid_info[rsid]["StabilizedOrientation"] = "minus"
 
-                logger.info(
+                logger.debug(
                     "{} stabilized orientation: {}".format(
                         rsid, self.rsid_info[rsid]["StabilizedOrientation"]
                     )
@@ -105,7 +99,7 @@ class SNPCrawl:
                 if description:
                     d1 = self.table_to_list(description)
                     self.rsid_info[rsid]["Description"] = d1[0][0]
-                    logger.info(
+                    logger.debug(
                         "{} description: {}".format(
                             rsid, self.rsid_info[rsid]["Description"]
                         )
@@ -113,7 +107,7 @@ class SNPCrawl:
                 if table:
                     d2 = self.table_to_list(table)
                     self.rsid_info[rsid]["Variations"] = d2[1:]
-                    logger.info(
+                    logger.debug(
                         "{} variations: {}".format(
                             rsid, self.rsid_info[rsid]["Variations"]
                         )
@@ -123,7 +117,7 @@ class SNPCrawl:
                 "{} was not found or contained no valid information".format(url)
             )
 
-    def table_to_list(self, table):
+    def table_to_list(self: Self, table):
         rows = table.find_all("tr")
         data = []
         for row in rows:
@@ -158,7 +152,7 @@ class SNPCrawl:
         else:
             return {"genotype": genotype, "flipped": False}
 
-    def make(
+    def create_entry(
         self: Self,
         rsid: str,
         description: str,
@@ -233,7 +227,7 @@ class SNPCrawl:
                 for variation in values["Variations"]
             ]
 
-            maker = self.make(
+            maker = self.create_entry(
                 rsid,
                 values["Description"],
                 variations,
@@ -244,20 +238,11 @@ class SNPCrawl:
 
             self.rsid_list.append(maker)
 
-        logger.debug(self.rsid_list[:5])
+        export_to_file(data=self.rsid_list, filename="result_table.json")
+        logger.debug(json.dumps(self.rsid_list[:5]))
 
-    def import_json(self, filepath) -> dict:
-        with open(filepath) as jsonfile:
-            return json.load(jsonfile)
-
-    def export(self):
-        if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir, "SNPedia")
-        else:
-            joiner = os.path.curdir
-        filepath = os.path.join(joiner, "data", "results.json")
-        with open(filepath, "w") as jsonfile:
-            json.dump(self.rsid_info, jsonfile)
+    def export(self: Self):
+        export_to_file(data=self.rsid_info, filename="results.json")
 
 
 if __name__ == "__main__":
@@ -282,14 +267,4 @@ if __name__ == "__main__":
             "Found {} SNPs to be mapped to SNPedia".format(len(snps_of_interest))
         )
 
-    if os.path.exists("SNPedia"):
-        joiner = os.path.join(os.path.curdir, "SNPedia")
-    else:
-        joiner = os.path.curdir
-    file_path = os.path.join(joiner, "data", "personal_snps.json")
-    if os.path.isfile(file_path):
-        #     with open(file_path) as jsonfile:
-        #         rsids = json.load(jsonfile)
-        dfCrawl = SNPCrawl(snp_path=file_path)
-    else:
-        logger.info("No SNPs to crawl")
+    SNPCrawl(rsid_file="results.json", snp_file="personal_snps.json")

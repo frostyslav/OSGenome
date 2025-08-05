@@ -1,14 +1,11 @@
 import argparse
 import json
-import logging
 import os
 
 import requests
+from logger import logger
 from typing_extensions import Self
-
-logger = logging.getLogger("genome_importer")
-logging.basicConfig()
-logger.setLevel("INFO")
+from utils import export_to_file
 
 
 class PersonalData:
@@ -60,14 +57,7 @@ class PersonalData:
         return not genotype == "(-;-)"
 
     def export(self: Self) -> None:
-        if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir, "SNPedia")
-        else:
-            joiner = os.path.curdir
-
-        file_path = os.path.join(joiner, "data", "personal_snps.json")
-        with open(file_path, "w") as json_file:
-            json.dump(self.snps, json_file)
+        export_to_file(data=self.snps, filename="personal_snps.json")
 
 
 class SNPediaRSIDs:
@@ -131,14 +121,7 @@ class SNPediaRSIDs:
             count += 1
 
     def export(self: Self) -> None:
-        if os.path.exists("SNPedia"):
-            joiner = os.path.join(os.path.curdir, "SNPedia")
-        else:
-            joiner = os.path.curdir
-
-        filepath = os.path.join(joiner, "data", "snpedia_snps.json")
-        with open(filepath, "w") as jsonfile:
-            json.dump(self.known, jsonfile)
+        export_to_file(data=self.known, filename="snpedia_snps.json")
 
 
 if __name__ == "__main__":

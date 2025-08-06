@@ -1,159 +1,169 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <style>
-        html {
-            font-size: 14px;
-            font-family: Arial, Helvetica, sans-serif;
-        }
+      html {
+        font-size: 14px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
     </style>
     <title></title>
-    <link rel="stylesheet" href="css/kendo.common-material.min.css" />
-    <link rel="stylesheet" href="css/kendo.material.min.css" />
-    <link rel="stylesheet" href="css/kendo.material.mobile.min.css" />
-    <link rel="stylesheet" href="css/kendo-font-icons.css" />
+    <link
+      rel="stylesheet"
+      href="css/kendo.common-material.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="css/kendo.material.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="css/kendo.material.mobile.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="css/kendo-font-icons.css"
+    />
 
     <script src="js/jszip.min.js"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/kendo.all.min.js"></script>
     <style>
-        html,
-        body,
-        .grid,
-        #grid {
-            margin: 0;
-            padding: 0;
-            border-width: 0;
-            height: 100%;
-        }
-
-        .image {
-            float: left;
-            height: 100vh;
-            width: 350px;
-            background-image: url('../images/dna-body.png');
-            background-size: cover;
-        }
-
-        .grid {
-            float: right;
-            width: 100%;
-        }
-
-        @media (max-width: 1000px) {
-            /* .image { width: 125px; } */
-            .grid { width: 100%; }
-        }
-
-        @media (max-width: 800px) {
-            /* .image { display: none; } */
-            .grid { float: none; width: 100%; }
-        }
+      html,
+      body,
+      .grid,
+      #grid {
+        margin: 0;
+        padding: 0;
+        border-width: 0;
+        height: 100%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <!-- <div class="image"></div> -->
     <div class="grid">
-        <div id="grid"></div>
-        <script>
+      <div id="grid"></div>
+      <script>
+        function exportExcel() {
+          return '<a class="k-button" href="#" id="selectallelements" onclick="exportToExcel()">Export to Excel</a>';
+        }
 
-            function exportExcel() {
-                return '<a class="k-button" href="#" id="selectallelements" onclick="exportToExcel()">Export to Excel</a>';
+        function exportToExcel() {
+          var grid1 = $("#grid").data("kendoGrid");
+          oldPageSize = grid1.dataSource.pageSize();
+          grid1.dataSource.pageSize(grid1.dataSource.data().length);
+          grid1.saveAsExcel();
+        }
 
-            }
+        $(window).resize(function () {
+          var gridElement = $("#grid"),
+            dataArea = gridElement.find(".k-grid-content"),
+            gridHeight = gridElement.innerHeight(),
+            otherElements = gridElement.children().not(".k-grid-content"),
+            otherElementsHeight = 0;
+          otherElements.each(function () {
+            otherElementsHeight += $(this).outerHeight();
+          });
+          console.log("resizing to", gridHeight - otherElementsHeight);
+          dataArea.height(gridHeight - otherElementsHeight);
+        });
 
-            function exportToExcel() {
-                var grid1 = $("#grid").data("kendoGrid");
-                oldPageSize = grid1.dataSource.pageSize();
-                grid1.dataSource.pageSize(grid1.dataSource.data().length);
-                grid1.saveAsExcel()
-            };
+        $(document).ready(function () {
+          $("#grid").kendoGrid({
+            toolbar: [
+              {
+                name: "exportExcel1",
+                template: "#= exportExcel()#",
+              },
+              {
+                name: "lookupsnp",
+                template: "#= snplookup()#",
+              },
+            ],
+            excel: {
+              fileName: "SNP Report.xlsx",
+              proxyURL: "/excel",
+              filterable: true,
+            },
 
-            $(window).resize(function () {
-                var gridElement = $("#grid"),
-                dataArea = gridElement.find(".k-grid-content"),
-                gridHeight = gridElement.innerHeight(),
-                otherElements = gridElement.children().not(".k-grid-content"),
-                otherElementsHeight = 0;
-                otherElements.each(function () {
-                    otherElementsHeight += $(this).outerHeight();
-                });
-                console.log('resizing to', gridHeight - otherElementsHeight)
-                dataArea.height(gridHeight - otherElementsHeight);
-            })
+            dataSource: {
+              dataType: "json",
+              transport: {
+                read: "/api/rsids",
+              },
+              sort: {
+                field: "IsAbnormal",
+                dir: "desc",
+              },
+              schema: {
+                data: function (response) {
+                  return response.results;
+                },
+              },
+              filter: { field: "IsAbnormal", operator: "eq", value: "Yes" },
+              pageSize: 50,
+              dataBound: function () {
+                for (var i = 0; i < this.columns.length; i++) {
+                  this.autoFitColumn(i);
+                }
+              },
+            },
+            columns: [
+              { field: "Name", title: "Name", hidden: true },
+              { field: "Description", title: "Short Description" },
+              { field: "StabilizedOrientation", title: "Stabilized Orientation", encoded: false, hidden: true },
+              { field: "Genotype", title: "Individual Genotype", encoded: false, hidden: true },
+              { field: "Variations", title: "Genotype variations", encoded: false },
+              {
+                field: "IsInteresting",
+                title: "Interesting genotype",
+                hidden: true,
+                filterable: { multi: true, ignoreCase: true },
+              },
+              {
+                field: "IsAbnormal",
+                title: "Abnormal genotype",
+                hidden: true,
+                filterable: { multi: true, ignoreCase: true },
+              },
+            ],
+            columnMenu: {
+              autoSize: true,
+              componentType: "tabbed",
+              adaptiveMode: "auto",
+              sortable: false,
+            },
 
-            $(document).ready(function () {
+            height: "100%",
+            filterable: true,
+            sortable: true,
+            pageable: {
+              refresh: true,
+              adaptiveMode: "auto",
+              pageSizes: [25, 50, 100, 250],
+              buttonCount: 5,
+            },
+            selectable: "row",
+            allowCopy: true,
+            reorderable: true,
+            resizable: true,
+          });
+        });
+        function snplookup(e) {
+          return '<a class="k-button" href="#" id="lookupsnp" onclick="snpedia()">Lookup on SNPedia</a>';
+        }
+        function snpedia() {
+          var entityGrid = $("#grid").data("kendoGrid");
+          var rows = entityGrid.select();
+          var rsid = rows[0].cells[0].innerText;
 
-                $("#grid").kendoGrid({
-                    toolbar: [{
-                        name: 'exportExcel1',
-                        template: '#= exportExcel()#',
-                    },
-                    {
-                        name: 'lookupsnp',
-                        template: '#= snplookup()#'
-                    }
-                    ],
-                    excel: {
-                        fileName: "SNP Report.xlsx",
-                        proxyURL: "/excel",
-                        filterable: true
-                    },
-
-                    dataSource: {
-                        dataType: "json",
-                        transport: {
-                            read: "/api/rsids"
-                        },
-                        sort: {
-                            field: "IsInteresting",
-                            dir: "desc"
-                        },
-                        schema: {
-                            data: function (response) {
-                                return response.results;
-                            }
-                        },
-                        pageSize: 50
-                    },
-                    columns: [
-                        { field: "Name", title: "Name" },
-                        { field: "Description", title: "Short Description" },
-                        { field: "StabilizedOrientation", title: "Stabilized Orientation", encoded: false },
-                        { field: "Genotype", title: "Individual Genotype", encoded: false },
-                        { field: "Variations", title: "Genotype variations", encoded: false },
-                        { field: "IsInteresting", title: "Interesting genotype" }
-                    ],
-                    height: '100%',
-                    filterable: true,
-                    sortable: true,
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [25, 50, 100, 250],
-                        buttonCount: 5
-                    },
-                    selectable: "row",
-                    allowCopy: true,
-                    reorderable: true,
-                    resizable: true,
-                });
-            });
-            function snplookup(e) {
-                return '<a class="k-button" href="#" id="lookupsnp" onclick="snpedia()">Lookup on SNPedia</a>';
-            };
-            function snpedia() {
-                var entityGrid = $("#grid").data("kendoGrid");
-                var rows = entityGrid.select();
-                var rsid = rows[0].cells[0].innerText
-
-                var html = "https://bots.snpedia.com/index.php/"
-                var link = html.concat(rsid)
-                window.open(link);
-            };
-        </script>
+          var html = "https://snpedia.com/index.php/";
+          var link = html.concat(rsid);
+          window.open(link);
+        }
+      </script>
     </div>
-
-</body>
+  </body>
 </html>

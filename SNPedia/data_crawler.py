@@ -15,6 +15,7 @@ class SNPCrawl:
         self.rsid_info = load_from_file(filename=rsid_file)
         self.personal_snps = load_from_file(filename=snp_file)
         self.rsid_list = []
+        self.enriched_snps = {}
 
         if self.personal_snps:
             self.init_crawl(self.personal_snps)
@@ -35,16 +36,18 @@ class SNPCrawl:
             count += 1
             if count > 0 and count % 10 == 0:
                 logger.info("%i out of %s completed" % (count, len(rsids)))
-                logger.info("Exporting intermediate results...")
-                self.export()
-                self.create_list()
             # add delay for snpedia crawling
+            # if count == 500:
+            #     break
             if (
                 delay_count > 0
                 and delay_count % 10 == 0
                 and delay_count != self.delay_count
             ):
                 self.delay_count = delay_count
+                logger.info("Exporting intermediate results...")
+                self.export()
+                self.create_list()
                 logger.info("Sleeping for 30 seconds...")
                 time.sleep(30)
         logger.info("Done")
@@ -126,7 +129,9 @@ class SNPCrawl:
             data.append([ele for ele in cols if ele])
         return data
 
-    def flip_alleles(self: Self, genotype: str, stabilized_orientation: str) -> dict:
+    def flip_alleles(
+        self: Self, rsid: str, genotype: str, stabilized_orientation: str
+    ) -> dict:
         if stabilized_orientation == "minus" and genotype != "":
             original_genotype = genotype
             modified_genotype = [None] * 2
@@ -148,8 +153,10 @@ class SNPCrawl:
             updated_genotype = "({};{})".format(
                 modified_genotype[0], modified_genotype[1]
             )
+            self.enriched_snps[rsid.lower()] = updated_genotype
             return {"genotype": updated_genotype, "flipped": True}
         else:
+            self.enriched_snps[rsid.lower()] = genotype
             return {"genotype": genotype, "flipped": False}
 
     def create_entry(
@@ -160,12 +167,15 @@ class SNPCrawl:
         stabilized_orientation: str,
         is_flipped: bool,
         is_interesting: bool,
+        is_abnormal: bool,
     ) -> dict:
         genotype = ""
-        if rsid.lower() in self.personal_snps.keys():
+        if rsid.lower() in self.enriched_snps.keys():
             genotype = self.personal_snps[rsid.lower()]
             if is_flipped:
-                genotype += "<br><i>flipped</i>"
+                genotype += "<br><i>flipped<br>{}</i>".format(
+                    self.enriched_snps[rsid.lower()]
+                )
         else:
             genotype = "(-;-)"
 
@@ -175,7 +185,8 @@ class SNPCrawl:
             "Genotype": str(genotype),
             "Variations": str.join("<br>", variations),
             "StabilizedOrientation": stabilized_orientation,
-            "IsInteresting": "★" if is_interesting else "",
+            "IsInteresting": "Yes" if is_interesting else "No",
+            "IsAbnormal": "Yes" if is_abnormal else "No",
         }
 
     def format_cell(
@@ -183,8 +194,8 @@ class SNPCrawl:
     ) -> str:
         genotype = variation[0]
         if (
-            rsid.lower() in self.personal_snps.keys()
-            and self.personal_snps[rsid.lower()] == genotype
+            rsid.lower() in self.enriched_snps.keys()
+            and self.enriched_snps[rsid.lower()] == genotype
             # and stabilized_orientation == "plus"
         ):
             return "<b>" + str.join(" ", variation) + "</b>"
@@ -197,16 +208,29 @@ class SNPCrawl:
 
         return False
 
+    def is_abnormal(self: Self, rsid: str, variation: list) -> bool:
+        if (
+            rsid.lower() in self.enriched_snps.keys()
+            and self.enriched_snps[rsid.lower()] == variation[0]
+            and len(variation) > 2
+            and not variation[2].startswith(("common", "normal", "average"))
+        ):
+            return True
+
+        return False
+
     def create_list(self: Self):
+        self.rsid_list = []
         messaged_once = False
         for rsid, values in self.rsid_info.items():
+            self.enriched_snps[rsid.lower()] = self.personal_snps[rsid.lower()]
             if "StabilizedOrientation" in values:
                 stbl_orient = values["StabilizedOrientation"]
                 flipped_data = self.flip_alleles(
+                    rsid=rsid.lower(),
                     genotype=self.personal_snps[rsid.lower()],
                     stabilized_orientation=stbl_orient,
                 )
-                self.personal_snps[rsid.lower()] = flipped_data["genotype"]
             else:
                 stbl_orient = "Old Data Format"
                 if not messaged_once:
@@ -217,9 +241,15 @@ class SNPCrawl:
                     messaged_once = True
 
             interesting_snp = False
+            abnormal_snp = False
             for variation in values["Variations"]:
                 if self.is_interesting(variation):
                     interesting_snp = True
+                    continue
+
+            for variation in values["Variations"]:
+                if self.is_abnormal(rsid, variation):
+                    abnormal_snp = True
                     continue
 
             variations = [
@@ -234,6 +264,7 @@ class SNPCrawl:
                 stbl_orient,
                 flipped_data["flipped"],
                 interesting_snp,
+                abnormal_snp,
             )
 
             self.rsid_list.append(maker)

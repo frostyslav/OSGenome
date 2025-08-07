@@ -54,6 +54,26 @@ def get_types():
     return jsonify({"results": results})
 
 
+@app.route("/api/statistics", methods=["GET"])
+def statistics():
+    total_entries = len(results)
+    interesting_entries = 0
+    uncommon_entries = 0
+    for entry in results:
+        if "IsInteresting" in entry and entry["IsInteresting"].lower() == "yes":
+            interesting_entries += 1
+        if "IsUncommon" in entry and entry["IsUncommon"].lower() == "yes":
+            uncommon_entries += 1
+
+    return jsonify(
+        {
+            "total": total_entries,
+            "interesting": interesting_entries,
+            "uncommon": uncommon_entries,
+        }
+    )
+
+
 if __name__ == "__main__":
     results = load_from_file("result_table.json")
     app.run(debug=False)

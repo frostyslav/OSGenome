@@ -94,7 +94,7 @@
                 read: "/api/rsids",
               },
               sort: {
-                field: "IsAbnormal",
+                field: "IsUncommon",
                 dir: "desc",
               },
               schema: {
@@ -102,7 +102,7 @@
                   return response.results;
                 },
               },
-              filter: { field: "IsAbnormal", operator: "eq", value: "Yes" },
+              filter: { field: "IsUncommon", operator: "eq", value: "Yes" },
               pageSize: 50,
               dataBound: function () {
                 for (var i = 0; i < this.columns.length; i++) {
@@ -123,8 +123,8 @@
                 filterable: { multi: true, ignoreCase: true },
               },
               {
-                field: "IsAbnormal",
-                title: "Abnormal genotype",
+                field: "IsUncommon",
+                title: "Uncommon genotype",
                 hidden: true,
                 filterable: { multi: true, ignoreCase: true },
               },

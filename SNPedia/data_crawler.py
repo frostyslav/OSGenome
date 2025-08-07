@@ -16,6 +16,16 @@ class SNPCrawl:
         self.personal_snps = load_from_file(filename=snp_file)
         self.rsid_list = []
         self.enriched_snps = {}
+        self.common_words = [
+            "common",
+            "very common",
+            "most common",
+            "normal",
+            "average",
+            "miscall in ancestry",
+            "ancestry miscall",
+            "miscall by ancestry",
+        ]
 
         if self.personal_snps:
             self.init_crawl(self.personal_snps)
@@ -48,8 +58,8 @@ class SNPCrawl:
                 logger.info("Exporting intermediate results...")
                 self.export()
                 self.create_list()
-                logger.info("Sleeping for 30 seconds...")
-                time.sleep(30)
+                logger.info("Sleeping for 15 seconds...")
+                time.sleep(15)
         logger.info("Done")
 
     def grab_table(self: Self, rsid: str):  # noqa C901
@@ -167,7 +177,7 @@ class SNPCrawl:
         stabilized_orientation: str,
         is_flipped: bool,
         is_interesting: bool,
-        is_abnormal: bool,
+        is_uncommon: bool,
     ) -> dict:
         genotype = ""
         if rsid.lower() in self.enriched_snps.keys():
@@ -186,7 +196,7 @@ class SNPCrawl:
             "Variations": str.join("<br>", variations),
             "StabilizedOrientation": stabilized_orientation,
             "IsInteresting": "Yes" if is_interesting else "No",
-            "IsAbnormal": "Yes" if is_abnormal else "No",
+            "IsUncommon": "Yes" if is_uncommon else "No",
         }
 
     def format_cell(
@@ -203,17 +213,20 @@ class SNPCrawl:
             return str.join(" ", variation)
 
     def is_interesting(self: Self, variation: list) -> bool:
-        if len(variation) > 2 and not variation[2].startswith("common"):
+        if len(variation) > 2 and not variation[2].lower().startswith(
+            tuple(self.common_words)
+        ):
             return True
 
         return False
 
-    def is_abnormal(self: Self, rsid: str, variation: list) -> bool:
+    def is_uncommon(self: Self, rsid: str, variation: list) -> bool:
         if (
             rsid.lower() in self.enriched_snps.keys()
             and self.enriched_snps[rsid.lower()] == variation[0]
             and len(variation) > 2
-            and not variation[2].startswith(("common", "normal", "average"))
+            and not variation[2].lower().startswith(tuple(self.common_words))
+            and "common in clinvar" not in variation[2].lower()
         ):
             return True
 
@@ -241,15 +254,15 @@ class SNPCrawl:
                     messaged_once = True
 
             interesting_snp = False
-            abnormal_snp = False
             for variation in values["Variations"]:
                 if self.is_interesting(variation):
                     interesting_snp = True
                     continue
 
+            uncommon_snp = False
             for variation in values["Variations"]:
-                if self.is_abnormal(rsid, variation):
-                    abnormal_snp = True
+                if self.is_uncommon(rsid, variation):
+                    uncommon_snp = True
                     continue
 
             variations = [
@@ -264,7 +277,7 @@ class SNPCrawl:
                 stbl_orient,
                 flipped_data["flipped"],
                 interesting_snp,
-                abnormal_snp,
+                uncommon_snp,
             )
 
             self.rsid_list.append(maker)

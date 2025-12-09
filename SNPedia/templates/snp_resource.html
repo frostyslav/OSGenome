@@ -3,6 +3,9 @@
   <head>
     <title>OSGenome - SNP Analysis</title>
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <!-- Tabulator CSS - Basic theme -->
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
     
@@ -19,10 +22,16 @@
   <body>
     <div class="container">
       <div class="toolbar">
-        <button onclick="exportToExcel()">Export to Excel</button>
-        <button onclick="lookupSNPedia()">Lookup on SNPedia</button>
+        <button onclick="exportToExcel()" title="Export to Excel (Ctrl+E)">
+          <i class="fas fa-file-excel"></i> Export to Excel
+        </button>
+        <button onclick="lookupSNPedia()" title="Lookup on SNPedia (Ctrl+L)">
+          <i class="fas fa-search"></i> Lookup on SNPedia
+        </button>
         <div class="column-menu">
-          <button onclick="toggleColumnMenu()">Show/Hide Columns</button>
+          <button onclick="toggleColumnMenu()" title="Show/Hide Columns (Ctrl+K)">
+            <i class="fas fa-columns"></i> Show/Hide Columns
+          </button>
           <div id="columnMenu" class="column-menu-content">
             <label><input type="checkbox" data-column="Name" checked> Name</label>
             <label><input type="checkbox" data-column="Description" checked> Short Description</label>
@@ -33,8 +42,123 @@
             <label><input type="checkbox" data-column="IsUncommon"> Uncommon genotype</label>
           </div>
         </div>
+        <button onclick="reloadData()" title="Reload Data (Ctrl+R)">
+          <i class="fas fa-sync-alt"></i> Reload
+        </button>
+        <button onclick="showKeyboardShortcuts()" class="help-btn" title="Keyboard Shortcuts (Ctrl+/)">
+          <i class="fas fa-keyboard"></i> Shortcuts
+        </button>
       </div>
       <div id="grid"></div>
+      <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcutsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h2>
+          <button class="modal-close" onclick="hideKeyboardShortcuts()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="shortcuts-list">
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">E</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-file-excel shortcut-icon"></i>
+              Export table to Excel
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">L</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-search shortcut-icon"></i>
+              Lookup selected SNP on SNPedia
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">F</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-filter shortcut-icon"></i>
+              Focus search/filter field
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">K</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-columns shortcut-icon"></i>
+              Toggle column visibility menu
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">R</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-sync-alt shortcut-icon"></i>
+              Reload data from server
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">/</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-question-circle shortcut-icon"></i>
+              Show this help dialog
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Escape</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-times-circle shortcut-icon"></i>
+              Clear selection and close menus
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key"><i class="fas fa-arrow-up"></i></span>
+              <span class="key"><i class="fas fa-arrow-down"></i></span>
+              <span class="key"><i class="fas fa-arrow-left"></i></span>
+              <span class="key"><i class="fas fa-arrow-right"></i></span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-arrows-alt shortcut-icon"></i>
+              Navigate table rows and cells
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Enter</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-check-circle shortcut-icon"></i>
+              Select focused row
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <i class="fab fa-apple"></i> On Mac, use <strong>Cmd</strong> instead of <strong>Ctrl</strong>
+        </div>
+      </div>
     </div>
 
     <!-- Custom JavaScript -->

@@ -101,6 +101,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Table initialized');
     
+    // Show loading spinner
+    const spinner = document.getElementById('loadingSpinner');
+    spinner.classList.remove('hidden');
+    
     // Load data
     fetch('/api/rsids')
       .then(response => {
@@ -109,6 +113,9 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(data => {
         console.log('Data received:', data.results ? data.results.length + ' rows' : 'no results');
+        // Hide loading spinner
+        spinner.classList.add('hidden');
+        
         if (data.results && data.results.length > 0) {
           table.setData(data.results);
           console.log('Data loaded into table');
@@ -150,6 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       })
       .catch(error => {
+        // Hide loading spinner on error
+        spinner.classList.add('hidden');
         console.error('Error loading data:', error);
         alert('Error loading data: ' + error.message);
       });
@@ -189,6 +198,128 @@ function lookupSNPedia() {
   const url = 'https://snpedia.com/index.php/' + rsid;
   window.open(url, '_blank');
 }
+
+// Show keyboard shortcuts help
+function showKeyboardShortcuts() {
+  const modal = document.getElementById('shortcutsModal');
+  modal.classList.add('show');
+}
+
+// Hide keyboard shortcuts modal
+function hideKeyboardShortcuts() {
+  const modal = document.getElementById('shortcutsModal');
+  modal.classList.remove('show');
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+  const modal = document.getElementById('shortcutsModal');
+  if (e.target === modal) {
+    hideKeyboardShortcuts();
+  }
+});
+
+// Reload table data
+function reloadData() {
+  if (!table) return;
+  
+  const spinner = document.getElementById('loadingSpinner');
+  spinner.classList.remove('hidden');
+  
+  fetch('/api/rsids')
+    .then(response => response.json())
+    .then(data => {
+      spinner.classList.add('hidden');
+      if (data.results && data.results.length > 0) {
+        table.setData(data.results);
+        console.log('Data reloaded');
+      }
+    })
+    .catch(error => {
+      spinner.classList.add('hidden');
+      console.error('Error reloading data:', error);
+      alert('Error reloading data: ' + error.message);
+    });
+}
+
+// Focus first header filter input
+function focusSearch() {
+  const firstFilter = document.querySelector('.tabulator-header-filter input');
+  if (firstFilter) {
+    firstFilter.focus();
+  }
+}
+
+// Clear selection and close menus
+function clearSelectionAndMenus() {
+  if (table) {
+    table.deselectRow();
+  }
+  
+  const menu = document.getElementById('columnMenu');
+  if (menu && menu.classList.contains('show')) {
+    menu.classList.remove('show');
+  }
+}
+
+// Keyboard shortcuts handler
+document.addEventListener('keydown', function(e) {
+  // Check for Ctrl (Windows/Linux) or Cmd (Mac)
+  const modifier = e.ctrlKey || e.metaKey;
+  
+  // Ctrl/Cmd + E: Export to Excel
+  if (modifier && e.key === 'e') {
+    e.preventDefault();
+    exportToExcel();
+    return;
+  }
+  
+  // Ctrl/Cmd + L: Lookup on SNPedia
+  if (modifier && e.key === 'l') {
+    e.preventDefault();
+    lookupSNPedia();
+    return;
+  }
+  
+  // Ctrl/Cmd + F: Focus search
+  if (modifier && e.key === 'f') {
+    e.preventDefault();
+    focusSearch();
+    return;
+  }
+  
+  // Ctrl/Cmd + K: Toggle column menu
+  if (modifier && e.key === 'k') {
+    e.preventDefault();
+    toggleColumnMenu();
+    return;
+  }
+  
+  // Ctrl/Cmd + R: Reload data
+  if (modifier && e.key === 'r') {
+    e.preventDefault();
+    reloadData();
+    return;
+  }
+  
+  // Ctrl/Cmd + /: Show keyboard shortcuts
+  if (modifier && e.key === '/') {
+    e.preventDefault();
+    showKeyboardShortcuts();
+    return;
+  }
+  
+  // Escape: Clear selection and close menus/modals
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('shortcutsModal');
+    if (modal && modal.classList.contains('show')) {
+      hideKeyboardShortcuts();
+    } else {
+      clearSelectionAndMenus();
+    }
+    return;
+  }
+});
 
 // Toggle column visibility menu
 function toggleColumnMenu() {

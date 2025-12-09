@@ -86,6 +86,21 @@ At current, if you cross reference an Ancestry report with SNPedia, it will have
 ## What are some additional features?
 OS Genome also has Excel Exporting, SNPedia Lookup, and filtering. SNPedia Lookup works by selecting the row you're interested in looking into and pressing the Lookup on SNPedia button. It will open up a new window with the details of the SNP.
 
+### Keyboard Shortcuts ⌨️
+OSGenome includes keyboard shortcuts for faster navigation and actions:
+
+- **Ctrl/Cmd + E** - Export to Excel
+- **Ctrl/Cmd + L** - Lookup selected SNP on SNPedia
+- **Ctrl/Cmd + F** - Focus search/filter
+- **Ctrl/Cmd + K** - Toggle column visibility menu
+- **Ctrl/Cmd + R** - Reload data
+- **Ctrl/Cmd + /** - Show keyboard shortcuts help
+- **Escape** - Clear selection and close menus
+- **Arrow Keys** - Navigate table rows
+- **Enter** - Select focused row
+
+Click the "Shortcuts" button in the toolbar or press Ctrl+/ to view all available shortcuts. See [KEYBOARD_SHORTCUTS.md](KEYBOARD_SHORTCUTS.md) for detailed usage guide.
+
 ## Contributions
 There have been three contributions so far.
 - Daniel McNally [@sangaman](https://github.com/sangaman) | Python 3.10 Compatability through dependencies and ReadMe improvements

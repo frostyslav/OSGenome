@@ -9,11 +9,11 @@ LABEL org.opencontainers.image.licenses="GNU General Public License v3.0"
 
 WORKDIR /app
 
-COPY --link SNPedia ./
 COPY --link requirements.txt ./
-
 RUN pip install -r requirements.txt
+
+COPY --link SNPedia ./SNPedia
 
 EXPOSE 8080
 
-ENTRYPOINT ["gunicorn", "--config", "gunicorn_config.py", "app:app"]
+ENTRYPOINT ["gunicorn", "--config", "SNPedia/gunicorn_config.py", "SNPedia.app:app"]

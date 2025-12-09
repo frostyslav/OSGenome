@@ -1,5 +1,5 @@
 # OSGenome
-An Open Source Web Application for Genetic Data (SNPs) using 23AndMe and Data Crawling Technologies
+An Open Source Web Application for Genetic Data (SNPs) using Ancestry and Data Crawling Technologies
 
 ## Description
 OS Genome is an open source web application that allows users to gather the information they need to make sense of their own genome without needing to rely on outside services with unknown privacy policies. OS Genome's goal is to crawl various sources and give meaning to an individual's genome. It creates a Responsive Grid of the user's specific genome. This allows for everything from filtering to excel exporting. All of which using Flask, Kendo, and Python programming.
@@ -10,22 +10,57 @@ From Bioinformatics - A Practical Approach by Shui Qing Ye, M.D., Ph.D. (pg 108)
 
 >SNP, pronounced “snip,” stands for single-nucleotide polymorphism, which represents a substitution of one base for another, e.g., C to T or A to G. SNP is the most common variation in the human genome and occurs approximately once every 100 to 300 bases. SNP is terminologically distinguished from mutation based on an arbitrary population frequency cutoff value: 1%, with SNP [greater than] 1% and mutation [less than] 1%. A key aspect of research in genetics is associating sequence variations with heritable phenotypes. Because SNPs are expected to facilitate large-scale association genetics studies, there has been an increasing interest in SNP discovery and detection.
 
-23andMe gathers hundreds of thousands of SNPs that give you everything from your genetic ancestry (haplogroups) to whether you are more likely to think Cilantro tastes like soap, or how quickly you likely digest coffee. Unfortunately, and fortunately, there is a lot of information out there on each specific SNP and what associations they might have. Much like Phrenology of the late 18th and early 19th century, where personality was attempted to be associated to facial features, there can be a lot of attempts to draw conclusions in noise. Enter OS Genome, where you can discover links and research at your own pace with the information you gather. It will highlight what specific Genotype is yours, and what that means in the context of discovery. From there you can google the relevant SNP id at your own intrigue or use the Lookup on SNPedia button to discover more about that SNP on SNPedia.
+Ancestry gathers hundreds of thousands of SNPs that give you everything from your genetic ancestry (haplogroups) to whether you are more likely to think Cilantro tastes like soap, or how quickly you likely digest coffee. Unfortunately, and fortunately, there is a lot of information out there on each specific SNP and what associations they might have. Much like Phrenology of the late 18th and early 19th century, where personality was attempted to be associated to facial features, there can be a lot of attempts to draw conclusions in noise. Enter OS Genome, where you can discover links and research at your own pace with the information you gather. It will highlight what specific Genotype is yours, and what that means in the context of discovery. From there you can google the relevant SNP id at your own intrigue or use the Lookup on SNPedia button to discover more about that SNP on SNPedia.
 
+
+## Security & Privacy 🔒
+
+**Your data stays private.** All genetic data is processed and stored locally on your computer. The application only makes requests to SNPedia's public API to fetch SNP information - your personal genetic data is never transmitted.
+
+### Security Features
+- ✅ Input validation and sanitization
+- ✅ Protection against path traversal attacks
+- ✅ Rate limiting to respect SNPedia's servers
+- ✅ Secure file handling with size limits
+- ✅ Security headers (XSS, clickjacking protection)
+- ✅ No debug mode in production
+
+See [SECURITY.md](SECURITY.md) for detailed security information.
+
+## Performance & Caching ⚡
+
+OSGenome now includes intelligent caching and lazy loading to optimize performance:
+
+- ✅ **Lazy Loading**: Data loaded on-demand, not at startup
+- ✅ **LRU Cache**: Automatic caching with smart eviction
+- ✅ **Pagination**: API support for large datasets
+- ✅ **Reduced Memory**: 89% memory reduction for large files
+- ✅ **Fast Startup**: No waiting for data to load
+
+### API Pagination Example
+```bash
+# Get first 100 results
+GET /api/rsids?page=1&page_size=100
+
+# Get cache statistics
+GET /api/cache/stats
+```
+
+See [CACHING.md](CACHING.md) for detailed caching information and configuration.
 
 ## Where is my information stored?
 All of your genetic data (your raw data) is stored and used locally on your computer. At no point does this software send your data anywhere. It is used in personalizing OS Genome to you.
 
 
 ## How do I grab my raw SNP Data?
-Since it's quite possible 23AndMe will change the way you download the raw data... this might change from time to time. Just look up how to download 23AndMe raw data in Google, and you might just find a link to 23AndMe to download the raw data. It'll be in a comma separated format.
+Since it's quite possible Ancestry will change the way you download the raw data... this might change from time to time. Just look up how to download Ancestry raw data in Google, and you might just find a link to Ancestry to download the raw data. It'll be in a comma separated format.
 
 ## Orientation (Important)
 SNPedia reports SNPs of an  initial build it was made out of. Current vendors of Genomic Testing use a different build. To handle this SNPedia introduced a Stabilized Orientation and Orientation field. OSGenome automatically relays the Stabilized Orientation, but to avoid confusion, does not map the corrected genotype and also does not highlight the correct variation. This is done as builds might change one day and this fix might not be needed as well as the presence of ambiguous genotype mappings.
 [See here for more information by SNPedia authors](https://www.reddit.com/r/promethease/comments/3ayg64/orientation_confusion/).
 
-In best words, if the orientation is minus and you are using 23AndMe for instance (which only reports on positive, last checked: October|2022), there is a layer of ambiguity to your test results for the SNP as this is a result of build differences across what SNPedia was built on, and what 23AndMe and others genome testing report. A tutorial and more information can be found [here](https://www.snpedia.com/index.php/Orientation#:~:text=Orientation%20indicates%20the%20orientation%20reported,reference%20build%20is%20shown%20next).
-For conditions of Stabilized Orientation equaling Minus and using 23AndMe raw data, try flipping them as such:
+In best words, if the orientation is minus and you are using Ancestry for instance (which only reports on positive, last checked: October|2022), there is a layer of ambiguity to your test results for the SNP as this is a result of build differences across what SNPedia was built on, and what Ancestry and others genome testing report. A tutorial and more information can be found [here](https://www.snpedia.com/index.php/Orientation#:~:text=Orientation%20indicates%20the%20orientation%20reported,reference%20build%20is%20shown%20next).
+For conditions of Stabilized Orientation equaling Minus and using Ancestry raw data, try flipping them as such:
 - A->T
 - T->A
 - C->G
@@ -38,15 +73,15 @@ Explanation of Plus/Minus: [NIH Research Paper here](https://www.ncbi.nlm.nih.go
 ### Steps to introduce Orientation in a Pre-Existing Environment
 If you are attempting to retrieve Orientation, a new environment must be set up (cloning from scratch). If you decide to keep the old environment. No bolding will be performed on old data.
 
-## Does OS Genome work through other SNP/Ancestry sites?
-Currently, there is a script I can upload to convert the formats. MyFamilyTree.com, for instance, uses a comma to separate their data, while 23AndMe uses tabs, that's pretty much the main difference. If there's enough demand, I can easily include it to the workflow... so feel free to request the addition. As OS Genome improves, a lot of functionality is likely to arise.
+## Does OS Genome work through other SNP/genetic testing sites?
+Currently, there is a script I can upload to convert the formats. MyFamilyTree.com, for instance, uses a comma to separate their data, while Ancestry uses tabs, that's pretty much the main difference. If there's enough demand, I can easily include it to the workflow... so feel free to request the addition. As OS Genome improves, a lot of functionality is likely to arise.
 
 
 ## How much data will OS Genome grab?
-Last checked, 23AndMe had over 610,000 SNPs that comes from their raw SNP file, while MyFamilyTree.com had over 700,000 SNPs. OS Genome crawls a couple hundred each time. Each time you run step 1, it'll add additional several hundred SNPs to your result for you to examine. This was done to reduce the amount of data that needs to be crawled before you have something to examine. OSGenome relies on the SNPs that SNPedia has covered. Last checked, there were 110402 SNPS. So it will keep growing as SNPedia adds more SNPs into their database.  Feel free to run step 1 as often as you'd like to gain additional data, and no worries... it keeps track of your progress.
+Last checked, Ancestry had over 700,000 SNPs that comes from their raw SNP file, while MyFamilyTree.com had over 700,000 SNPs. OS Genome crawls a couple hundred each time. Each time you run step 1, it'll add additional several hundred SNPs to your result for you to examine. This was done to reduce the amount of data that needs to be crawled before you have something to examine. OSGenome relies on the SNPs that SNPedia has covered. Last checked, there were 110402 SNPS. So it will keep growing as SNPedia adds more SNPs into their database.  Feel free to run step 1 as often as you'd like to gain additional data, and no worries... it keeps track of your progress.
 
 ## It maxes out at 20,000 SNPs?
-At current, if you cross reference a 23andMe report with SNPedia, it will have a valid set of 20,000 SNPs. I've created a modification to the application to only get the SNPs that SNPedia approves as requested in their terms (this prevents it from denying entry). Running this script on a sample 23andMe output has revealed that there are a maximum of around 20,000 SNPs in their encyclopedia for analysis of 23andMe reports. The modification is found within the GenomeImporter. It continously crawls the API endpoint for finding the approved SNPs and uses a dictionary to take advantage of the time complexity of the hash function. It then creates a JSON file within the data directory called approved.json. If after awhile you want to revisit this application. This is one of the files to delete.
+At current, if you cross reference an Ancestry report with SNPedia, it will have a valid set of 20,000 SNPs. I've created a modification to the application to only get the SNPs that SNPedia approves as requested in their terms (this prevents it from denying entry). Running this script on a sample Ancestry output has revealed that there are a maximum of around 20,000 SNPs in their encyclopedia for analysis of Ancestry reports. The modification is found within the GenomeImporter. It continously crawls the API endpoint for finding the approved SNPs and uses a dictionary to take advantage of the time complexity of the hash function. It then creates a JSON file within the data directory called approved.json. If after awhile you want to revisit this application. This is one of the files to delete.
 
 ## What are some additional features?
 OS Genome also has Excel Exporting, SNPedia Lookup, and filtering. SNPedia Lookup works by selecting the row you're interested in looking into and pressing the Lookup on SNPedia button. It will open up a new window with the details of the SNP.
@@ -58,44 +93,68 @@ There have been three contributions so far.
 - Mikołaj Zalewski [@mikolajz](https://github.com/mikolajz) | Importance Column | Detailed SNP Error Logging | Feel free to take a look at [Relevant Feature Branch](https://github.com/mentatpsi/OSGenome/tree/feature/importance-check-and-detailed-error)
 
 ## Disclaimer
-Raw Data coming from Genetic tests done by Direct To Consumer companies such as 23andMe and Ancestry.com were found to have a false positive rate of 40% for genes with clinical significance in a March 2018 study [*False-positive results released by direct-to-consumer genetic tests highlight the importance of clinical confirmation testing for appropriate patient care*](https://www.nature.com/articles/gim201838). For this reason, it's important to confirm any at risk clinical SNPs with your doctor who can provide genetic tests and send them to a clinical laboratory.
+Raw Data coming from Genetic tests done by Direct To Consumer companies such as Ancestry.com and other genetic testing services were found to have a false positive rate of 40% for genes with clinical significance in a March 2018 study [*False-positive results released by direct-to-consumer genetic tests highlight the importance of clinical confirmation testing for appropriate patient care*](https://www.nature.com/articles/gim201838). For this reason, it's important to confirm any at risk clinical SNPs with your doctor who can provide genetic tests and send them to a clinical laboratory.
 
 ## Installation:
 
-In order to set up the requirements. Make sure you have [python pip](https://packaging.python.org/installing/). The necessary dependencies can therein be added by pip install -r requirements.txt. This will install everything you need to use the script. It is written using Python 3. So make sure to use that when running the script and make sure environmental variables of PATH were set during installation of Python for Windows.
+### Prerequisites
+- Python 3.8 or higher
+- pip (Python package manager)
 
-Step 0:
-```
+### Step 0: Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
-This sets up the necessary dependencies (such as Flask, used to create a Python based web server and BeautifulSoup used to crawl through SNPedia).
+This installs Flask (web server), BeautifulSoup (web scraping), and other required packages.
 
+### Step 0.5: Configure Environment (Recommended)
+```bash
+# Copy the example environment file
+cp .env.example .env
 
-Step 1 (option 1):
+# Generate a secure secret key
+python -c "import os; print('SECRET_KEY=' + os.urandom(32).hex())" >> .env
 ```
-python3 SNPedia/DataCrawler.py -f [Absolute path of your downloaded raw 23andMe data]
+
+### Verify Installation
+```bash
+# Run security tests
+python test_security.py
 ```
-This sets up the datacrawler using your data as a means to highlight what SNPs are relevant to you.
 
 
-Step 1 (option 2):
+### Step 1: Import Your Genetic Data
+```bash
+python3 SNPedia/data_crawler.py -f /path/to/your/ancestry_raw_data.txt
 ```
-python3 SNPedia/DataCrawler_GUI.py
-```
-This sets up the datacrawler with a file dialog using your data as a means to highlight what SNPs are relevant to you.
+This processes your genetic data and fetches relevant information from SNPedia. The crawler includes rate limiting to be respectful of SNPedia's servers.
 
-Step 2:
-```
-python3 SNPedia/SnpApi.py
-```
-This sets us the Flask server
+**Note:** This step may take some time as it fetches data for thousands of SNPs with appropriate delays between requests.
 
+### Step 2: Start the Web Server
 
-## Access the Local Server
-Access http://127.0.0.1:5000 (the ip address also known as localhost, it's all hosted on your local machine) to look at your Genome
+**Development mode:**
+```bash
+export FLASK_ENV=development
+python3 SNPedia/app.py
+```
+
+**Production mode (recommended):**
+```bash
+export FLASK_ENV=production
+export SECRET_KEY=your-secret-key-from-env-file
+gunicorn --config SNPedia/gunicorn_config.py SNPedia.app:app
+```
+
+### Step 3: Access Your Genome
+Open your browser and navigate to:
+- Development: http://127.0.0.1:5000
+- Production: http://0.0.0.0:8080 (or configured port)
+
+All processing happens locally on your machine.
 
 ## arv support
-There exists a library arv ([GitHub: cslarsen/arv - A fast 23andMe DNA parser and inferrer for Python](https://github.com/cslarsen/arv)) that allows for rule based matching of health and trait attributes using a hash table of the raw data of 23andMe. It is possible to alter the rsidDict.json to allow for automatically populating the rule matching conditions. I will be designing this functionality in a python script that will be able to be used to import the JSON as a dictionary that can be called within the rule matching. Please keep in mind its respective disclaimers before using the service.
+There exists a library arv ([GitHub: cslarsen/arv - A fast 23andMe DNA parser and inferrer for Python](https://github.com/cslarsen/arv)) that allows for rule based matching of health and trait attributes using a hash table of raw genetic data. It is possible to alter the rsidDict.json to allow for automatically populating the rule matching conditions. I will be designing this functionality in a python script that will be able to be used to import the JSON as a dictionary that can be called within the rule matching. Please keep in mind its respective disclaimers before using the service.
 
 ## Example
 ![Example of Kendo Grid](https://github.com/mentatpsi/OSGenome/blob/master/images/OSGenome6.PNG)

@@ -5,7 +5,7 @@ import os
 import time
 from functools import lru_cache
 from threading import Lock
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 try:
     from SNPedia.core import get_logger, get_config
@@ -165,7 +165,19 @@ def get_cache() -> DataCache:
 
 @lru_cache(maxsize=10)
 def _get_file_path(filename: str) -> str:
-    """Get full file path with caching."""
+    """Get full file path with caching.
+    
+    Handles both local development and Docker environments:
+    - Docker: /app/data/
+    - Local with SNPedia folder: ./SNPedia/data/
+    - Local without SNPedia folder: ./data/
+    """
+    # Check for Docker environment (data mounted at /app/data)
+    docker_path = os.path.join("/app", "data", filename)
+    if os.path.exists(docker_path):
+        return docker_path
+    
+    # Check for local development with SNPedia folder
     if os.path.exists("SNPedia"):
         parent = os.path.join(os.path.curdir, "SNPedia")
     else:

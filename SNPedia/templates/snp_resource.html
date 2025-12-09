@@ -1,169 +1,43 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <style>
-      html {
-        font-size: 14px;
-        font-family: Arial, Helvetica, sans-serif;
-      }
-    </style>
-    <title></title>
-    <link
-      rel="stylesheet"
-      href="css/kendo.common-material.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="css/kendo.material.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="css/kendo.material.mobile.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="css/kendo-font-icons.css"
-    />
-
-    <script src="js/jszip.min.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/kendo.all.min.js"></script>
-    <style>
-      html,
-      body,
-      .grid,
-      #grid {
-        margin: 0;
-        padding: 0;
-        border-width: 0;
-        height: 100%;
-      }
-    </style>
+    <title>OSGenome - SNP Analysis</title>
+    
+    <!-- Tabulator CSS - Basic theme -->
+    <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="css/app.css" rel="stylesheet">
+    
+    <!-- Tabulator JavaScript -->
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
+    
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   </head>
 
   <body>
-    <!-- <div class="image"></div> -->
-    <div class="grid">
+    <div class="container">
+      <div class="toolbar">
+        <button onclick="exportToExcel()">Export to Excel</button>
+        <button onclick="lookupSNPedia()">Lookup on SNPedia</button>
+        <div class="column-menu">
+          <button onclick="toggleColumnMenu()">Show/Hide Columns</button>
+          <div id="columnMenu" class="column-menu-content">
+            <label><input type="checkbox" data-column="Name" checked> Name</label>
+            <label><input type="checkbox" data-column="Description" checked> Short Description</label>
+            <label><input type="checkbox" data-column="StabilizedOrientation"> Stabilized Orientation</label>
+            <label><input type="checkbox" data-column="Genotype"> Individual Genotype</label>
+            <label><input type="checkbox" data-column="Variations" checked> Genotype variations</label>
+            <label><input type="checkbox" data-column="IsInteresting"> Interesting genotype</label>
+            <label><input type="checkbox" data-column="IsUncommon"> Uncommon genotype</label>
+          </div>
+        </div>
+      </div>
       <div id="grid"></div>
-      <script>
-        function exportExcel() {
-          return '<a class="k-button" href="#" id="selectallelements" onclick="exportToExcel()">Export to Excel</a>';
-        }
-
-        function exportToExcel() {
-          var grid1 = $("#grid").data("kendoGrid");
-          oldPageSize = grid1.dataSource.pageSize();
-          grid1.dataSource.pageSize(grid1.dataSource.data().length);
-          grid1.saveAsExcel();
-        }
-
-        $(window).resize(function () {
-          var gridElement = $("#grid"),
-            dataArea = gridElement.find(".k-grid-content"),
-            gridHeight = gridElement.innerHeight(),
-            otherElements = gridElement.children().not(".k-grid-content"),
-            otherElementsHeight = 0;
-          otherElements.each(function () {
-            otherElementsHeight += $(this).outerHeight();
-          });
-          console.log("resizing to", gridHeight - otherElementsHeight);
-          dataArea.height(gridHeight - otherElementsHeight);
-        });
-
-        $(document).ready(function () {
-          $("#grid").kendoGrid({
-            toolbar: [
-              {
-                name: "exportExcel1",
-                template: "#= exportExcel()#",
-              },
-              {
-                name: "lookupsnp",
-                template: "#= snplookup()#",
-              },
-            ],
-            excel: {
-              fileName: "SNP Report.xlsx",
-              proxyURL: "/excel",
-              filterable: true,
-            },
-
-            dataSource: {
-              dataType: "json",
-              transport: {
-                read: "/api/rsids",
-              },
-              sort: {
-                field: "IsUncommon",
-                dir: "desc",
-              },
-              schema: {
-                data: function (response) {
-                  return response.results;
-                },
-              },
-              filter: { field: "IsUncommon", operator: "eq", value: "Yes" },
-              pageSize: 50,
-              dataBound: function () {
-                for (var i = 0; i < this.columns.length; i++) {
-                  this.autoFitColumn(i);
-                }
-              },
-            },
-            columns: [
-              { field: "Name", title: "Name", hidden: true },
-              { field: "Description", title: "Short Description" },
-              { field: "StabilizedOrientation", title: "Stabilized Orientation", encoded: false, hidden: true },
-              { field: "Genotype", title: "Individual Genotype", encoded: false, hidden: true },
-              { field: "Variations", title: "Genotype variations", encoded: false },
-              {
-                field: "IsInteresting",
-                title: "Interesting genotype",
-                hidden: true,
-                filterable: { multi: true, ignoreCase: true },
-              },
-              {
-                field: "IsUncommon",
-                title: "Uncommon genotype",
-                hidden: true,
-                filterable: { multi: true, ignoreCase: true },
-              },
-            ],
-            columnMenu: {
-              autoSize: true,
-              componentType: "tabbed",
-              adaptiveMode: "auto",
-              sortable: false,
-            },
-
-            height: "100%",
-            filterable: true,
-            sortable: true,
-            pageable: {
-              refresh: true,
-              adaptiveMode: "auto",
-              pageSizes: [25, 50, 100, 250],
-              buttonCount: 5,
-            },
-            selectable: "row",
-            allowCopy: true,
-            reorderable: true,
-            resizable: true,
-          });
-        });
-        function snplookup(e) {
-          return '<a class="k-button" href="#" id="lookupsnp" onclick="snpedia()">Lookup on SNPedia</a>';
-        }
-        function snpedia() {
-          var entityGrid = $("#grid").data("kendoGrid");
-          var rows = entityGrid.select();
-          var rsid = rows[0].cells[0].innerText;
-
-          var html = "https://snpedia.com/index.php/";
-          var link = html.concat(rsid);
-          window.open(link);
-        }
-      </script>
     </div>
+
+    <!-- Custom JavaScript -->
+    <script src="js/app.js"></script>
   </body>
 </html>

@@ -142,9 +142,8 @@ Contains screenshots and visual documentation:
 - **Python 3.8+** - Programming language
 
 ### Frontend
-- **Kendo UI** - Grid component for data display
-- **jQuery** - JavaScript utilities
-- **JSZip** - Excel export functionality
+- **Tabulator** - Grid component for data display with filtering, sorting, and Excel export
+- **SheetJS** - Excel file generation library
 
 ### Development Tools
 - **Flake8** - Python linting
@@ -165,7 +164,7 @@ Contains screenshots and visual documentation:
 
 3. **Display Phase** (`app.py`)
    - Flask serves the web interface
-   - Kendo Grid displays genetic data
+   - Tabulator displays genetic data
    - Users can filter, export, and lookup SNPs
 
 ## Security Architecture

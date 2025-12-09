@@ -115,7 +115,7 @@ If you discover a security vulnerability:
 1. **In-memory rate limiting**: Resets on restart (consider Redis for production)
 2. **No authentication**: Assumes single-user local deployment
 3. **No database encryption**: Data stored as JSON files
-4. **CSP allows unsafe-inline**: Required for Kendo UI (consider refactoring)
+4. **CSP allows unsafe-inline**: Required for inline scripts (consider refactoring to external JS file)
 
 ## Updates
 

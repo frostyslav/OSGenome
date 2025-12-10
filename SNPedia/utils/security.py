@@ -6,15 +6,7 @@ from typing import Optional
 from werkzeug.utils import secure_filename as werkzeug_secure_filename
 
 # Import from parent package
-try:
-    from SNPedia.core import ValidationError
-except ImportError:
-    # Fallback for direct execution
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from core import ValidationError
+from SNPedia.core.exceptions import ValidationError
 
 
 def secure_filename_wrapper(filename: str) -> str:

@@ -2,7 +2,7 @@
 
 import json
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -164,13 +164,14 @@ class ImportService:
 
         return snps
 
-    def _get_known_rsids(self) -> list:
+    def _get_known_rsids(self) -> List[Any]:
         """Get known RSIDs from SNPedia or cached file."""
         # Try to load from existing file first
         if os.path.exists("SNPedia/data/snpedia_snps.json"):
             try:
                 with open("SNPedia/data/snpedia_snps.json") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    return data if isinstance(data, list) else []
             except Exception as e:
                 logger.warning(f"Error loading cached SNPedia RSIDs: {e}")
 
@@ -178,13 +179,13 @@ class ImportService:
         logger.info("Fetching known SNPs from SNPedia API...")
         return self._fetch_snpedia_rsids()
 
-    def _fetch_snpedia_rsids(self) -> list:
+    def _fetch_snpedia_rsids(self) -> List[Any]:
         """Fetch known RSIDs from SNPedia API."""
         known_rsids = []
         category_member_limit = 500
         snpedia_initial_url = f"{self.config.SNPEDIA_API_URL}?action=query&list=categorymembers&cmtitle=Category:Is_a_snp&cmlimit={category_member_limit}&format=json"
 
-        cmcontinue = None
+        cmcontinue: Optional[str] = None
         count = 0
 
         try:

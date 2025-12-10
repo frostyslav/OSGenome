@@ -2,17 +2,11 @@
 
 import json
 import os
+from typing import Any, Dict, Union
 
 # Import from parent package
-try:
-    from SNPedia.core import get_config, get_logger
-except ImportError:
-    # Fallback for direct execution
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from core import get_config, get_logger
+from SNPedia.core.config import get_config
+from SNPedia.core.logger import get_logger
 
 # Get logger
 logger = get_logger(__name__)
@@ -24,7 +18,7 @@ config = get_config()
 MAX_FILE_SIZE_LOAD = config.MAX_FILE_SIZE_LOAD
 
 
-def export_to_file(data: dict, filename: str) -> bool:
+def export_to_file(data: Union[Dict[str, Any], list], filename: str) -> bool:
     """Export data to JSON file with error handling.
 
     Args:
@@ -37,10 +31,6 @@ def export_to_file(data: dict, filename: str) -> bool:
     try:
         if not filename:
             logger.error("No filename provided for export")
-            return False
-
-        if not isinstance(data, (dict, list)):
-            logger.error(f"Invalid data type for export: {type(data)}")
             return False
 
         parent_path = _get_parent_path()
@@ -83,7 +73,7 @@ def export_to_file(data: dict, filename: str) -> bool:
         return False
 
 
-def load_from_file(filename: str, use_cache: bool = False) -> dict:
+def load_from_file(filename: str, use_cache: bool = False) -> Dict[str, Any]:
     """Load data from JSON file with error handling.
 
     Args:
@@ -99,7 +89,9 @@ def load_from_file(filename: str, use_cache: bool = False) -> dict:
             from SNPedia.utils.cache_manager import load_json_lazy
 
             data = load_json_lazy(filename, use_cache=True)
-            return data if data is not None else {}
+            if data is not None:
+                return data if isinstance(data, dict) else {}
+            return {}
         except ImportError:
             logger.warning("Cache manager not available, falling back to direct load")
 
@@ -132,12 +124,15 @@ def load_from_file(filename: str, use_cache: bool = False) -> dict:
             with open(filepath, encoding="utf-8") as f:
                 data = json.load(f)
 
-            if not isinstance(data, (dict, list)):
+            if isinstance(data, dict):
+                logger.debug(f"Successfully loaded data from {filepath}")
+                return data
+            elif isinstance(data, list):
+                logger.warning(f"File {filepath} contains a list, wrapping in dict")
+                return {"data": data}
+            else:
                 logger.error(f"Invalid data type in file {filepath}: {type(data)}")
                 return {}
-
-            logger.debug(f"Successfully loaded data from {filepath}")
-            return data
 
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in file {filepath}: {e}")

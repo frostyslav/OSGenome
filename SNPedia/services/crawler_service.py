@@ -3,7 +3,7 @@
 import asyncio
 import time
 import urllib.request
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
     from bs4.element import Tag
@@ -42,7 +42,7 @@ class CrawlerService:
             "miscall by ancestry",
         ]
 
-    def _load_existing_data(self) -> Dict[str, Dict]:
+    def _load_existing_data(self) -> Dict[str, Dict[Any, Any]]:
         """Load existing SNPedia data from file."""
         import json
         import os
@@ -52,17 +52,19 @@ class CrawlerService:
             try:
                 with open(results_file) as f:
                     existing_data = json.load(f)
-                    if existing_data:
+                    if existing_data and isinstance(existing_data, dict):
                         logger.info(
                             f"Loaded existing SNPedia data for {len(existing_data)} RSIDs"
                         )
-                        return existing_data
+                        return existing_data  # type: ignore[no-any-return]
             except (json.JSONDecodeError, OSError) as e:
                 logger.warning(f"Could not load existing SNPedia data: {e}")
 
         return {}
 
-    async def crawl_snps_async(self, rsids: Dict[str, str]) -> Dict[str, Dict]:
+    async def crawl_snps_async(
+        self, rsids: Dict[str, str]
+    ) -> Dict[str, Dict[Any, Any]]:
         """Crawl SNPs asynchronously."""
         max_concurrent = max(3, min(5, int(5 * self.config.REQUEST_DELAY)))
         semaphore = asyncio.Semaphore(max_concurrent)
@@ -109,7 +111,7 @@ class CrawlerService:
         logger.info("Crawl completed")
         return self.rsid_info
 
-    def crawl_snps_sync(self, rsids: Dict[str, str]) -> Dict[str, Dict]:
+    def crawl_snps_sync(self, rsids: Dict[str, str]) -> Dict[str, Dict[Any, Any]]:
         """Crawl SNPs synchronously."""
         count = 0
         delay_count = 0
@@ -201,7 +203,7 @@ class CrawlerService:
 
         return None
 
-    def _fetch_rsid_sync(self, rsid: str) -> Optional[Dict]:
+    def _fetch_rsid_sync(self, rsid: str) -> Optional[Dict[Any, Any]]:
         """Fetch RSID data synchronously."""
         if not rsid or not isinstance(rsid, str):
             logger.error(f"Invalid rsid format: {rsid}")
@@ -248,12 +250,12 @@ class CrawlerService:
 
         return None
 
-    def _parse_snpedia_page(self, rsid: str, html: str) -> Optional[Dict]:
+    def _parse_snpedia_page(self, rsid: str, html: str) -> Optional[Dict[Any, Any]]:
         """Parse SNPedia HTML page."""
         try:
             bs = BeautifulSoup(html, "html.parser")
 
-            entry_data = {
+            entry_data: Dict[str, Any] = {
                 "Description": "",
                 "Variations": [],
                 "StabilizedOrientation": "",

@@ -2,12 +2,12 @@
 
 import logging
 import os
-from typing import Any, Dict, Type
+from typing import TYPE_CHECKING, Any, Dict, Type, Union
 
-try:
+if TYPE_CHECKING:
     from flask import Flask
-except ImportError:
-    # Flask might not be available during type checking
+else:
+    # Flask might not be available during runtime in some contexts
     Flask = Any
 
 
@@ -40,7 +40,7 @@ class Config:
     APP_VERSION = "2.0.0"
 
     # Security
-    SECRET_KEY = os.environ.get("SECRET_KEY")
+    SECRET_KEY: Union[str, bytes, None] = os.environ.get("SECRET_KEY")
     if not SECRET_KEY:
         # Generate a random key for development
         SECRET_KEY = os.urandom(32)

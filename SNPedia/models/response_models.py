@@ -159,7 +159,7 @@ class StatisticsResponse:
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
-        result = {
+        result: Dict[str, Any] = {
             "total": self.total,
             "interesting": self.interesting,
             "uncommon": self.uncommon,

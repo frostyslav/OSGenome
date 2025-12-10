@@ -12,28 +12,35 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_new_imports() -> None:
+def test_new_imports() -> bool:
     """Test new import structure."""
     print("Testing new imports...")
 
     try:
         # Core imports
-        from core import OSGenomeException, get_config, get_logger  # noqa: F401
+        from SNPedia.core.config import get_config  # noqa: F401
+        from SNPedia.core.logger import get_logger  # noqa: F401
 
         print("  ✓ Core imports work")
 
         # Utils imports
-        from utils import export_to_file, load_from_file  # noqa: F401
+        from SNPedia.utils.file_utils import (  # noqa: F401
+            export_to_file,
+            load_from_file,
+        )
 
         print("  ✓ Utils imports work")
 
         # Validation imports
-        from utils import validate_allele, validate_rsid  # noqa: F401
+        from SNPedia.utils.validation import (  # noqa: F401
+            validate_allele,
+            validate_rsid,
+        )
 
         print("  ✓ Validation imports work")
 
         # Security imports
-        from utils.security import validate_base64_data  # noqa: F401
+        from SNPedia.utils.security import validate_base64_data  # noqa: F401
 
         print("  ✓ Security imports work")
 
@@ -44,11 +51,15 @@ def test_new_imports() -> None:
         return False
 
 
-def test_validation_functions() -> None:
+def test_validation_functions() -> bool:
     """Test validation utilities."""
     print("\nTesting validation functions...")
 
-    from utils import validate_allele, validate_genotype, validate_rsid
+    from SNPedia.utils.validation import (
+        validate_allele,
+        validate_genotype,
+        validate_rsid,
+    )
 
     # Test RSid validation
     test_cases = [
@@ -109,13 +120,13 @@ def test_validation_functions() -> None:
     return all_passed
 
 
-def test_security_functions() -> None:
+def test_security_functions() -> bool:
     """Test security utilities."""
     print("\nTesting security functions...")
 
     import base64
 
-    from utils.security import secure_filename_wrapper, validate_base64_data
+    from SNPedia.utils.security import secure_filename_wrapper, validate_base64_data
 
     # Test base64 validation
     valid_data = base64.b64encode(b"Hello, World!").decode()
@@ -138,13 +149,13 @@ def test_security_functions() -> None:
 
     # Test secure filename
     try:
-        result = secure_filename_wrapper("test file.txt")
-        if result == "test_file.txt":
-            print(f"  ✓ Filename secured: 'test file.txt' -> '{result}'")
+        filename_result = secure_filename_wrapper("test file.txt")
+        if filename_result:
+            print(f"  ✓ Filename secured: 'test file.txt' -> '{filename_result}'")
             filename_test = True
         else:
-            print(f"  ✗ Unexpected result: '{result}'")
-            filename_test = True  # Still passes, just different format
+            print(f"  ✗ Unexpected result: '{filename_result}'")
+            filename_test = False
     except Exception as e:
         print(f"  ✗ Secure filename failed: {e}")
         filename_test = False
@@ -152,11 +163,11 @@ def test_security_functions() -> None:
     return valid_test and invalid_test and filename_test
 
 
-def test_exception_hierarchy() -> None:
+def test_exception_hierarchy() -> bool:
     """Test custom exception hierarchy."""
     print("\nTesting exception hierarchy...")
 
-    from core import (
+    from SNPedia.core.exceptions import (
         ConfigurationError,
         CrawlerError,
         OSGenomeException,
@@ -196,11 +207,11 @@ def test_exception_hierarchy() -> None:
     return validation_test and config_test and crawler_test
 
 
-def test_logger_functionality() -> None:
+def test_logger_functionality() -> bool:
     """Test logger functionality."""
     print("\nTesting logger functionality...")
 
-    from core import get_logger
+    from SNPedia.core.logger import get_logger
 
     # Get logger
     logger = get_logger("test_logger")
@@ -224,7 +235,7 @@ def test_logger_functionality() -> None:
     return logger_test and name_test
 
 
-def test_package_initialization() -> None:
+def test_package_initialization() -> bool:
     """Test package initialization."""
     print("\nTesting package initialization...")
 

@@ -7,14 +7,8 @@ from functools import lru_cache
 from threading import Lock
 from typing import Any, Dict, Optional
 
-try:
-    from SNPedia.core import get_config, get_logger
-except ImportError:
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from core import get_config, get_logger
+from SNPedia.core.config import get_config
+from SNPedia.core.logger import get_logger
 
 logger = get_logger(__name__)
 config = get_config()

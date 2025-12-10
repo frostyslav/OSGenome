@@ -35,8 +35,8 @@ def create_file_blueprint() -> Blueprint:
 
             return send_file(
                 excel_file,
-                download_name=filename,
                 as_attachment=True,
+                attachment_filename=filename,
                 mimetype=file_service.get_excel_mimetype(),
             )
 

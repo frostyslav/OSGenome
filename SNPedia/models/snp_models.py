@@ -74,14 +74,8 @@ class SNPediaEntry:
 
     def __post_init__(self) -> None:
         """Validate SNPedia entry data."""
-        if not self.rsid or not isinstance(self.rsid, str):
+        if not self.rsid:
             raise ValueError("RSID must be a non-empty string")
-
-        if not isinstance(self.variations, list):
-            self.variations = []
-
-        if not isinstance(self.description, str):
-            self.description = ""
 
     def has_variations(self) -> bool:
         """Check if entry has variation data."""

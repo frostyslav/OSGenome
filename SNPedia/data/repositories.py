@@ -34,7 +34,7 @@ class SNPRepository(BaseRepository):
                            Defaults to "personal_snps.json".
         """
         self.data_file = data_file
-        self._cache = None
+        self._cache: Optional[Dict[str, Any]] = None
 
     def get_by_id(self, rsid: str) -> Optional[SNPData]:
         """Get SNP by RSID."""
@@ -95,7 +95,7 @@ class SNPediaRepository(BaseRepository):
                            Defaults to "results.json".
         """
         self.data_file = data_file
-        self._cache = None
+        self._cache: Optional[Dict[str, Any]] = None
 
     def get_by_id(self, rsid: str) -> Optional[SNPediaEntry]:
         """Get SNPedia entry by RSID."""
@@ -133,10 +133,10 @@ class SNPediaRepository(BaseRepository):
 
         return entries
 
-    def get_known_rsids(self) -> List[str]:
+    def get_known_rsids(self) -> Dict[str, Any]:
         """Get list of known RSIDs from SNPedia."""
         snpedia_data = load_from_file("snpedia_snps.json")
-        return snpedia_data if snpedia_data else []
+        return snpedia_data if snpedia_data else {}
 
     def _load_data(self) -> Optional[Dict[str, Dict]]:
         """Load SNPedia data from file with caching."""

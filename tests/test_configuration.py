@@ -11,7 +11,7 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_config_loading() -> None:
+def test_config_loading() -> bool:
     """Test configuration loading."""
     print("Testing configuration loading...")
     from SNPedia.core.config import (
@@ -56,7 +56,7 @@ def test_config_loading() -> None:
     return True
 
 
-def test_config_validation() -> None:
+def test_config_validation() -> bool:
     """Test configuration validation."""
     print("\nTesting configuration validation...")
     from SNPedia.core.config import DevelopmentConfig, ProductionConfig
@@ -97,7 +97,7 @@ def test_config_validation() -> None:
     return True
 
 
-def test_config_to_dict() -> None:
+def test_config_to_dict() -> bool:
     """Test configuration to dictionary conversion."""
     print("\nTesting configuration to_dict...")
     from SNPedia.core.config import DevelopmentConfig
@@ -132,7 +132,7 @@ def test_config_to_dict() -> None:
     return all_present
 
 
-def test_env_variable_parsing() -> None:
+def test_env_variable_parsing() -> bool:
     """Test environment variable parsing."""
     print("\nTesting environment variable parsing...")
     from SNPedia.core.config import get_env_float, get_env_int, str_to_bool
@@ -157,11 +157,11 @@ def test_env_variable_parsing() -> None:
 
     # Test float parsing
     os.environ["TEST_FLOAT"] = "3.14"
-    result = get_env_float("TEST_FLOAT", 0.0)
-    if abs(result - 3.14) < 0.001:
+    float_result = get_env_float("TEST_FLOAT", 0.0)
+    if abs(float_result - 3.14) < 0.001:
         print("  ✓ Float parsing works")
     else:
-        print(f"  ✗ Expected 3.14, got {result}")
+        print(f"  ✗ Expected 3.14, got {float_result}")
         return False
 
     # Test boolean parsing
@@ -193,7 +193,7 @@ def test_env_variable_parsing() -> None:
     return all_passed
 
 
-def test_config_values() -> None:
+def test_config_values() -> bool:
     """Test configuration values are reasonable."""
     print("\nTesting configuration values...")
     from SNPedia.core.config import DevelopmentConfig, ProductionConfig, TestingConfig
@@ -247,7 +247,7 @@ def test_config_values() -> None:
     return True
 
 
-def test_flask_integration() -> None:
+def test_flask_integration() -> bool:
     """Test Flask integration with configuration."""
     print("\nTesting Flask integration...")
 

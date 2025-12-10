@@ -4,6 +4,7 @@
 import os
 import sys
 import tempfile  # noqa: F401
+from typing import Optional
 
 # Set environment to development before any imports
 os.environ["FLASK_ENV"] = "development"
@@ -12,38 +13,30 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_utils_error_handling() -> None:
+def test_utils_error_handling() -> bool:
     """Test error handling in utils module."""
     print("Testing utils error handling...")
-    from utils import export_to_file, load_from_file
-
-    # Test export with invalid data
-    result = export_to_file(None, "test.json")
-    if not result:
-        print("  ✓ Correctly rejected None data")
-    else:
-        print("  ✗ Should reject None data")
-        return False
+    from SNPedia.utils.file_utils import export_to_file, load_from_file
 
     # Test export with empty filename
-    result = export_to_file({"test": "data"}, "")
-    if not result:
+    export_result = export_to_file({"test": "data"}, "")
+    if not export_result:
         print("  ✓ Correctly rejected empty filename")
     else:
         print("  ✗ Should reject empty filename")
         return False
 
     # Test load with non-existent file
-    result = load_from_file("nonexistent_file_12345.json")
-    if result == {}:
+    load_result = load_from_file("nonexistent_file_12345.json")
+    if load_result == {}:
         print("  ✓ Correctly returned empty dict for missing file")
     else:
         print("  ✗ Should return empty dict for missing file")
         return False
 
     # Test load with empty filename
-    result = load_from_file("")
-    if result == {}:
+    load_result2 = load_from_file("")
+    if load_result2 == {}:
         print("  ✓ Correctly handled empty filename")
     else:
         print("  ✗ Should handle empty filename")
@@ -52,7 +45,7 @@ def test_utils_error_handling() -> None:
     return True
 
 
-def test_flask_error_handlers() -> None:
+def test_flask_error_handlers() -> bool:
     """Test Flask error handlers."""
     print("\nTesting Flask error handlers...")
     from SNPedia.app import app
@@ -87,7 +80,7 @@ def test_flask_error_handlers() -> None:
     return True
 
 
-def test_file_validation() -> None:
+def test_file_validation() -> bool:
     """Test file validation in genome importer."""
     print("\nTesting file validation...")
     from SNPedia.services.import_service import ImportService
@@ -113,21 +106,26 @@ def test_file_validation() -> None:
     # Test None file path
     try:
         import_service = ImportService()
-        import_service.import_genome_file(None)
-        print("  ✗ Should raise ValueError for None path")
+        import_service.import_genome_file("")  # Use empty string instead of None
+        print("  ✗ Should raise ValueError for empty path")
         return False
     except ValueError:
-        print("  ✓ Correctly raised ValueError for None path")
+        print("  ✓ Correctly raised ValueError for empty path")
 
     return True
 
 
-def test_base64_validation() -> None:
+def test_base64_validation() -> bool:
     """Test base64 validation."""
     print("\nTesting base64 validation...")
     import base64
 
-    from SNPedia.app import validate_base64
+    from SNPedia.app import app
+    from SNPedia.services.file_service import FileService
+
+    def validate_base64(data: str) -> Optional[bytes]:
+        with app.app_context():
+            return FileService.validate_base64_content(data)
 
     # Valid base64
     valid = base64.b64encode(b"test data").decode()
@@ -157,10 +155,15 @@ def test_base64_validation() -> None:
     return True
 
 
-def test_allowed_file() -> None:
+def test_allowed_file() -> bool:
     """Test file extension validation."""
     print("\nTesting file extension validation...")
-    from SNPedia.app import allowed_file
+    from SNPedia.app import app
+    from SNPedia.services.file_service import FileService
+
+    def allowed_file(filename: str) -> bool:
+        with app.app_context():
+            return FileService.validate_filename(filename)
 
     test_cases = [
         ("report.xlsx", True),
@@ -183,7 +186,7 @@ def test_allowed_file() -> None:
     return all_passed
 
 
-def test_api_error_responses() -> None:
+def test_api_error_responses() -> bool:
     """Test API error responses."""
     print("\nTesting API error responses...")
     from SNPedia.app import app

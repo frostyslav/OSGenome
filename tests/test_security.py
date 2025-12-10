@@ -3,6 +3,7 @@
 
 import os
 import sys
+from typing import Optional
 
 # Set environment to development before any imports
 os.environ["FLASK_ENV"] = "development"
@@ -11,14 +12,15 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_imports() -> None:
+def test_imports() -> bool:
     """Test that all security-related imports work."""
     print("Testing imports...")
     try:
         from werkzeug.utils import secure_filename  # noqa: F401
 
-        from SNPedia.app import allowed_file, app, validate_base64  # noqa: F401
+        from SNPedia.app import app  # noqa: F401
         from SNPedia.core.config import get_config  # noqa: F401
+        from SNPedia.services.file_service import FileService  # noqa: F401
 
         print("✓ All imports successful")
         return True
@@ -27,7 +29,7 @@ def test_imports() -> None:
         return False
 
 
-def test_config() -> None:
+def test_config() -> bool:
     """Test configuration loading."""
     print("\nTesting configuration...")
     try:
@@ -47,7 +49,7 @@ def test_config() -> None:
         return False
 
 
-def test_secure_filename() -> None:
+def test_secure_filename() -> bool:
     """Test path traversal protection."""
     print("\nTesting path traversal protection...")
     from werkzeug.utils import secure_filename
@@ -71,10 +73,15 @@ def test_secure_filename() -> None:
     return all_passed
 
 
-def test_file_validation() -> None:
+def test_file_validation() -> bool:
     """Test file extension validation."""
     print("\nTesting file validation...")
-    from SNPedia.app import allowed_file
+    from SNPedia.app import app
+    from SNPedia.services.file_service import FileService
+
+    def allowed_file(filename: str) -> bool:
+        with app.app_context():
+            return FileService.validate_filename(filename)
 
     test_cases = [
         ("report.xlsx", True),
@@ -96,12 +103,17 @@ def test_file_validation() -> None:
     return all_passed
 
 
-def test_base64_validation() -> None:
+def test_base64_validation() -> bool:
     """Test base64 validation."""
     print("\nTesting base64 validation...")
     import base64
 
-    from SNPedia.app import validate_base64
+    from SNPedia.app import app
+    from SNPedia.services.file_service import FileService
+
+    def validate_base64(data: str) -> Optional[bytes]:
+        with app.app_context():
+            return FileService.validate_base64_content(data)
 
     # Valid base64
     valid_data = base64.b64encode(b"Hello, World!").decode()
@@ -126,7 +138,7 @@ def test_base64_validation() -> None:
     return valid_test and invalid_test
 
 
-def test_environment() -> None:
+def test_environment() -> bool:
     """Test environment configuration."""
     print("\nTesting environment setup...")
 

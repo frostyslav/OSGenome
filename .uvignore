@@ -4,8 +4,7 @@ tests/
 # Ignore documentation (except main README)
 docs/
 
-# Ignore images
-images/
+
 
 # Ignore data directory
 data/

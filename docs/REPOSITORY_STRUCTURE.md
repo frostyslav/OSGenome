@@ -18,7 +18,7 @@ OSGenome/
 │   ├── KEYBOARD_SHORTCUTS.md # Keyboard shortcuts guide
 │   ├── REPOSITORY_STRUCTURE.md # This file
 │   └── QUICK_REFERENCE.md # Quick reference guide
-├── images/               # Documentation images and screenshots
+
 ├── .env.example          # Environment configuration template
 ├── .flake8.cfg          # Python linting configuration
 ├── .gitignore           # Git ignore rules
@@ -97,8 +97,7 @@ SNPedia/
 │   ├── jquery.min.js
 │   ├── jszip.min.js
 │   └── kendo.all.min.js
-└── images/              # Application images
-    └── dna-body.png
+
 ```
 
 ### Data Directory (`data/`)
@@ -143,14 +142,6 @@ Located in the `tests/` directory:
 - `test_font_awesome.py` - Font Awesome integration tests
 - `test_keyboard_shortcuts.py` - Keyboard shortcuts functionality tests
 - `test_security.py` - Security feature tests
-
-## Images Directory
-
-Contains screenshots and visual documentation:
-
-- `OSGenome*.png` - Application screenshots
-- `OSGenome_mp*.png` - Mobile/responsive screenshots
-- `OSGenome_multixp.png` - Multi-platform demonstration
 
 ## Key Technologies
 

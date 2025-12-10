@@ -102,16 +102,6 @@ def create_file():
         abort(500, description="Error generating file")
 
 
-@app.route("/images/<path:path>")
-def send_image(path):
-    """Serve static image files with path traversal protection."""
-    try:
-        # secure_filename prevents directory traversal
-        safe_path = secure_filename(path)
-        return send_from_directory("images", safe_path)
-    except Exception:
-        abort(404)
-
 
 @app.route("/js/<path:path>")
 def send_js(path):

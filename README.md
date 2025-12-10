@@ -204,4 +204,4 @@ All processing happens locally on your machine.
 There exists a library arv ([GitHub: cslarsen/arv - A fast 23andMe DNA parser and inferrer for Python](https://github.com/cslarsen/arv)) that allows for rule based matching of health and trait attributes using a hash table of raw genetic data. It is possible to alter the rsidDict.json to allow for automatically populating the rule matching conditions. I will be designing this functionality in a python script that will be able to be used to import the JSON as a dictionary that can be called within the rule matching. Please keep in mind its respective disclaimers before using the service.
 
 ## Example
-![Example of Tabulator Grid](https://github.com/mentatpsi/OSGenome/blob/master/images/OSGenome6.PNG)
+The application provides a responsive grid interface for viewing and analyzing your genetic data with filtering, sorting, and export capabilities.

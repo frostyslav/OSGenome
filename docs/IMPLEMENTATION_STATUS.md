@@ -78,7 +78,7 @@ Once core issues are resolved, re-enable in `.pre-commit-config.yaml`:
 ```yaml
 # Uncomment these sections:
 # - MyPy type checking
-# - Bandit security scanning  
+# - Bandit security scanning
 # - Interrogate docstring coverage
 ```
 

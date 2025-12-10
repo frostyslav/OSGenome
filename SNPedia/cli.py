@@ -152,7 +152,7 @@ def show_statistics():
         snp_service = SNPService()
         stats = snp_service.get_statistics()
 
-        print(f"\nGenetic Data Statistics:")
+        print("\nGenetic Data Statistics:")
         print(f"Total SNPs: {stats.total}")
         print(f"Interesting SNPs: {stats.interesting}")
         print(f"Uncommon SNPs: {stats.uncommon}")
@@ -168,7 +168,7 @@ def show_statistics():
 
 
 def main():
-    """Main CLI entry point."""
+    """Run the main CLI application."""
     parser = argparse.ArgumentParser(description="SNPedia CLI Tool")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")

@@ -58,7 +58,7 @@ uv run sphinx-build -b html . _build/html
 if [ $? -eq 0 ]; then
     print_success "Documentation built successfully!"
     print_status "Documentation available at: docs/_build/html/index.html"
-    
+
     # Optionally open in browser
     if command -v python3 &> /dev/null; then
         read -p "Open documentation in browser? (y/n): " -n 1 -r

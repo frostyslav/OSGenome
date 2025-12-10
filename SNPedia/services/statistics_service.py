@@ -17,6 +17,11 @@ class StatisticsService:
     """Service for statistics and system health operations."""
 
     def __init__(self):
+        """Initialize the statistics service.
+
+        Sets up SNP service and cache service for health monitoring
+        and statistics calculation operations.
+        """
         self.snp_service = SNPService()
         self.cache_service = CacheService()
 

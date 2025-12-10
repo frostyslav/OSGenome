@@ -75,20 +75,20 @@ We use **Google-style docstrings** with the following sections:
 ```python
 def process_genome_data(self) -> List[EnrichedSNP]:
     """Process personal genome data with SNPedia information.
-    
+
     Processes the entire personal genome by enriching each SNP with
     corresponding SNPedia reference data. This is the main processing
     pipeline that creates the enriched dataset for analysis.
-    
+
     Returns:
         List[EnrichedSNP]: List of enriched SNPs with combined data.
-        
+
     Example:
         >>> service = SNPService()
         >>> enriched_snps = service.process_genome_data()
         >>> interesting_count = sum(1 for snp in enriched_snps if snp.is_interesting)
         >>> print(f"Found {interesting_count} interesting SNPs")
-        
+
     Note:
         This method processes all SNPs in the personal genome and may
         take significant time for large datasets. Progress is logged

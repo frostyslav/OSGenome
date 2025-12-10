@@ -1,7 +1,7 @@
 OSGenome Documentation
 ======================
 
-Welcome to OSGenome's documentation! OSGenome is an open source web application 
+Welcome to OSGenome's documentation! OSGenome is an open source web application
 for genetic data (SNPs) analysis using ancestry data and crawling technologies.
 
 .. toctree::

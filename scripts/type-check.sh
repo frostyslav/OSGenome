@@ -47,15 +47,15 @@ echo "Checking SNPedia package..."
 # Run mypy on the main package
 if uv run mypy SNPedia/; then
     print_success "Type checking passed!"
-    
+
     # Generate type checking report
     print_status "Generating detailed type checking report..."
     uv run mypy SNPedia/ --html-report mypy-report --txt-report mypy-report
-    
+
     if [ -d "mypy-report" ]; then
         print_status "Type checking report generated at: mypy-report/index.html"
     fi
-    
+
 else
     print_error "Type checking failed!"
     print_status "Common issues and solutions:"

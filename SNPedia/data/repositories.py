@@ -27,6 +27,12 @@ class SNPRepository(BaseRepository):
     """Repository for managing SNP data."""
 
     def __init__(self, data_file: str = "personal_snps.json"):
+        """Initialize SNP repository.
+
+        Args:
+            data_file (str): Path to the personal SNP data file.
+                           Defaults to "personal_snps.json".
+        """
         self.data_file = data_file
         self._cache = None
 
@@ -82,6 +88,12 @@ class SNPediaRepository(BaseRepository):
     """Repository for managing SNPedia data."""
 
     def __init__(self, data_file: str = "results.json"):
+        """Initialize SNPedia repository.
+
+        Args:
+            data_file (str): Path to the SNPedia data file.
+                           Defaults to "results.json".
+        """
         self.data_file = data_file
         self._cache = None
 
@@ -141,6 +153,12 @@ class ResultRepository(BaseRepository):
     """Repository for managing enriched result data."""
 
     def __init__(self, data_file: str = "result_table.json"):
+        """Initialize result repository.
+
+        Args:
+            data_file (str): Path to the enriched results data file.
+                           Defaults to "result_table.json".
+        """
         self.data_file = data_file
 
     def get_by_id(self, rsid: str) -> Optional[EnrichedSNP]:

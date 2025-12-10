@@ -1,6 +1,8 @@
 """API routes for SNPedia application."""
 
-from flask import Blueprint, abort, jsonify, request
+from typing import Tuple
+
+from flask import Blueprint, Response, abort, jsonify, request
 from werkzeug.utils import secure_filename
 
 from SNPedia.core.logger import logger
@@ -9,17 +11,11 @@ from SNPedia.services.snp_service import SNPService
 from SNPedia.services.statistics_service import StatisticsService
 
 
-def create_api_blueprint() -> Blueprint:
-    """Create and configure the API blueprint."""
-    api = Blueprint("api", __name__, url_prefix="/api")
-
-    # Initialize services
-    snp_service = SNPService()
-    cache_service = CacheService()
-    stats_service = StatisticsService()
+def _create_rsids_routes(api: Blueprint, snp_service: SNPService) -> None:
+    """Create RSID-related routes."""
 
     @api.route("/rsids", methods=["GET"])
-    def get_rsids():
+    def get_rsids() -> Tuple[Response, int]:
         """Get RSIDs data with pagination support."""
         try:
             # Get pagination parameters
@@ -39,40 +35,47 @@ def create_api_blueprint() -> Blueprint:
                 paginated_response = snp_service.get_results_paginated(
                     page=page, page_size=page_size
                 )
-                return jsonify(paginated_response.to_dict())
+                return jsonify(paginated_response.to_dict()), 200
             else:
                 # Get all results
                 results = snp_service.get_all_results()
                 if not results:
-                    return jsonify({"results": [], "message": "No data available"}), 200
-                return jsonify({"results": results})
+                    return (
+                        jsonify({"results": [], "message": "No data available"}),
+                        200,
+                    )
+                return jsonify({"results": results}), 200
 
         except Exception as e:
             logger.error(f"Error fetching RSIDs: {str(e)}")
             abort(500, description="Error fetching data")
 
+
+def _create_statistics_routes(api: Blueprint, stats_service: StatisticsService) -> None:
+    """Create statistics-related routes."""
+
     @api.route("/statistics", methods=["GET"])
-    def get_statistics():
+    def get_statistics() -> Tuple[Response, int]:
         """Get statistics about the genetic data."""
         try:
             stats = stats_service.get_genetic_statistics()
-            return jsonify(stats.to_dict())
+            return jsonify(stats.to_dict()), 200
         except Exception as e:
             logger.error(f"Error calculating statistics: {str(e)}")
             abort(500, description="Error calculating statistics")
 
     @api.route("/config", methods=["GET"])
-    def get_config():
+    def get_config() -> Tuple[Response, int]:
         """Get non-sensitive configuration information."""
         try:
             config_info = stats_service.get_config_info()
-            return jsonify(config_info.to_dict())
+            return jsonify(config_info.to_dict()), 200
         except Exception as e:
             logger.error(f"Error fetching config: {str(e)}")
             abort(500, description="Error fetching configuration")
 
     @api.route("/health", methods=["GET"])
-    def health_check():
+    def health_check() -> Tuple[Response, int]:
         """Health check endpoint for monitoring."""
         try:
             health_status = stats_service.get_health_status()
@@ -82,23 +85,27 @@ def create_api_blueprint() -> Blueprint:
             logger.error(f"Health check failed: {str(e)}")
             return jsonify({"status": "unhealthy", "error": str(e)}), 500
 
+
+def _create_cache_routes(api: Blueprint, cache_service: CacheService) -> None:
+    """Create cache-related routes."""
+
     @api.route("/cache/stats", methods=["GET"])
-    def get_cache_stats():
+    def get_cache_stats() -> Tuple[Response, int]:
         """Get cache statistics."""
         try:
             stats = cache_service.get_stats()
-            return jsonify(stats)
+            return jsonify(stats), 200
         except Exception as e:
             logger.error(f"Error fetching cache stats: {str(e)}")
             abort(500, description="Error fetching cache statistics")
 
     @api.route("/cache/clear", methods=["POST"])
-    def clear_cache():
+    def clear_cache() -> Tuple[Response, int]:
         """Clear all cache entries."""
         try:
             success = cache_service.clear_all()
             if success:
-                return jsonify({"message": "Cache cleared successfully"})
+                return jsonify({"message": "Cache cleared successfully"}), 200
             else:
                 abort(500, description="Error clearing cache")
         except Exception as e:
@@ -106,7 +113,7 @@ def create_api_blueprint() -> Blueprint:
             abort(500, description="Error clearing cache")
 
     @api.route("/cache/invalidate/<filename>", methods=["POST"])
-    def invalidate_cache(filename):
+    def invalidate_cache(filename: str) -> Tuple[Response, int]:
         """Invalidate cache for a specific file."""
         try:
             # Sanitize filename
@@ -116,11 +123,41 @@ def create_api_blueprint() -> Blueprint:
 
             success = cache_service.invalidate_file(safe_filename)
             if success:
-                return jsonify({"message": f"Cache invalidated for {safe_filename}"})
+                return (
+                    jsonify({"message": f"Cache invalidated for {safe_filename}"}),
+                    200,
+                )
             else:
                 abort(500, description="Error invalidating cache")
         except Exception as e:
             logger.error(f"Error invalidating cache: {str(e)}")
             abort(500, description="Error invalidating cache")
+
+
+def create_api_blueprint() -> Blueprint:
+    """Create and configure the API blueprint.
+
+    This function creates a Flask blueprint with all API routes organized
+    into logical groups for better maintainability and reduced complexity.
+
+    Returns:
+        Blueprint: Configured Flask blueprint with all API routes.
+
+    Example:
+        >>> from SNPedia.api.routes import create_api_blueprint
+        >>> api_bp = create_api_blueprint()
+        >>> app.register_blueprint(api_bp)
+    """
+    api = Blueprint("api", __name__, url_prefix="/api")
+
+    # Initialize services
+    snp_service = SNPService()
+    cache_service = CacheService()
+    stats_service = StatisticsService()
+
+    # Register route groups
+    _create_rsids_routes(api, snp_service)
+    _create_statistics_routes(api, stats_service)
+    _create_cache_routes(api, cache_service)
 
     return api

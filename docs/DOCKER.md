@@ -130,10 +130,10 @@ CACHE_TTL=3600
 volumes:
   # Genetic data files (persistent)
   - ./data:/app/data:rw
-  
+
   # Application logs (optional)
   - ./logs:/app/logs:rw
-  
+
   # Development: source code (read-only)
   - ./SNPedia:/app/SNPedia:ro
 ```

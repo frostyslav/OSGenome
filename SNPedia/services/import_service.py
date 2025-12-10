@@ -16,6 +16,11 @@ class ImportService:
     """Service for importing and processing genetic data files."""
 
     def __init__(self):
+        """Initialize the import service.
+
+        Sets up configuration for genetic data file processing
+        and validation operations.
+        """
         self.config = get_config()
 
     def has_existing_data(self) -> bool:

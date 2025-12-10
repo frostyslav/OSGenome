@@ -48,9 +48,6 @@ def test_font_awesome_icons_in_html():
     for icon in required_icons:
         assert icon in content, f"Icon '{icon}' not found in HTML"
 
-    # Check that emojis are NOT used in buttons
-    emoji_patterns = ["📊", "🔍", "⚙️", "🔄", "⌨️"]  # Old emoji icons
-
     # Allow emojis in comments or documentation, but not in actual UI elements
     # We'll check that <i class="fa is used instead
     assert (

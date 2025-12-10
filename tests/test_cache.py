@@ -2,15 +2,9 @@
 
 import json
 import os
-
-# Add SNPedia to path
-import sys
 import tempfile
 import time
 import unittest
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from SNPedia.utils.cache_manager import (
     DataCache,

@@ -18,6 +18,11 @@ class CrawlerService:
     """Service for crawling SNPedia data."""
 
     def __init__(self):
+        """Initialize the crawler service.
+
+        Sets up configuration, repositories, loads existing data,
+        and initializes common words filter for SNPedia data processing.
+        """
         self.config = get_config()
         self.snp_repo = SNPRepository()
         self.snpedia_repo = SNPediaRepository()

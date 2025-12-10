@@ -24,6 +24,12 @@ class CacheEntry:
     """Represents a cached data entry with metadata."""
 
     def __init__(self, data: Any, ttl: int = 3600):
+        """Initialize cache entry.
+
+        Args:
+            data (Any): The data to cache.
+            ttl (int): Time-to-live in seconds. Defaults to 3600 (1 hour).
+        """
         self.data = data
         self.timestamp = time.time()
         self.ttl = ttl

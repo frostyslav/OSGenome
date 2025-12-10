@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Add SNPedia to path
 import sys
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from SNPedia.utils.cache_manager import (
     DataCache,
@@ -98,7 +98,7 @@ class TestCacheManager(unittest.TestCase):
         """Set up test environment."""
         # Create temporary directory for test data
         self.temp_dir = tempfile.mkdtemp()
-        self.data_dir = os.path.join(self.temp_dir, "SNPedia", "data")
+        self.data_dir = os.path.join(self.temp_dir, "data")
         os.makedirs(self.data_dir, exist_ok=True)
         
         # Create test JSON file

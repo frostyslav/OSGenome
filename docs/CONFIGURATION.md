@@ -113,7 +113,7 @@ Defines configuration classes for different environments with validation.
 **Usage:**
 ```bash
 export FLASK_ENV=development
-python SNPedia/app.py
+uv run python SNPedia/app.py
 ```
 
 ### Production
@@ -153,7 +153,7 @@ gunicorn --config SNPedia/gunicorn_config.py SNPedia.app:app
 **Usage:**
 ```bash
 export FLASK_ENV=testing
-python test_configuration.py
+uv run python tests/test_configuration.py
 ```
 
 ## Configuration API
@@ -402,7 +402,7 @@ python -c "from SNPedia.core.config import get_config; print(get_config().to_dic
 
 Run configuration tests:
 ```bash
-python test_configuration.py
+uv run python tests/test_configuration.py
 ```
 
 Expected output:
@@ -467,4 +467,4 @@ The configuration management system provides:
 For more information, see:
 - `.env.example` - Configuration template
 - `SNPedia/config.py` - Configuration implementation
-- `test_configuration.py` - Configuration tests
+- `tests/test_configuration.py` - Configuration tests

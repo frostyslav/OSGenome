@@ -154,11 +154,10 @@ def _get_parent_path() -> str:
     """Get the parent path for data files.
     
     Returns:
-        str: Path to the parent directory
+        str: Path to the root directory (where data folder should be)
     """
     try:
-        if os.path.exists("SNPedia"):
-            return os.path.join(os.path.curdir, "SNPedia")
+        # Always use the root directory, not SNPedia subdirectory
         return os.path.curdir
     except Exception as e:
         logger.error(f"Error getting parent path: {e}")

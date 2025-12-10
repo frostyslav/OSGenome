@@ -8,7 +8,7 @@ import sys
 os.environ['FLASK_ENV'] = 'development'
 
 # Add SNPedia to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'SNPedia'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 def test_config_loading():
@@ -246,7 +246,7 @@ def test_flask_integration():
     os.environ['FLASK_ENV'] = 'development'
     
     try:
-        from app import app
+        from SNPedia.app import app
         
         # Check app is configured
         if app.config.get('SECRET_KEY'):

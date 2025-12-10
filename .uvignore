@@ -1,0 +1,21 @@
+# Ignore test files
+tests/
+
+# Ignore documentation (except main README)
+docs/
+
+# Ignore images
+images/
+
+# Ignore data directory
+data/
+
+# Ignore git
+.git/
+
+# Ignore IDE files
+.vscode/
+
+# Ignore cache
+__pycache__/
+*.pyc

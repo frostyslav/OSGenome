@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:latest
-FROM docker.io/python:3-slim AS python
+FROM docker.io/python:3.13-slim AS python
 LABEL org.opencontainers.image.title="OSGenome"
 LABEL org.opencontainers.image.description="An Open Source Web Application for Genetic Data (SNPs) using Ancestry and Data Crawling Technologies."
 LABEL org.opencontainers.image.url="https://github.com/frostyslav/OSGenome"
@@ -7,12 +7,19 @@ LABEL org.opencontainers.image.documentation="https://github.com/frostyslav/OSGe
 LABEL org.opencontainers.image.source="https://github.com/frostyslav/OSGenome"
 LABEL org.opencontainers.image.licenses="GNU General Public License v3.0"
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
 WORKDIR /app
 
-COPY --link requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
+# Copy pyproject.toml, uv.lock, README.md, and SNPedia
+COPY --link pyproject.toml ./
+COPY --link uv.lock ./
+COPY --link README.md ./
 COPY --link SNPedia ./SNPedia
+
+# Install dependencies with uv
+RUN uv sync --frozen --no-cache
 
 # Create non-root user and set ownership
 RUN useradd -m -u 1000 appuser && \
@@ -25,6 +32,6 @@ EXPOSE 8080
 
 # Healthcheck to monitor container health
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health').read()" || exit 1
+    CMD uv run python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health').read()" || exit 1
 
-ENTRYPOINT ["gunicorn", "--config", "SNPedia/gunicorn_config.py", "SNPedia.app:app"]
+ENTRYPOINT ["uv", "run", "gunicorn", "--config", "SNPedia/gunicorn_config.py", "SNPedia.app:app"]

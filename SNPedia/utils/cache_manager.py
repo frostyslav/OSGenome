@@ -169,21 +169,15 @@ def _get_file_path(filename: str) -> str:
     
     Handles both local development and Docker environments:
     - Docker: /app/data/
-    - Local with SNPedia folder: ./SNPedia/data/
-    - Local without SNPedia folder: ./data/
+    - Local: ./data/
     """
     # Check for Docker environment (data mounted at /app/data)
     docker_path = os.path.join("/app", "data", filename)
     if os.path.exists(docker_path):
         return docker_path
     
-    # Check for local development with SNPedia folder
-    if os.path.exists("SNPedia"):
-        parent = os.path.join(os.path.curdir, "SNPedia")
-    else:
-        parent = os.path.curdir
-    
-    return os.path.join(parent, "data", filename)
+    # Use root data directory for local development
+    return os.path.join(os.path.curdir, "data", filename)
 
 
 def load_json_lazy(filename: str, use_cache: bool = True) -> Optional[Any]:

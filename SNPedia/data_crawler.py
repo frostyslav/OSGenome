@@ -1,9 +1,12 @@
 import argparse
+import asyncio
 import json
 import time
 import urllib.request
+from typing import Optional
 from urllib.error import HTTPError, URLError
 
+import aiohttp
 from bs4 import BeautifulSoup
 from SNPedia.genome_importer import PersonalData
 from SNPedia.core.logger import logger
@@ -47,7 +50,22 @@ class SNPCrawl:
         else:
             logger.error("No SNPs to crawl")
 
-    def init_crawl(self: Self, rsids: dict):
+    def init_crawl(self: Self, rsids: dict, use_async: bool = True):
+        """Initialize crawl using async or sync implementation.
+        
+        Args:
+            rsids: Dictionary of RSIDs to crawl
+            use_async: If True, use async implementation (default). If False, use sync.
+        """
+        if use_async:
+            logger.info("Using async crawl implementation")
+            asyncio.run(self.async_crawl(rsids))
+        else:
+            logger.info("Using synchronous crawl implementation")
+            self.sync_crawl(rsids)
+    
+    def sync_crawl(self: Self, rsids: dict):
+        """Synchronous crawl implementation (original behavior)."""
         count = 0
         delay_count = 0
         self.delay_count = 0
@@ -77,6 +95,191 @@ class SNPCrawl:
                 logger.info(f"Sleeping for {RETRY_DELAY * 3} seconds...")
                 time.sleep(RETRY_DELAY * 3)
         logger.info("Done")
+
+    async def async_crawl(self: Self, rsids: dict):
+        """Async crawl implementation with concurrent requests and rate limiting."""
+        # Calculate concurrent requests based on delay - more conservative
+        # Lower concurrency to reduce server load and avoid 502 errors
+        max_concurrent = max(3, min(5, int(5 * REQUEST_DELAY)))
+        semaphore = asyncio.Semaphore(max_concurrent)
+        
+        rsids_to_fetch = [rsid for rsid in rsids.keys() if rsid not in self.rsid_info.keys()]
+        total_rsids = len(rsids)
+        new_rsids = len(rsids_to_fetch)
+        
+        logger.info(f"Starting async crawl: {new_rsids} new RSIDs out of {total_rsids} total")
+        logger.info(f"Using {max_concurrent} concurrent requests with {REQUEST_DELAY}s delay")
+        logger.info(f"Estimated time: ~{(new_rsids * REQUEST_DELAY / max_concurrent):.0f} seconds")
+        
+        # Create session with timeout
+        timeout = aiohttp.ClientTimeout(total=REQUEST_TIMEOUT)
+        connector = aiohttp.TCPConnector(limit=max_concurrent)
+        
+        async with aiohttp.ClientSession(timeout=timeout, connector=connector) as session:
+            tasks = []
+            for rsid in rsids.keys():
+                task = self.fetch_rsid_with_semaphore(session, rsid, semaphore)
+                tasks.append(task)
+            
+            # Process with progress tracking
+            completed = 0
+            
+            for coro in asyncio.as_completed(tasks):
+                await coro
+                completed += 1
+                
+                if completed % 10 == 0:
+                    logger.info(f"{completed} out of {total_rsids} completed")
+                
+                # Export intermediate results periodically
+                if completed > 0 and completed % SAVE_PROGRESS_INTERVAL == 0:
+                    logger.info("Exporting intermediate results...")
+                    self.export()
+                    self.create_list()
+        
+        logger.info("Done")
+    
+    async def fetch_rsid_with_semaphore(
+        self: Self, session: aiohttp.ClientSession, rsid: str, semaphore: asyncio.Semaphore
+    ):
+        """Fetch RSID with semaphore-based rate limiting."""
+        async with semaphore:
+            await self.grab_table_async(session, rsid)
+            # Add delay between requests to respect rate limits
+            await asyncio.sleep(REQUEST_DELAY)
+    
+    async def grab_table_async(
+        self: Self, session: aiohttp.ClientSession, rsid: str
+    ) -> Optional[dict]:
+        """Async version of grab_table with retry logic."""
+        # Validate rsid format
+        if not rsid or not isinstance(rsid, str):
+            logger.error(f"Invalid rsid format: {rsid}")
+            return None
+        
+        # Skip if already fetched
+        if rsid in self.rsid_info.keys():
+            return self.rsid_info[rsid]
+        
+        url = f"{SNPEDIA_INDEX_URL}/{rsid}"
+        logger.info(f"Grabbing data about SNP: {rsid}")
+        
+        for attempt in range(MAX_RETRIES):
+            try:
+                async with session.get(url) as response:
+                    if response.status == 404:
+                        logger.warning(f"{rsid} not found (404)")
+                        return None
+                    
+                    # Handle rate limiting
+                    if response.status == 429:
+                        backoff = RETRY_DELAY * (2 ** attempt)  # Exponential backoff
+                        logger.warning(f"Rate limited (429) on attempt {attempt + 1}/{MAX_RETRIES}, waiting {backoff}s")
+                        if attempt < MAX_RETRIES - 1:
+                            await asyncio.sleep(backoff)
+                            continue
+                        else:
+                            logger.error(f"Failed to fetch {rsid} after {MAX_RETRIES} attempts (rate limited)")
+                            return None
+                    
+                    # Handle server errors (502, 503, 504)
+                    if response.status in (502, 503, 504):
+                        backoff = RETRY_DELAY * (2 ** attempt)
+                        logger.warning(f"Server error ({response.status}) for {rsid} on attempt {attempt + 1}/{MAX_RETRIES}, waiting {backoff}s")
+                        if attempt < MAX_RETRIES - 1:
+                            await asyncio.sleep(backoff)
+                            continue
+                        else:
+                            logger.error(f"Failed to fetch {rsid} after {MAX_RETRIES} attempts (server error {response.status})")
+                            return None
+                    
+                    response.raise_for_status()
+                    html = await response.text()
+                    
+                    # Parse HTML
+                    bs = BeautifulSoup(html, "html.parser")
+                    
+                    self.rsid_info[rsid.lower()] = {
+                        "Description": "",
+                        "Variations": [],
+                        "StabilizedOrientation": "",
+                    }
+                    
+                    table = bs.find("table", {"class": "sortable smwtable"})
+                    description = bs.find(
+                        "table",
+                        {
+                            "style": "border: 1px; background-color: #FFFFC0; border-style: solid; margin:1em; width:90%;"
+                        },
+                    )
+
+                    # Orientation Finder
+                    orientation = bs.find("td", string="Rs_StabilizedOrientation")
+                    if orientation:
+                        plus = orientation.parent.find("td", string="plus")
+                        minus = orientation.parent.find("td", string="minus")
+                        if plus:
+                            self.rsid_info[rsid]["StabilizedOrientation"] = "plus"
+                        if minus:
+                            self.rsid_info[rsid]["StabilizedOrientation"] = "minus"
+                    else:
+                        link = bs.find("a", {"title": "StabilizedOrientation"})
+                        if link:
+                            table_row = link.parent.parent
+                            plus = table_row.find("td", string="plus")
+                            minus = table_row.find("td", string="minus")
+                            if plus:
+                                self.rsid_info[rsid]["StabilizedOrientation"] = "plus"
+                            if minus:
+                                self.rsid_info[rsid]["StabilizedOrientation"] = "minus"
+
+                    logger.debug(
+                        "{} stabilized orientation: {}".format(
+                            rsid, self.rsid_info[rsid]["StabilizedOrientation"]
+                        )
+                    )
+
+                    if description:
+                        d1 = self.table_to_list(description)
+                        self.rsid_info[rsid]["Description"] = d1[0][0]
+                        logger.debug(
+                            "{} description: {}".format(
+                                rsid, self.rsid_info[rsid]["Description"]
+                            )
+                        )
+                    if table:
+                        d2 = self.table_to_list(table)
+                        self.rsid_info[rsid]["Variations"] = d2[1:]
+                        logger.debug(
+                            "{} variations: {}".format(
+                                rsid, self.rsid_info[rsid]["Variations"]
+                            )
+                        )
+                    
+                    return self.rsid_info[rsid]
+                    
+            except aiohttp.ClientError as e:
+                logger.error(f"Network error for {rsid}: {str(e)}")
+                if attempt < MAX_RETRIES - 1:
+                    await asyncio.sleep(RETRY_DELAY)
+                else:
+                    logger.error(f"Failed to fetch {rsid} after {MAX_RETRIES} attempts")
+                    
+            except asyncio.TimeoutError:
+                logger.error(f"Timeout fetching {rsid}")
+                if attempt < MAX_RETRIES - 1:
+                    await asyncio.sleep(RETRY_DELAY)
+                else:
+                    logger.error(f"Failed to fetch {rsid} after {MAX_RETRIES} attempts")
+                    
+            except Exception as e:
+                logger.error(f"Unexpected error fetching {rsid}: {str(e)}")
+                if attempt < MAX_RETRIES - 1:
+                    await asyncio.sleep(RETRY_DELAY)
+                else:
+                    logger.error(f"Failed to fetch {rsid} after {MAX_RETRIES} attempts")
+        
+        return None
 
     def grab_table(self: Self, rsid: str):  # noqa C901
         """Fetch SNP data from SNPedia with retry logic and error handling."""

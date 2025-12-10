@@ -257,8 +257,8 @@ export FLASK_DEBUG=true
 ### Problem: Application won't start
 
 **Check:**
-1. Dependencies installed: `pip install -r requirements.txt`
-2. Python version: `python --version` (need 3.8+)
+1. Dependencies installed: `uv sync`
+2. Python version: `python --version` (need 3.13+)
 3. Port availability: `lsof -i :5000`
 
 **Solution:**
@@ -274,19 +274,19 @@ export FLASK_RUN_PORT=5001
 
 **Check:**
 1. Internet connection: `ping bots.snpedia.com`
-2. File permissions: `ls -la SNPedia/data/`
+2. File permissions: `ls -la data/`
 3. Disk space: `df -h`
 
 **Solution:**
 ```bash
 # Create data directory
-mkdir -p SNPedia/data
+mkdir -p data
 
 # Fix permissions
-chmod 755 SNPedia/data
+chmod 755 data
 
 # Resume from last save
-python SNPedia/data_crawler.py -f /path/to/data.txt
+uv run python SNPedia/data_crawler.py -f /path/to/data.txt
 ```
 
 ### Problem: Import fails
@@ -311,17 +311,17 @@ head -n 5 your_data.txt
 ### Problem: No data displayed
 
 **Check:**
-1. Data files exist: `ls -la SNPedia/data/`
-2. Files not empty: `wc -l SNPedia/data/*.json`
-3. Valid JSON: `python -m json.tool SNPedia/data/results.json`
+1. Data files exist: `ls -la data/`
+2. Files not empty: `wc -l data/*.json`
+3. Valid JSON: `python -m json.tool data/results.json`
 
 **Solution:**
 ```bash
 # Re-run import
-python SNPedia/genome_importer.py -f /path/to/data.txt
+uv run python SNPedia/genome_importer.py -f /path/to/data.txt
 
 # Re-run crawler
-python SNPedia/data_crawler.py -f /path/to/data.txt
+uv run python SNPedia/data_crawler.py -f /path/to/data.txt
 
 # Check logs
 tail -f logs/app.log
@@ -356,7 +356,7 @@ file -i your_data.txt
 ### 3. Monitor Progress
 ```bash
 # Watch data directory
-watch -n 5 'ls -lh SNPedia/data/'
+watch -n 5 'ls -lh data/'
 
 # Monitor log file
 tail -f logs/app.log | grep INFO
@@ -370,11 +370,11 @@ tail -f logs/app.log | grep INFO
 ### 5. Backup Data
 ```bash
 # Backup before major operations
-cp -r SNPedia/data SNPedia/data.backup.$(date +%Y%m%d)
+cp -r data data.backup.$(date +%Y%m%d)
 
 # Restore if needed
-rm -rf SNPedia/data
-mv SNPedia/data.backup.20251202 SNPedia/data
+rm -rf data
+mv data.backup.20251202 data
 ```
 
 ## Error Recovery Procedures
@@ -383,22 +383,22 @@ mv SNPedia/data.backup.20251202 SNPedia/data
 
 ```bash
 # Remove corrupted files
-rm SNPedia/data/results.json
-rm SNPedia/data/result_table.json
+rm data/results.json
+rm data/result_table.json
 
 # Re-run import and crawl
-python SNPedia/genome_importer.py -f /path/to/data.txt
-python SNPedia/data_crawler.py -f /path/to/data.txt
+uv run python SNPedia/genome_importer.py -f /path/to/data.txt
+uv run python SNPedia/data_crawler.py -f /path/to/data.txt
 ```
 
 ### Incomplete Crawl
 
 ```bash
 # Check progress
-wc -l SNPedia/data/results.json
+wc -l data/results.json
 
 # Resume crawl (automatically continues from last save)
-python SNPedia/data_crawler.py -f /path/to/data.txt
+uv run python SNPedia/data_crawler.py -f /path/to/data.txt
 ```
 
 ### Application Crash
@@ -411,7 +411,7 @@ ps aux | grep python
 pkill -f "python.*app.py"
 
 # Restart
-python SNPedia/app.py
+uv run python SNPedia/app.py
 ```
 
 ## Support

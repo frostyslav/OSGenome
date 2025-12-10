@@ -9,19 +9,35 @@ OSGenome is a Flask-based web application for analyzing genetic data (SNPs) from
 ```
 OSGenome/
 ├── SNPedia/              # Main application package
+├── docs/                 # Documentation directory
+│   ├── README.md         # Documentation index
+│   ├── CONFIGURATION.md  # Configuration guide
+│   ├── SECURITY.md       # Security documentation
+│   ├── CACHING.md        # Performance and caching guide
+│   ├── ERROR_HANDLING.md # Error handling and troubleshooting
+│   ├── KEYBOARD_SHORTCUTS.md # Keyboard shortcuts guide
+│   ├── REPOSITORY_STRUCTURE.md # This file
+│   └── QUICK_REFERENCE.md # Quick reference guide
 ├── images/               # Documentation images and screenshots
 ├── .env.example          # Environment configuration template
 ├── .flake8.cfg          # Python linting configuration
 ├── .gitignore           # Git ignore rules
 ├── .pre-commit-config.yaml  # Pre-commit hooks configuration
 ├── Dockerfile           # Container configuration
-├── requirements.txt     # Python dependencies
+├── pyproject.toml      # Python project configuration and dependencies
+├── uv.lock             # Dependency lock file
+├── requirements.txt     # Python dependencies (alternative to pyproject.toml)
+├── tests/               # Test suite directory
+│   ├── test_async_crawler.py    # Async crawler tests
+│   ├── test_cache.py            # Caching system tests
+│   ├── test_code_organization.py # Code structure tests
+│   ├── test_configuration.py    # Configuration tests
+│   ├── test_error_handling.py   # Error handling tests
+│   ├── test_font_awesome.py     # Font Awesome integration tests
+│   ├── test_keyboard_shortcuts.py # Keyboard shortcuts tests
+│   └── test_security.py         # Security feature tests
 ├── README.md            # Main project documentation
-├── CONFIGURATION.md     # Configuration guide
-├── ERROR_HANDLING.md    # Error handling documentation
-├── SECURITY.md          # Security documentation
-├── LICENSE              # Project license
-└── test_*.py           # Test suite files
+└── LICENSE              # Project license
 ```
 
 ## SNPedia Package Structure
@@ -85,11 +101,10 @@ SNPedia/
     └── dna-body.png
 ```
 
-### Data Directory (`SNPedia/data/`)
+### Data Directory (`data/`)
 
 Runtime data storage:
 
-- `__init__.py` - Data module initialization
 - User genetic data files (generated at runtime)
 - SNPedia crawled data (generated at runtime)
 - `approved.json` - Cached list of approved SNPs from SNPedia
@@ -104,12 +119,12 @@ Runtime data storage:
 ### Security Documentation
 
 - **SECURITY.md** - Security features, best practices, and vulnerability reporting
-- **test_security.py** - Security validation tests
+- **tests/test_security.py** - Security validation tests
 
 ### Error Handling
 
 - **ERROR_HANDLING.md** - Error handling patterns and troubleshooting guide
-- **test_error_handling.py** - Error handling tests
+- **tests/test_error_handling.py** - Error handling tests
 
 ### General Documentation
 
@@ -118,11 +133,15 @@ Runtime data storage:
 
 ## Test Suite
 
-Located in the root directory:
+Located in the `tests/` directory:
 
+- `test_async_crawler.py` - Async crawler functionality tests
+- `test_cache.py` - Caching system and performance tests
 - `test_code_organization.py` - Code structure and organization tests
 - `test_configuration.py` - Configuration validation tests
 - `test_error_handling.py` - Error handling tests
+- `test_font_awesome.py` - Font Awesome integration tests
+- `test_keyboard_shortcuts.py` - Keyboard shortcuts functionality tests
 - `test_security.py` - Security feature tests
 
 ## Images Directory
@@ -139,7 +158,7 @@ Contains screenshots and visual documentation:
 - **Flask** - Web framework
 - **BeautifulSoup** - Web scraping for SNPedia
 - **Gunicorn** - Production WSGI server
-- **Python 3.8+** - Programming language
+- **Python 3.13+** - Programming language
 
 ### Frontend
 - **Tabulator** - Grid component for data display with filtering, sorting, and Excel export
@@ -160,7 +179,7 @@ Contains screenshots and visual documentation:
 2. **Crawling Phase** (`data_crawler.py`)
    - Fetches SNP information from SNPedia API
    - Implements rate limiting to respect server resources
-   - Stores data locally in `SNPedia/data/`
+   - Stores data locally in `data/`
 
 3. **Display Phase** (`app.py`)
    - Flask serves the web interface
@@ -194,10 +213,10 @@ The modular structure supports planned features:
 
 ## Development Workflow
 
-1. Install dependencies: `pip install -r requirements.txt`
+1. Install dependencies: `uv sync`
 2. Configure environment: Copy `.env.example` to `.env`
-3. Run tests: `python test_*.py`
-4. Start development server: `python SNPedia/app.py`
+3. Run tests: `uv run python tests/test_*.py` or `uv run python -m pytest tests/`
+4. Start development server: `uv run python SNPedia/app.py`
 5. Access application: `http://127.0.0.1:5000`
 
 ## Production Deployment
@@ -210,7 +229,7 @@ The modular structure supports planned features:
 
 ## Privacy & Data Storage
 
-All genetic data is stored locally in the `SNPedia/data/` directory. The application:
+All genetic data is stored locally in the `data/` directory. The application:
 
 - Never transmits genetic data to external servers
 - Only fetches public SNP information from SNPedia

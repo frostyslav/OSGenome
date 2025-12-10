@@ -51,8 +51,8 @@ class Config:
     # Rate limiting
     RATELIMIT_ENABLED = str_to_bool(os.environ.get('RATELIMIT_ENABLED', 'true'))
     RATELIMIT_STORAGE_URL = os.environ.get('RATELIMIT_STORAGE_URL', 'memory://')
-    REQUEST_DELAY = get_env_float('REQUEST_DELAY', 1.0)  # seconds
-    MAX_RETRIES = get_env_int('MAX_RETRIES', 3)
+    REQUEST_DELAY = get_env_float('REQUEST_DELAY', 1.5)  # seconds - increased for stability
+    MAX_RETRIES = get_env_int('MAX_RETRIES', 5)  # increased retries for server errors
     RETRY_DELAY = get_env_int('RETRY_DELAY', 5)  # seconds
     REQUEST_TIMEOUT = get_env_int('REQUEST_TIMEOUT', 30)  # seconds
     

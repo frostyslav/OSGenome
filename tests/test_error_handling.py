@@ -9,7 +9,7 @@ import tempfile
 os.environ['FLASK_ENV'] = 'development'
 
 # Add SNPedia to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'SNPedia'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 def test_utils_error_handling():
@@ -55,7 +55,7 @@ def test_utils_error_handling():
 def test_flask_error_handlers():
     """Test Flask error handlers."""
     print("\nTesting Flask error handlers...")
-    from app import app
+    from SNPedia.app import app
     
     with app.test_client() as client:
         # Test 404
@@ -123,7 +123,7 @@ def test_file_validation():
 def test_base64_validation():
     """Test base64 validation."""
     print("\nTesting base64 validation...")
-    from app import validate_base64
+    from SNPedia.app import validate_base64
     import base64
     
     # Valid base64
@@ -157,7 +157,7 @@ def test_base64_validation():
 def test_allowed_file():
     """Test file extension validation."""
     print("\nTesting file extension validation...")
-    from app import allowed_file
+    from SNPedia.app import allowed_file
     
     test_cases = [
         ("report.xlsx", True),
@@ -183,7 +183,7 @@ def test_allowed_file():
 def test_api_error_responses():
     """Test API error responses."""
     print("\nTesting API error responses...")
-    from app import app
+    from SNPedia.app import app
     
     with app.test_client() as client:
         # Test /api/rsids with no data

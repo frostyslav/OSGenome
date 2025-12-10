@@ -8,14 +8,14 @@ import sys
 os.environ['FLASK_ENV'] = 'development'
 
 # Add SNPedia to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'SNPedia'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 def test_imports():
     """Test that all security-related imports work."""
     print("Testing imports...")
     try:
-        from app import app, allowed_file, validate_base64
+        from SNPedia.app import app, allowed_file, validate_base64
         from SNPedia.core.config import get_config
         from werkzeug.utils import secure_filename
         print("✓ All imports successful")
@@ -71,7 +71,7 @@ def test_secure_filename():
 def test_file_validation():
     """Test file extension validation."""
     print("\nTesting file validation...")
-    from app import allowed_file
+    from SNPedia.app import allowed_file
     
     test_cases = [
         ("report.xlsx", True),
@@ -96,7 +96,7 @@ def test_file_validation():
 def test_base64_validation():
     """Test base64 validation."""
     print("\nTesting base64 validation...")
-    from app import validate_base64
+    from SNPedia.app import validate_base64
     import base64
     
     # Valid base64
@@ -137,11 +137,11 @@ def test_environment():
         checks.append(False)
     
     # Check SECURITY.md exists
-    if os.path.exists('SECURITY.md'):
-        print("  ✓ SECURITY.md exists")
+    if os.path.exists('docs/SECURITY.md'):
+        print("  ✓ docs/SECURITY.md exists")
         checks.append(True)
     else:
-        print("  ✗ SECURITY.md missing")
+        print("  ✗ docs/SECURITY.md missing")
         checks.append(False)
     
     # Check core/config.py exists

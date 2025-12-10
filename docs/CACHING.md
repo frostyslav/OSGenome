@@ -294,7 +294,7 @@ The `load_from_file` function maintains backward compatibility:
 
 Run cache tests:
 ```bash
-python test_cache.py
+uv run python tests/test_cache.py
 ```
 
 All tests should pass, verifying:

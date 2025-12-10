@@ -61,7 +61,7 @@ cp .env.example .env
 Ensure proper file permissions:
 ```bash
 chmod 600 .env
-chmod 700 SNPedia/data/
+chmod 700 data/
 ```
 
 ## Best Practices
@@ -71,7 +71,7 @@ chmod 700 SNPedia/data/
 1. **Never share your raw genetic data files**
 2. **Use strong SECRET_KEY in production**
 3. **Run behind HTTPS in production** (use nginx/Apache as reverse proxy)
-4. **Keep dependencies updated**: `pip install -U -r requirements.txt`
+4. **Keep dependencies updated**: `uv sync --upgrade`
 5. **Review logs regularly** for suspicious activity
 6. **Backup your data** before processing
 
@@ -81,7 +81,7 @@ chmod 700 SNPedia/data/
 2. **Validate all user inputs**
 3. **Use parameterized queries** if adding database support
 4. **Keep dependencies minimal** and audited
-5. **Run security scanners**: `pip install safety && safety check`
+5. **Run security scanners**: `uv add --group dev safety && uv run safety check`
 6. **Follow OWASP guidelines**
 
 ## Reporting Security Issues

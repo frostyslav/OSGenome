@@ -26,7 +26,7 @@
 ### 🔬 Research Workflow
 ```
 1. Ctrl+F → Type filter
-2. ↓↓↓ → Navigate results  
+2. ↓↓↓ → Navigate results
 3. Enter → Select SNP
 4. Ctrl+L → Open SNPedia
 ```

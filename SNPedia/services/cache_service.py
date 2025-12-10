@@ -1,13 +1,18 @@
 """Service for cache management operations."""
 
-from typing import Dict, Any
-from SNPedia.utils.cache_manager import get_cache_stats, clear_all_cache, invalidate_cache
+from typing import Any, Dict
+
 from SNPedia.core.logger import logger
+from SNPedia.utils.cache_manager import (
+    clear_all_cache,
+    get_cache_stats,
+    invalidate_cache,
+)
 
 
 class CacheService:
     """Service for managing cache operations."""
-    
+
     @staticmethod
     def get_stats() -> Dict[str, Any]:
         """Get cache statistics."""
@@ -19,9 +24,9 @@ class CacheService:
                 "total_entries": 0,
                 "total_size_mb": 0,
                 "hit_rate": 0.0,
-                "error": str(e)
+                "error": str(e),
             }
-    
+
     @staticmethod
     def clear_all() -> bool:
         """Clear all cache entries."""
@@ -32,7 +37,7 @@ class CacheService:
         except Exception as e:
             logger.error(f"Error clearing cache: {e}")
             return False
-    
+
     @staticmethod
     def invalidate_file(filename: str) -> bool:
         """Invalidate cache for a specific file."""

@@ -3,10 +3,10 @@
 
 import os
 import sys
-import warnings
+import warnings  # noqa: F401
 
 # Set environment
-os.environ['FLASK_ENV'] = 'development'
+os.environ["FLASK_ENV"] = "development"
 
 # Add SNPedia to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -15,69 +15,70 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 def test_new_imports():
     """Test new import structure."""
     print("Testing new imports...")
-    
+
     try:
         # Core imports
-        from core import get_logger, get_config, OSGenomeException
+        from core import OSGenomeException, get_config, get_logger  # noqa: F401
+
         print("  ✓ Core imports work")
-        
+
         # Utils imports
-        from utils import export_to_file, load_from_file
+        from utils import export_to_file, load_from_file  # noqa: F401
+
         print("  ✓ Utils imports work")
-        
+
         # Validation imports
-        from utils import validate_rsid, validate_allele
+        from utils import validate_allele, validate_rsid  # noqa: F401
+
         print("  ✓ Validation imports work")
-        
+
         # Security imports
-        from utils.security import validate_base64_data
+        from utils.security import validate_base64_data  # noqa: F401
+
         print("  ✓ Security imports work")
-        
+
         return True
-        
+
     except ImportError as e:
         print(f"  ✗ Import failed: {e}")
         return False
 
 
-
-
-
 def test_validation_functions():
     """Test validation utilities."""
     print("\nTesting validation functions...")
-    
-    from utils import validate_rsid, validate_allele, validate_genotype
-    
+
+    from utils import validate_allele, validate_genotype, validate_rsid
+
     # Test RSid validation
     test_cases = [
-        ('rs123456', True),
-        ('i5000001', True),
-        ('invalid', False),
-        ('', False),
+        ("rs123456", True),
+        ("i5000001", True),
+        ("invalid", False),
+        ("", False),
         (None, False),
     ]
-    
+
     all_passed = True
     for rsid, expected in test_cases:
-        result = validate_rsid(rsid) if rsid is not None else validate_rsid('')
+        result = validate_rsid(rsid) if rsid is not None else validate_rsid("")
         if result == expected:
             print(f"  ✓ validate_rsid('{rsid}'): {result}")
         else:
             print(f"  ✗ validate_rsid('{rsid}'): expected {expected}, got {result}")
             all_passed = False
-    
+
     # Test allele validation
     allele_cases = [
-        ('A', True),
-        ('T', True),
-        ('C', True),
-        ('G', True),
-        ('-', True),
-        ('X', False),
-        ('', False),
+        ("A", True),
+        ("T", True),
+        ("C", True),
+        ("G", True),
+        ("-", True),
+        ("X", False),
+        ("", False),
     ]
-    
+
     for allele, expected in allele_cases:
         result = validate_allele(allele)
         if result == expected:
@@ -85,34 +86,37 @@ def test_validation_functions():
         else:
             print(f"  ✗ validate_allele('{allele}'): expected {expected}, got {result}")
             all_passed = False
-    
+
     # Test genotype validation
     genotype_cases = [
-        ('(A;T)', True),
-        ('(-;-)', True),
-        ('(C;G)', True),
-        ('invalid', False),
-        ('(X;Y)', False),
+        ("(A;T)", True),
+        ("(-;-)", True),
+        ("(C;G)", True),
+        ("invalid", False),
+        ("(X;Y)", False),
     ]
-    
+
     for genotype, expected in genotype_cases:
         result, _ = validate_genotype(genotype)
         if result == expected:
             print(f"  ✓ validate_genotype('{genotype}'): {result}")
         else:
-            print(f"  ✗ validate_genotype('{genotype}'): expected {expected}, got {result}")
+            print(
+                f"  ✗ validate_genotype('{genotype}'): expected {expected}, got {result}"
+            )
             all_passed = False
-    
+
     return all_passed
 
 
 def test_security_functions():
     """Test security utilities."""
     print("\nTesting security functions...")
-    
-    from utils.security import validate_base64_data, secure_filename_wrapper
+
     import base64
-    
+
+    from utils.security import secure_filename_wrapper, validate_base64_data
+
     # Test base64 validation
     valid_data = base64.b64encode(b"Hello, World!").decode()
     result = validate_base64_data(valid_data)
@@ -122,7 +126,7 @@ def test_security_functions():
     else:
         print("  ✗ Valid base64 failed")
         valid_test = False
-    
+
     # Test invalid base64
     result = validate_base64_data("invalid!!!")
     if result is None:
@@ -131,7 +135,7 @@ def test_security_functions():
     else:
         print("  ✗ Invalid base64 not rejected")
         invalid_test = False
-    
+
     # Test secure filename
     try:
         result = secure_filename_wrapper("test file.txt")
@@ -144,21 +148,21 @@ def test_security_functions():
     except Exception as e:
         print(f"  ✗ Secure filename failed: {e}")
         filename_test = False
-    
+
     return valid_test and invalid_test and filename_test
 
 
 def test_exception_hierarchy():
     """Test custom exception hierarchy."""
     print("\nTesting exception hierarchy...")
-    
+
     from core import (
-        OSGenomeException,
-        ValidationError,
         ConfigurationError,
         CrawlerError,
+        OSGenomeException,
+        ValidationError,
     )
-    
+
     # Test exception inheritance
     try:
         raise ValidationError("Test validation error")
@@ -168,7 +172,7 @@ def test_exception_hierarchy():
     except Exception:
         print("  ✗ ValidationError not caught as OSGenomeException")
         validation_test = False
-    
+
     # Test configuration error
     try:
         raise ConfigurationError("Test config error")
@@ -178,7 +182,7 @@ def test_exception_hierarchy():
     except Exception:
         print("  ✗ ConfigurationError not caught as OSGenomeException")
         config_test = False
-    
+
     # Test crawler error
     try:
         raise CrawlerError("Test crawler error")
@@ -188,26 +192,26 @@ def test_exception_hierarchy():
     except Exception:
         print("  ✗ CrawlerError not caught as OSGenomeException")
         crawler_test = False
-    
+
     return validation_test and config_test and crawler_test
 
 
 def test_logger_functionality():
     """Test logger functionality."""
     print("\nTesting logger functionality...")
-    
+
     from core import get_logger
-    
+
     # Get logger
     logger = get_logger("test_logger")
-    
+
     if logger:
         print("  ✓ Logger created successfully")
         logger_test = True
     else:
         print("  ✗ Logger creation failed")
         logger_test = False
-    
+
     # Test logger with different name
     logger2 = get_logger("another_logger")
     if logger2 and logger2.name == "another_logger":
@@ -216,42 +220,42 @@ def test_logger_functionality():
     else:
         print("  ✗ Logger name not set correctly")
         name_test = False
-    
+
     return logger_test and name_test
 
 
 def test_package_initialization():
     """Test package initialization."""
     print("\nTesting package initialization...")
-    
+
     try:
         import SNPedia
-        
+
         # Check version
-        if hasattr(SNPedia, '__version__'):
+        if hasattr(SNPedia, "__version__"):
             print(f"  ✓ Package version: {SNPedia.__version__}")
             version_test = True
         else:
             print("  ✗ Package version not set")
             version_test = False
-        
+
         # Check author
-        if hasattr(SNPedia, '__author__'):
+        if hasattr(SNPedia, "__author__"):
             print(f"  ✓ Package author: {SNPedia.__author__}")
             author_test = True
         else:
             print("  ✗ Package author not set")
             author_test = False
-        
+
         # Check exports
         expected_exports = [
-            'get_config',
-            'get_logger',
-            'export_to_file',
-            'load_from_file',
-            'validate_rsid',
+            "get_config",
+            "get_logger",
+            "export_to_file",
+            "load_from_file",
+            "validate_rsid",
         ]
-        
+
         all_present = True
         for export in expected_exports:
             if hasattr(SNPedia, export):
@@ -259,9 +263,9 @@ def test_package_initialization():
             else:
                 print(f"  ✗ Export missing: {export}")
                 all_present = False
-        
+
         return version_test and author_test and all_present
-        
+
     except ImportError as e:
         print(f"  ✗ Package import failed: {e}")
         return False
@@ -272,7 +276,7 @@ def main():
     print("=" * 60)
     print("OSGenome Code Organization Tests")
     print("=" * 60)
-    
+
     tests = [
         test_new_imports,
         test_validation_functions,
@@ -281,7 +285,7 @@ def main():
         test_logger_functionality,
         test_package_initialization,
     ]
-    
+
     results = []
     for test in tests:
         try:
@@ -289,15 +293,16 @@ def main():
         except Exception as e:
             print(f"\n✗ Test failed with exception: {e}")
             import traceback
+
             traceback.print_exc()
             results.append(False)
-    
+
     print("\n" + "=" * 60)
     passed = sum(results)
     total = len(results)
     print(f"Results: {passed}/{total} tests passed")
     print("=" * 60)
-    
+
     if all(results):
         print("\n✓ All code organization tests passed!")
         return 0

@@ -35,21 +35,21 @@ OSGenome includes comprehensive error handling throughout the application to ens
 ```python
 FileNotFoundError: File not found: /path/to/file.txt
 ```
-**Cause:** Specified file doesn't exist  
+**Cause:** Specified file doesn't exist
 **Solution:** Check file path and ensure file exists
 
 #### Permission Denied
 ```python
 PermissionError: Cannot read file: /path/to/file.txt
 ```
-**Cause:** Insufficient permissions to read/write file  
+**Cause:** Insufficient permissions to read/write file
 **Solution:** Check file permissions with `ls -la` and adjust with `chmod`
 
 #### File Too Large
 ```python
 ValueError: File too large: 150000000 bytes (max 100000000)
 ```
-**Cause:** File exceeds size limits  
+**Cause:** File exceeds size limits
 **Solution:** Check file size, limits are:
 - Uploads: 16MB
 - Imports: 100MB
@@ -59,7 +59,7 @@ ValueError: File too large: 150000000 bytes (max 100000000)
 ```python
 ValueError: File must be UTF-8 encoded
 ```
-**Cause:** File is not UTF-8 encoded  
+**Cause:** File is not UTF-8 encoded
 **Solution:** Convert file to UTF-8: `iconv -f ISO-8859-1 -t UTF-8 input.txt > output.txt`
 
 ### Network Operations
@@ -68,23 +68,23 @@ ValueError: File must be UTF-8 encoded
 ```python
 Request timeout on attempt 1/3
 ```
-**Cause:** Network request took too long  
-**Action:** Automatic retry with exponential backoff  
+**Cause:** Network request took too long
+**Action:** Automatic retry with exponential backoff
 **Solution:** Check internet connection
 
 #### Rate Limited (429)
 ```python
 Rate limited (429) on attempt 1/3
 ```
-**Cause:** Too many requests to SNPedia  
-**Action:** Automatic retry with longer delays  
+**Cause:** Too many requests to SNPedia
+**Action:** Automatic retry with longer delays
 **Solution:** Wait for rate limit to reset (handled automatically)
 
 #### Network Error
 ```python
 Network error for rs123456: [Errno 11001] getaddrinfo failed
 ```
-**Cause:** DNS resolution or network connectivity issue  
+**Cause:** DNS resolution or network connectivity issue
 **Solution:** Check internet connection and DNS settings
 
 ### Data Validation
@@ -93,23 +93,23 @@ Network error for rs123456: [Errno 11001] getaddrinfo failed
 ```python
 Skipping invalid rsid format: invalid123
 ```
-**Cause:** RSid doesn't start with 'rs' or 'i'  
-**Action:** Skip invalid entry  
+**Cause:** RSid doesn't start with 'rs' or 'i'
+**Action:** Skip invalid entry
 **Solution:** Check data file format
 
 #### Invalid Allele
 ```python
 Invalid allele detected, using '-' instead
 ```
-**Cause:** Allele is not A, T, C, G, -, I, or D  
-**Action:** Replace with '-'  
+**Cause:** Allele is not A, T, C, G, -, I, or D
+**Action:** Replace with '-'
 **Solution:** Check data file quality
 
 #### Invalid JSON
 ```python
 Invalid JSON in file results.json: Expecting ',' delimiter
 ```
-**Cause:** Corrupted or malformed JSON file  
+**Cause:** Corrupted or malformed JSON file
 **Solution:** Delete file and re-run import/crawl
 
 ### Application Errors
@@ -118,22 +118,22 @@ Invalid JSON in file results.json: Expecting ',' delimiter
 ```python
 No result_table.json found, starting with empty results
 ```
-**Cause:** Application started before data processing  
-**Action:** Start with empty dataset  
+**Cause:** Application started before data processing
+**Action:** Start with empty dataset
 **Solution:** Run data crawler first
 
 #### Missing Required Fields
 ```python
 Bad Request: Missing required fields
 ```
-**Cause:** API request missing required parameters  
+**Cause:** API request missing required parameters
 **Solution:** Check API request format
 
 #### Invalid File Type
 ```python
 Bad Request: Invalid filename or file type
 ```
-**Cause:** File type not in allowed list (.xlsx, .xls)  
+**Cause:** File type not in allowed list (.xlsx, .xls)
 **Solution:** Use correct file format
 
 ## Error Handling by Component

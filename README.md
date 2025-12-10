@@ -14,6 +14,9 @@ For detailed information about specific aspects of OSGenome, see our comprehensi
 - **[Error Handling](docs/ERROR_HANDLING.md)** - Troubleshooting guide, common issues, and error resolution
 - **[Keyboard Shortcuts](docs/KEYBOARD_SHORTCUTS.md)** - Complete list of keyboard shortcuts and navigation tips
 - **[Repository Structure](docs/REPOSITORY_STRUCTURE.md)** - Project organization, file structure, and development workflow
+- **[Docker Deployment](docs/DOCKER.md)** - Container optimization, multi-stage builds, and production deployment
+- **[API Documentation](docs/_build/html/index.html)** - Complete API reference with type hints and examples
+- **[Docstring Style Guide](docs/DOCSTRING_STYLE_GUIDE.md)** - Documentation standards and best practices
 - **[Quick Reference](docs/QUICK_REFERENCE.md)** - Quick commands and common operations
 
 ## What are SNPs?
@@ -150,7 +153,11 @@ Raw Data coming from Genetic tests done by Direct To Consumer companies such as 
 
 ### Step 0: Install Dependencies
 ```bash
+# Install production dependencies
 uv sync
+
+# Install development dependencies (includes documentation and type checking tools)
+uv sync --group dev
 ```
 This installs Flask (web server), BeautifulSoup (web scraping), and other required packages.
 
@@ -167,6 +174,12 @@ python -c "import os; print('SECRET_KEY=' + os.urandom(32).hex())" >> .env
 ```bash
 # Run security tests
 uv run python tests/test_security.py
+
+# Generate documentation (development dependencies required)
+./scripts/generate-docs.sh
+
+# Run type checking
+./scripts/type-check.sh
 ```
 
 
@@ -180,13 +193,25 @@ This processes your genetic data and fetches relevant information from SNPedia. 
 
 ### Step 2: Start the Web Server
 
+**Docker (recommended):**
+```bash
+# Production deployment
+docker-compose up
+
+# Development with hot reload
+docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+# Build optimized image
+./scripts/docker-build.sh --target production
+```
+
 **Development mode:**
 ```bash
 export FLASK_ENV=development
 python3 SNPedia/app.py
 ```
 
-**Production mode (recommended):**
+**Production mode:**
 ```bash
 export FLASK_ENV=production
 export SECRET_KEY=your-secret-key-from-env-file
@@ -202,6 +227,60 @@ All processing happens locally on your machine.
 
 ## arv support
 There exists a library arv ([GitHub: cslarsen/arv - A fast 23andMe DNA parser and inferrer for Python](https://github.com/cslarsen/arv)) that allows for rule based matching of health and trait attributes using a hash table of raw genetic data. It is possible to alter the rsidDict.json to allow for automatically populating the rule matching conditions. I will be designing this functionality in a python script that will be able to be used to import the JSON as a dictionary that can be called within the rule matching. Please keep in mind its respective disclaimers before using the service.
+
+## Development 🛠️
+
+OSGenome follows modern Python development practices with comprehensive type hints, documentation, and code quality tools.
+
+### Code Quality Tools
+
+The project includes several tools to maintain code quality:
+
+```bash
+# Type checking with MyPy
+./scripts/type-check.sh
+
+# Generate comprehensive documentation
+./scripts/generate-docs.sh
+
+# Run pre-commit hooks
+pre-commit run --all-files
+
+# Format code with Black
+uv run black SNPedia/
+
+# Sort imports with isort
+uv run isort SNPedia/
+
+# Lint with flake8
+uv run flake8 SNPedia/
+```
+
+### Documentation Standards
+
+- **Complete type hints**: All functions have comprehensive type annotations
+- **Google-style docstrings**: Consistent documentation format with examples
+- **Automatic API docs**: Generated with Sphinx from docstrings
+- **Code examples**: Real-world usage examples in documentation
+
+### Type Safety
+
+The codebase uses comprehensive type hints:
+- Function parameters and return types
+- Optional and Union types where appropriate
+- Generic types for collections
+- MyPy configuration for strict type checking
+
+### Documentation Generation
+
+API documentation is automatically generated from docstrings:
+
+```bash
+# Generate and view documentation
+./scripts/generate-docs.sh
+
+# Documentation will be available at docs/_build/html/index.html
+```
 
 ## Example
 The application provides a responsive grid interface for viewing and analyzing your genetic data with filtering, sorting, and export capabilities.

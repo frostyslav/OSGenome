@@ -12,7 +12,7 @@ if (typeof Tabulator === 'undefined') {
 // Initialize Tabulator
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, initializing table...');
-  
+
   try {
     table = new Tabulator("#grid", {
       layout: "fitColumns",
@@ -98,13 +98,13 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Selection changed:', rows.length, 'rows selected');
       }
     });
-    
+
     console.log('Table initialized');
-    
+
     // Show loading spinner
     const spinner = document.getElementById('loadingSpinner');
     spinner.classList.remove('hidden');
-    
+
     // Load data
     fetch('/api/rsids')
       .then(response => {
@@ -115,27 +115,27 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Data received:', data.results ? data.results.length + ' rows' : 'no results');
         // Hide loading spinner
         spinner.classList.add('hidden');
-        
+
         if (data.results && data.results.length > 0) {
           table.setData(data.results);
           console.log('Data loaded into table');
-          
+
           // Add a test to verify selectable is working
           setTimeout(function() {
             console.log('Table selectable config:', table.options.selectable);
             console.log('Total rows:', table.getRows().length);
-            
+
             // Add direct DOM listener to handle row selection
             const gridElement = document.getElementById('grid');
             gridElement.addEventListener('click', function(e) {
               console.log('Click detected!', e.target.className);
-              
+
               // Find the row element
               let rowElement = e.target;
               while (rowElement && !rowElement.classList.contains('tabulator-row')) {
                 rowElement = rowElement.parentElement;
               }
-              
+
               if (rowElement && rowElement.classList.contains('tabulator-row')) {
                 console.log('Row element found!');
                 // Get the row component from Tabulator
@@ -180,10 +180,10 @@ function exportToExcel() {
 // Lookup selected SNP on SNPedia
 function lookupSNPedia() {
   if (!table) return;
-  
+
   // Try to get selected rows first
   let selectedRows = table.getSelectedData();
-  
+
   // If no selection, prompt user to enter RSid
   if (selectedRows.length === 0) {
     const rsid = prompt('Enter RSid (e.g., rs3131972) or click a row first:');
@@ -193,7 +193,7 @@ function lookupSNPedia() {
     }
     return;
   }
-  
+
   const rsid = selectedRows[0].Name;
   const url = 'https://snpedia.com/index.php/' + rsid;
   window.open(url, '_blank');
@@ -222,10 +222,10 @@ document.addEventListener('click', function(e) {
 // Reload table data
 function reloadData() {
   if (!table) return;
-  
+
   const spinner = document.getElementById('loadingSpinner');
   spinner.classList.remove('hidden');
-  
+
   fetch('/api/rsids')
     .then(response => response.json())
     .then(data => {
@@ -255,7 +255,7 @@ function clearSelectionAndMenus() {
   if (table) {
     table.deselectRow();
   }
-  
+
   const menu = document.getElementById('columnMenu');
   if (menu && menu.classList.contains('show')) {
     menu.classList.remove('show');
@@ -266,49 +266,49 @@ function clearSelectionAndMenus() {
 document.addEventListener('keydown', function(e) {
   // Check for Ctrl (Windows/Linux) or Cmd (Mac)
   const modifier = e.ctrlKey || e.metaKey;
-  
+
   // Ctrl/Cmd + E: Export to Excel
   if (modifier && e.key === 'e') {
     e.preventDefault();
     exportToExcel();
     return;
   }
-  
+
   // Ctrl/Cmd + L: Lookup on SNPedia
   if (modifier && e.key === 'l') {
     e.preventDefault();
     lookupSNPedia();
     return;
   }
-  
+
   // Ctrl/Cmd + F: Focus search
   if (modifier && e.key === 'f') {
     e.preventDefault();
     focusSearch();
     return;
   }
-  
+
   // Ctrl/Cmd + K: Toggle column menu
   if (modifier && e.key === 'k') {
     e.preventDefault();
     toggleColumnMenu();
     return;
   }
-  
+
   // Ctrl/Cmd + R: Reload data
   if (modifier && e.key === 'r') {
     e.preventDefault();
     reloadData();
     return;
   }
-  
+
   // Ctrl/Cmd + /: Show keyboard shortcuts
   if (modifier && e.key === '/') {
     e.preventDefault();
     showKeyboardShortcuts();
     return;
   }
-  
+
   // Escape: Clear selection and close menus/modals
   if (e.key === 'Escape') {
     const modal = document.getElementById('shortcutsModal');
@@ -368,16 +368,16 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     // Load saved visibility state
     const visibility = loadColumnVisibility();
-    
+
     // Update checkboxes and table columns based on saved state
     const checkboxes = document.querySelectorAll('#columnMenu input[type="checkbox"]');
     checkboxes.forEach(function(checkbox) {
       const columnName = checkbox.getAttribute('data-column');
       const isVisible = visibility[columnName];
-      
+
       // Update checkbox state
       checkbox.checked = isVisible;
-      
+
       // Update table column visibility
       if (table) {
         if (isVisible) {
@@ -387,17 +387,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
-    
+
     // Redraw table after all columns are set to fix layout
     if (table) {
       table.redraw(true);
       console.log('Table redrawn after restoring column visibility');
     }
-    
+
     // Add change listeners
     checkboxes.forEach(function(checkbox) {
       const columnName = checkbox.getAttribute('data-column');
-      
+
       // Add change listener
       checkbox.addEventListener('change', function() {
         if (table) {

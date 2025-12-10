@@ -1,0 +1,33 @@
+# Development overrides for docker-compose.yml
+version: '3.8'
+
+services:
+  osgenome:
+    build:
+      dockerfile: Dockerfile.dev  # Use development Dockerfile with dev dependencies
+    environment:
+      - FLASK_ENV=development
+      - LOG_LEVEL=DEBUG
+      - GUNICORN_PROCESSES=1
+      - GUNICORN_THREADS=2
+    volumes:
+      # Mount source code for development
+      - ./SNPedia:/app/SNPedia:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./README.md:/app/README.md:ro
+      # Mount data directory
+      - ./data:/app/data:rw
+      # Mount logs for debugging
+      - ./logs:/app/logs:rw
+    # Remove read-only restriction for development
+    read_only: false
+    # Remove resource limits for development
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '2.0'
+    # Enable hot reloading (if using development server)
+    command: ["uv", "run", "python", "SNPedia/app.py"]
+    ports:
+      - "5000:5000"  # Development port

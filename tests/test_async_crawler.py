@@ -6,7 +6,7 @@ This demonstrates the speed improvement of the async implementation.
 
 import time
 import json
-from SNPedia.data_crawler import SNPCrawl
+from SNPedia.services.crawler_service import CrawlerService
 from SNPedia.core.logger import logger
 
 

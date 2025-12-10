@@ -91,11 +91,12 @@ def test_flask_error_handlers():
 def test_file_validation():
     """Test file validation in genome importer."""
     print("\nTesting file validation...")
-    from genome_importer import PersonalData
+    from SNPedia.services.import_service import ImportService
     
     # Test non-existent file
     try:
-        PersonalData("/nonexistent/file.txt")
+        import_service = ImportService()
+        import_service.import_genome_file("/nonexistent/file.txt")
         print("  ✗ Should raise FileNotFoundError")
         return False
     except FileNotFoundError:
@@ -103,7 +104,8 @@ def test_file_validation():
     
     # Test invalid file path
     try:
-        PersonalData("")
+        import_service = ImportService()
+        import_service.import_genome_file("")
         print("  ✗ Should raise ValueError for empty path")
         return False
     except ValueError:
@@ -111,7 +113,8 @@ def test_file_validation():
     
     # Test None file path
     try:
-        PersonalData(None)
+        import_service = ImportService()
+        import_service.import_genome_file(None)
         print("  ✗ Should raise ValueError for None path")
         return False
     except ValueError:

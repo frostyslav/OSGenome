@@ -12,7 +12,7 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_new_imports():
+def test_new_imports() -> None:
     """Test new import structure."""
     print("Testing new imports...")
 
@@ -44,7 +44,7 @@ def test_new_imports():
         return False
 
 
-def test_validation_functions():
+def test_validation_functions() -> None:
     """Test validation utilities."""
     print("\nTesting validation functions...")
 
@@ -109,7 +109,7 @@ def test_validation_functions():
     return all_passed
 
 
-def test_security_functions():
+def test_security_functions() -> None:
     """Test security utilities."""
     print("\nTesting security functions...")
 
@@ -152,7 +152,7 @@ def test_security_functions():
     return valid_test and invalid_test and filename_test
 
 
-def test_exception_hierarchy():
+def test_exception_hierarchy() -> None:
     """Test custom exception hierarchy."""
     print("\nTesting exception hierarchy...")
 
@@ -196,7 +196,7 @@ def test_exception_hierarchy():
     return validation_test and config_test and crawler_test
 
 
-def test_logger_functionality():
+def test_logger_functionality() -> None:
     """Test logger functionality."""
     print("\nTesting logger functionality...")
 
@@ -224,7 +224,7 @@ def test_logger_functionality():
     return logger_test and name_test
 
 
-def test_package_initialization():
+def test_package_initialization() -> None:
     """Test package initialization."""
     print("\nTesting package initialization...")
 
@@ -271,7 +271,7 @@ def test_package_initialization():
         return False
 
 
-def main():
+def main() -> int:
     """Run all code organization tests."""
     print("=" * 60)
     print("OSGenome Code Organization Tests")

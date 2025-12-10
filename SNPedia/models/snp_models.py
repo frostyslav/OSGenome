@@ -14,7 +14,7 @@ class SNPData:
     chromosome: Optional[str] = None
     position: Optional[int] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate SNP data after initialization."""
         if not self.rsid or not isinstance(self.rsid, str):
             raise ValueError("RSID must be a non-empty string")
@@ -35,7 +35,7 @@ class PersonalGenome:
     metadata: Optional[Dict[str, Any]] = None
     created_at: Optional[datetime] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize metadata if not provided."""
         if self.metadata is None:
             self.metadata = {}
@@ -72,7 +72,7 @@ class SNPediaEntry:
     variations: List[List[str]]
     stabilized_orientation: str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate SNPedia entry data."""
         if not self.rsid or not isinstance(self.rsid, str):
             raise ValueError("RSID must be a non-empty string")

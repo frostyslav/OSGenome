@@ -4,7 +4,7 @@ import os
 import re
 
 
-def test_font_awesome_cdn_in_html():
+def test_font_awesome_cdn_in_html() -> None:
     """Test that Font Awesome CDN is included in HTML."""
     html_file = "SNPedia/templates/snp_resource.html"
 
@@ -22,7 +22,7 @@ def test_font_awesome_cdn_in_html():
     print("✓ Font Awesome CDN properly included in HTML")
 
 
-def test_font_awesome_icons_in_html():
+def test_font_awesome_icons_in_html() -> None:
     """Test that Font Awesome icons are used in HTML."""
     html_file = "SNPedia/templates/snp_resource.html"
 
@@ -57,7 +57,7 @@ def test_font_awesome_icons_in_html():
     print("✓ Font Awesome icons properly used in HTML")
 
 
-def test_font_awesome_styles_in_css():
+def test_font_awesome_styles_in_css() -> None:
     """Test that Font Awesome icon styles exist in CSS."""
     css_file = "SNPedia/css/app.css"
 
@@ -79,7 +79,7 @@ def test_font_awesome_styles_in_css():
     print("✓ Font Awesome icon styles properly implemented in CSS")
 
 
-def test_csp_allows_font_awesome():
+def test_csp_allows_font_awesome() -> None:
     """Test that CSP allows Font Awesome CDN."""
     app_file = "SNPedia/app.py"
 
@@ -100,7 +100,7 @@ def test_csp_allows_font_awesome():
     print("✓ CSP properly configured for Font Awesome")
 
 
-def test_no_emoji_in_buttons():
+def test_no_emoji_in_buttons() -> None:
     """Test that emojis are replaced with Font Awesome icons."""
     html_file = "SNPedia/templates/snp_resource.html"
 
@@ -127,7 +127,7 @@ def test_no_emoji_in_buttons():
     print("✓ Buttons use Font Awesome icons instead of emojis")
 
 
-def test_font_awesome_documentation():
+def test_font_awesome_documentation() -> None:
     """Test that Font Awesome usage is documented."""
     doc_file = "FONT_AWESOME_ICONS.md"
 
@@ -146,7 +146,7 @@ def test_font_awesome_documentation():
     print("✓ Font Awesome properly documented")
 
 
-def test_changelog_updated():
+def test_changelog_updated() -> None:
     """Test that changelog mentions Font Awesome."""
     changelog_file = "CHANGELOG_KEYBOARD_SHORTCUTS.md"
 

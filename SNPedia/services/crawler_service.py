@@ -3,7 +3,11 @@
 import asyncio
 import time
 import urllib.request
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from bs4.element import Tag
+
 from urllib.error import HTTPError
 
 import aiohttp
@@ -17,7 +21,7 @@ from SNPedia.data.repositories import SNPediaRepository, SNPRepository
 class CrawlerService:
     """Service for crawling SNPedia data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the crawler service.
 
         Sets up configuration, repositories, loads existing data,
@@ -134,7 +138,7 @@ class CrawlerService:
 
     async def _fetch_rsid_with_semaphore(
         self, session: aiohttp.ClientSession, rsid: str, semaphore: asyncio.Semaphore
-    ):
+    ) -> None:
         """Fetch RSID with semaphore-based rate limiting."""
         async with semaphore:
             await self._fetch_rsid_async(session, rsid)
@@ -303,7 +307,7 @@ class CrawlerService:
             logger.error(f"Error parsing page for {rsid}: {e}")
             return None
 
-    def _parse_table(self, table) -> List[List[str]]:
+    def _parse_table(self, table: "Tag") -> List[List[str]]:
         """Parse HTML table to list."""
         try:
             if not table:
@@ -332,7 +336,7 @@ class CrawlerService:
             logger.error(f"Error parsing table: {e}")
             return []
 
-    def _export_results(self):
+    def _export_results(self) -> None:
         """Export current results."""
         from SNPedia.utils.file_utils import export_to_file
 

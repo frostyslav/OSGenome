@@ -2,6 +2,10 @@
 
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
@@ -112,7 +116,7 @@ intersphinx_mapping = {
 
 
 # Add custom CSS
-def setup(app):
+def setup(app: "Sphinx") -> None:
     """Add custom CSS and JavaScript files."""
     app.add_css_file("custom.css")
 

@@ -2,7 +2,13 @@
 
 import logging
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Type
+
+try:
+    from flask import Flask
+except ImportError:
+    # Flask might not be available during type checking
+    Flask = Any
 
 
 def str_to_bool(value: str) -> bool:
@@ -107,7 +113,7 @@ class Config:
     MAX_PAGE_SIZE = get_env_int("MAX_PAGE_SIZE", 1000)
 
     @classmethod
-    def validate(cls) -> Dict[str, Any]:
+    def validate(cls: type["Config"]) -> Dict[str, Any]:
         """Validate configuration and return any issues."""
         issues = []
         warnings = []
@@ -140,7 +146,7 @@ class Config:
         return {"valid": len(issues) == 0, "issues": issues, "warnings": warnings}
 
     @classmethod
-    def to_dict(cls) -> Dict[str, Any]:
+    def to_dict(cls: type["Config"]) -> Dict[str, Any]:
         """Convert configuration to dictionary (excluding sensitive data)."""
         return {
             "APP_NAME": cls.APP_NAME,
@@ -185,7 +191,7 @@ class ProductionConfig(Config):
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
     @classmethod
-    def validate(cls) -> Dict[str, Any]:
+    def validate(cls: type["ProductionConfig"]) -> Dict[str, Any]:
         """Additional validation for production."""
         result = super().validate()
 
@@ -236,7 +242,7 @@ config = {
 }
 
 
-def get_config(env: str = None):
+def get_config(env: str = None) -> Type[Config]:
     """Get configuration based on environment.
 
     Args:
@@ -257,7 +263,7 @@ def get_config(env: str = None):
     return config_class
 
 
-def load_config(app, env: str = None):
+def load_config(app: Flask, env: str = None) -> Type[Config]:
     """Load configuration into Flask app.
 
     Args:

@@ -11,7 +11,7 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_config_loading():
+def test_config_loading() -> None:
     """Test configuration loading."""
     print("Testing configuration loading...")
     from SNPedia.core.config import (
@@ -56,7 +56,7 @@ def test_config_loading():
     return True
 
 
-def test_config_validation():
+def test_config_validation() -> None:
     """Test configuration validation."""
     print("\nTesting configuration validation...")
     from SNPedia.core.config import DevelopmentConfig, ProductionConfig
@@ -97,7 +97,7 @@ def test_config_validation():
     return True
 
 
-def test_config_to_dict():
+def test_config_to_dict() -> None:
     """Test configuration to dictionary conversion."""
     print("\nTesting configuration to_dict...")
     from SNPedia.core.config import DevelopmentConfig
@@ -132,7 +132,7 @@ def test_config_to_dict():
     return all_present
 
 
-def test_env_variable_parsing():
+def test_env_variable_parsing() -> None:
     """Test environment variable parsing."""
     print("\nTesting environment variable parsing...")
     from SNPedia.core.config import get_env_float, get_env_int, str_to_bool
@@ -193,7 +193,7 @@ def test_env_variable_parsing():
     return all_passed
 
 
-def test_config_values():
+def test_config_values() -> None:
     """Test configuration values are reasonable."""
     print("\nTesting configuration values...")
     from SNPedia.core.config import DevelopmentConfig, ProductionConfig, TestingConfig
@@ -247,7 +247,7 @@ def test_config_values():
     return True
 
 
-def test_flask_integration():
+def test_flask_integration() -> None:
     """Test Flask integration with configuration."""
     print("\nTesting Flask integration...")
 
@@ -318,7 +318,7 @@ def test_flask_integration():
         return False
 
 
-def main():
+def main() -> int:
     """Run all configuration tests."""
     print("=" * 60)
     print("OSGenome Configuration Management Tests")

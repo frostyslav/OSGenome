@@ -12,7 +12,7 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_utils_error_handling():
+def test_utils_error_handling() -> None:
     """Test error handling in utils module."""
     print("Testing utils error handling...")
     from utils import export_to_file, load_from_file
@@ -52,7 +52,7 @@ def test_utils_error_handling():
     return True
 
 
-def test_flask_error_handlers():
+def test_flask_error_handlers() -> None:
     """Test Flask error handlers."""
     print("\nTesting Flask error handlers...")
     from SNPedia.app import app
@@ -87,7 +87,7 @@ def test_flask_error_handlers():
     return True
 
 
-def test_file_validation():
+def test_file_validation() -> None:
     """Test file validation in genome importer."""
     print("\nTesting file validation...")
     from SNPedia.services.import_service import ImportService
@@ -122,7 +122,7 @@ def test_file_validation():
     return True
 
 
-def test_base64_validation():
+def test_base64_validation() -> None:
     """Test base64 validation."""
     print("\nTesting base64 validation...")
     import base64
@@ -157,7 +157,7 @@ def test_base64_validation():
     return True
 
 
-def test_allowed_file():
+def test_allowed_file() -> None:
     """Test file extension validation."""
     print("\nTesting file extension validation...")
     from SNPedia.app import allowed_file
@@ -183,7 +183,7 @@ def test_allowed_file():
     return all_passed
 
 
-def test_api_error_responses():
+def test_api_error_responses() -> None:
     """Test API error responses."""
     print("\nTesting API error responses...")
     from SNPedia.app import app
@@ -218,7 +218,7 @@ def test_api_error_responses():
     return True
 
 
-def main():
+def main() -> int:
     """Run all error handling tests."""
     print("=" * 60)
     print("OSGenome Error Handling Tests")

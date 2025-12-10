@@ -19,29 +19,29 @@ from SNPedia.utils.cache_manager import (
 class TestDataCache(unittest.TestCase):
     """Test DataCache class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test cache."""
         self.cache = DataCache(max_size=3, default_ttl=2)
 
-    def test_cache_set_and_get(self):
+    def test_cache_set_and_get(self) -> None:
         """Test basic cache set and get operations."""
         self.cache.set("key1", {"data": "value1"})
         result = self.cache.get("key1")
         self.assertEqual(result, {"data": "value1"})
 
-    def test_cache_miss(self):
+    def test_cache_miss(self) -> None:
         """Test cache miss returns None."""
         result = self.cache.get("nonexistent")
         self.assertIsNone(result)
 
-    def test_cache_expiration(self):
+    def test_cache_expiration(self) -> None:
         """Test cache entry expiration."""
         self.cache.set("key1", {"data": "value1"}, ttl=1)
         time.sleep(1.5)
         result = self.cache.get("key1")
         self.assertIsNone(result)
 
-    def test_cache_lru_eviction(self):
+    def test_cache_lru_eviction(self) -> None:
         """Test LRU eviction when cache is full."""
         self.cache.set("key1", "value1")
         self.cache.set("key2", "value2")
@@ -58,14 +58,14 @@ class TestDataCache(unittest.TestCase):
         self.assertIsNotNone(self.cache.get("key3"))
         self.assertIsNotNone(self.cache.get("key4"))
 
-    def test_cache_invalidate(self):
+    def test_cache_invalidate(self) -> None:
         """Test cache invalidation."""
         self.cache.set("key1", "value1")
         self.cache.invalidate("key1")
         result = self.cache.get("key1")
         self.assertIsNone(result)
 
-    def test_cache_clear(self):
+    def test_cache_clear(self) -> None:
         """Test clearing all cache entries."""
         self.cache.set("key1", "value1")
         self.cache.set("key2", "value2")
@@ -74,7 +74,7 @@ class TestDataCache(unittest.TestCase):
         self.assertIsNone(self.cache.get("key1"))
         self.assertIsNone(self.cache.get("key2"))
 
-    def test_cache_stats(self):
+    def test_cache_stats(self) -> None:
         """Test cache statistics."""
         self.cache.set("key1", "value1")
         self.cache.get("key1")  # Hit
@@ -89,7 +89,7 @@ class TestDataCache(unittest.TestCase):
 class TestCacheManager(unittest.TestCase):
     """Test cache manager functions."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test environment."""
         # Create temporary directory for test data
         self.temp_dir = tempfile.mkdtemp()
@@ -116,19 +116,19 @@ class TestCacheManager(unittest.TestCase):
         # Clear cache before each test
         clear_all_cache()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up test environment."""
         os.chdir(self.original_dir)
         import shutil
 
         shutil.rmtree(self.temp_dir)
 
-    def test_load_json_lazy(self):
+    def test_load_json_lazy(self) -> None:
         """Test lazy loading of JSON files."""
         data = load_json_lazy("test.json")
         self.assertEqual(data, self.test_data)
 
-    def test_load_json_lazy_caching(self):
+    def test_load_json_lazy_caching(self) -> None:
         """Test that data is cached on second load."""
         # First load
         data1 = load_json_lazy("test.json")
@@ -141,7 +141,7 @@ class TestCacheManager(unittest.TestCase):
         self.assertEqual(data1, data2)
         self.assertGreater(stats2["hits"], stats1["hits"])
 
-    def test_load_json_paginated(self):
+    def test_load_json_paginated(self) -> None:
         """Test paginated loading."""
         result = load_json_paginated("test.json", page=1, page_size=2)
 
@@ -153,7 +153,7 @@ class TestCacheManager(unittest.TestCase):
         self.assertTrue(result["has_next"])
         self.assertFalse(result["has_prev"])
 
-    def test_load_json_paginated_last_page(self):
+    def test_load_json_paginated_last_page(self) -> None:
         """Test loading last page."""
         result = load_json_paginated("test.json", page=3, page_size=2)
 
@@ -162,7 +162,7 @@ class TestCacheManager(unittest.TestCase):
         self.assertFalse(result["has_next"])
         self.assertTrue(result["has_prev"])
 
-    def test_invalidate_cache(self):
+    def test_invalidate_cache(self) -> None:
         """Test cache invalidation."""
         # Load data to cache it
         load_json_lazy("test.json")

@@ -26,7 +26,7 @@ class BaseRepository(ABC):
 class SNPRepository(BaseRepository):
     """Repository for managing SNP data."""
 
-    def __init__(self, data_file: str = "personal_snps.json"):
+    def __init__(self, data_file: str = "personal_snps.json") -> None:
         """Initialize SNP repository.
 
         Args:
@@ -79,7 +79,7 @@ class SNPRepository(BaseRepository):
             self._cache = load_from_file(self.data_file)
         return self._cache
 
-    def invalidate_cache(self):
+    def invalidate_cache(self) -> None:
         """Invalidate the internal cache."""
         self._cache = None
 
@@ -87,7 +87,7 @@ class SNPRepository(BaseRepository):
 class SNPediaRepository(BaseRepository):
     """Repository for managing SNPedia data."""
 
-    def __init__(self, data_file: str = "results.json"):
+    def __init__(self, data_file: str = "results.json") -> None:
         """Initialize SNPedia repository.
 
         Args:
@@ -144,7 +144,7 @@ class SNPediaRepository(BaseRepository):
             self._cache = load_from_file(self.data_file)
         return self._cache
 
-    def invalidate_cache(self):
+    def invalidate_cache(self) -> None:
         """Invalidate the internal cache."""
         self._cache = None
 
@@ -152,7 +152,7 @@ class SNPediaRepository(BaseRepository):
 class ResultRepository(BaseRepository):
     """Repository for managing enriched result data."""
 
-    def __init__(self, data_file: str = "result_table.json"):
+    def __init__(self, data_file: str = "result_table.json") -> None:
         """Initialize result repository.
 
         Args:

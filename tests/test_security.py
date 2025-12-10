@@ -11,7 +11,7 @@ os.environ["FLASK_ENV"] = "development"
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def test_imports():
+def test_imports() -> None:
     """Test that all security-related imports work."""
     print("Testing imports...")
     try:
@@ -27,7 +27,7 @@ def test_imports():
         return False
 
 
-def test_config():
+def test_config() -> None:
     """Test configuration loading."""
     print("\nTesting configuration...")
     try:
@@ -47,7 +47,7 @@ def test_config():
         return False
 
 
-def test_secure_filename():
+def test_secure_filename() -> None:
     """Test path traversal protection."""
     print("\nTesting path traversal protection...")
     from werkzeug.utils import secure_filename
@@ -71,7 +71,7 @@ def test_secure_filename():
     return all_passed
 
 
-def test_file_validation():
+def test_file_validation() -> None:
     """Test file extension validation."""
     print("\nTesting file validation...")
     from SNPedia.app import allowed_file
@@ -96,7 +96,7 @@ def test_file_validation():
     return all_passed
 
 
-def test_base64_validation():
+def test_base64_validation() -> None:
     """Test base64 validation."""
     print("\nTesting base64 validation...")
     import base64
@@ -126,7 +126,7 @@ def test_base64_validation():
     return valid_test and invalid_test
 
 
-def test_environment():
+def test_environment() -> None:
     """Test environment configuration."""
     print("\nTesting environment setup...")
 
@@ -159,7 +159,7 @@ def test_environment():
     return all(checks)
 
 
-def main():
+def main() -> int:
     """Run all security tests."""
     print("=" * 60)
     print("OSGenome Security Validation Tests")

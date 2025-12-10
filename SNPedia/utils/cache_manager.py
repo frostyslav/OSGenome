@@ -23,7 +23,7 @@ config = get_config()
 class CacheEntry:
     """Represents a cached data entry with metadata."""
 
-    def __init__(self, data: Any, ttl: int = 3600):
+    def __init__(self, data: Any, ttl: int = 3600) -> None:
         """Initialize cache entry.
 
         Args:
@@ -48,7 +48,7 @@ class CacheEntry:
 class DataCache:
     """Thread-safe cache manager with LRU eviction and TTL support."""
 
-    def __init__(self, max_size: int = 100, default_ttl: int = 3600):
+    def __init__(self, max_size: int = 100, default_ttl: int = 3600) -> None:
         """Initialize cache manager.
 
         Args:
@@ -88,7 +88,7 @@ class DataCache:
             self._hits += 1
             return entry.access()
 
-    def set(self, key: str, data: Any, ttl: Optional[int] = None):
+    def set(self, key: str, data: Any, ttl: Optional[int] = None) -> None:
         """Set data in cache.
 
         Args:
@@ -105,7 +105,7 @@ class DataCache:
             self._cache[key] = CacheEntry(data, ttl)
             logger.debug(f"Cached data for key: {key}")
 
-    def invalidate(self, key: str):
+    def invalidate(self, key: str) -> None:
         """Invalidate a cache entry.
 
         Args:
@@ -116,7 +116,7 @@ class DataCache:
                 del self._cache[key]
                 logger.debug(f"Invalidated cache for key: {key}")
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear all cache entries."""
         with self._lock:
             self._cache.clear()
@@ -124,7 +124,7 @@ class DataCache:
             self._misses = 0
             logger.info("Cache cleared")
 
-    def _evict_lru(self):
+    def _evict_lru(self) -> None:
         """Evict least recently used entry."""
         if not self._cache:
             return
@@ -305,7 +305,7 @@ def load_json_paginated(
     }
 
 
-def invalidate_cache(filename: str):
+def invalidate_cache(filename: str) -> None:
     """Invalidate cache for a specific file.
 
     Args:
@@ -316,7 +316,7 @@ def invalidate_cache(filename: str):
     logger.info(f"Invalidated cache for {filename}")
 
 
-def clear_all_cache():
+def clear_all_cache() -> None:
     """Clear all cached data."""
     _data_cache.clear()
     logger.info("Cleared all cache")

@@ -15,7 +15,7 @@ from SNPedia.utils.file_utils import export_to_file
 class ImportService:
     """Service for importing and processing genetic data files."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the import service.
 
         Sets up configuration for genetic data file processing

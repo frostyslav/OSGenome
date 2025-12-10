@@ -48,8 +48,8 @@ repos:
         args: [--config, .flake8.cfg]
         additional_dependencies:
           - flake8-docstrings
-          # - flake8-type-checking
-          # - flake8-annotations
+          - flake8-type-checking
+          - flake8-annotations
 
   # Type checking (temporarily disabled for initial setup)
   # - repo: https://github.com/pre-commit/mirrors-mypy

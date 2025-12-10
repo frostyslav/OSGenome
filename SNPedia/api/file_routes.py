@@ -1,6 +1,6 @@
 """File handling routes for SNPedia application."""
 
-from flask import Blueprint, abort, request, send_file
+from flask import Blueprint, Response, abort, request, send_file
 
 from SNPedia.core.logger import logger
 from SNPedia.services.file_service import FileService
@@ -13,7 +13,7 @@ def create_file_blueprint() -> Blueprint:
     file_service = FileService()
 
     @files.route("/excel", methods=["POST"])
-    def create_excel_file():
+    def create_excel_file() -> Response:
         """Generate Excel file from base64 encoded data."""
         try:
             # Validate required fields

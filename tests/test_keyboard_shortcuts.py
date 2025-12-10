@@ -4,7 +4,7 @@ import os
 import re
 
 
-def test_keyboard_shortcuts_in_js():
+def test_keyboard_shortcuts_in_js() -> None:
     """Test that keyboard shortcuts are properly implemented in JavaScript."""
     js_file = "SNPedia/js/app.js"
 
@@ -39,7 +39,7 @@ def test_keyboard_shortcuts_in_js():
     print("✓ All keyboard shortcuts properly implemented in JavaScript")
 
 
-def test_keyboard_shortcuts_modal_in_html():
+def test_keyboard_shortcuts_modal_in_html() -> None:
     """Test that keyboard shortcuts modal exists in HTML."""
     html_file = "SNPedia/templates/snp_resource.html"
 
@@ -65,7 +65,7 @@ def test_keyboard_shortcuts_modal_in_html():
     print("✓ Keyboard shortcuts modal properly implemented in HTML")
 
 
-def test_keyboard_shortcuts_styles_in_css():
+def test_keyboard_shortcuts_styles_in_css() -> None:
     """Test that keyboard shortcuts styles exist in CSS."""
     css_file = "SNPedia/css/app.css"
 
@@ -101,7 +101,7 @@ def test_keyboard_shortcuts_styles_in_css():
     print("✓ Keyboard shortcuts styles properly implemented in CSS")
 
 
-def test_keyboard_shortcuts_documented():
+def test_keyboard_shortcuts_documented() -> None:
     """Test that keyboard shortcuts are documented in README."""
     readme_file = "README.md"
 
@@ -134,7 +134,7 @@ def test_keyboard_shortcuts_documented():
     print("✓ Keyboard shortcuts properly documented in README")
 
 
-def test_all_functions_exist():
+def test_all_functions_exist() -> None:
     """Test that all required functions exist in JavaScript."""
     js_file = "SNPedia/js/app.js"
 

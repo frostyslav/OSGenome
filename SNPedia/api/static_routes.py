@@ -1,6 +1,6 @@
 """Static file serving routes for SNPedia application."""
 
-from flask import Blueprint, abort, send_from_directory
+from flask import Blueprint, Response, abort, send_from_directory
 from werkzeug.utils import secure_filename
 
 from SNPedia.core.logger import logger
@@ -11,7 +11,7 @@ def create_static_blueprint() -> Blueprint:
     static = Blueprint("static_files", __name__)
 
     @static.route("/js/<path:path>")
-    def serve_js(path):
+    def serve_js(path: str) -> Response:
         """Serve static JavaScript files with path traversal protection."""
         try:
             safe_path = secure_filename(path)
@@ -21,7 +21,7 @@ def create_static_blueprint() -> Blueprint:
             abort(404)
 
     @static.route("/css/<path:path>")
-    def serve_css(path):
+    def serve_css(path: str) -> Response:
         """Serve static CSS files with path traversal protection."""
         try:
             safe_path = secure_filename(path)

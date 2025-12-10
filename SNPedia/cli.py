@@ -45,7 +45,7 @@ def _get_missing_rsids(valid_snps: dict) -> dict:
     return missing_rsids
 
 
-def import_genome(filepath: str, force: bool = False):
+def import_genome(filepath: str, force: bool = False) -> bool:
     """Import genome data from file."""
     try:
         import_service = ImportService()
@@ -69,7 +69,7 @@ def import_genome(filepath: str, force: bool = False):
         return False
 
 
-def crawl_snpedia(use_async: bool = True):
+def crawl_snpedia(use_async: bool = True) -> bool:
     """Crawl SNPedia for genetic data."""
     try:
         # Load personal SNPs
@@ -118,7 +118,7 @@ def crawl_snpedia(use_async: bool = True):
         return False
 
 
-def process_results():
+def process_results() -> bool:
     """Process and enrich SNP data with SNPedia information."""
     try:
         logger.info("Processing SNP results...")
@@ -146,7 +146,7 @@ def process_results():
         return False
 
 
-def show_statistics():
+def show_statistics() -> bool:
     """Show statistics about the genetic data."""
     try:
         snp_service = SNPService()
@@ -167,7 +167,7 @@ def show_statistics():
         return False
 
 
-def main():
+def main() -> None:
     """Run the main CLI application."""
     parser = argparse.ArgumentParser(description="SNPedia CLI Tool")
 

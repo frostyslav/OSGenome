@@ -16,7 +16,7 @@ from SNPedia.services.snp_service import SNPService
 class StatisticsService:
     """Service for statistics and system health operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the statistics service.
 
         Sets up SNP service and cache service for health monitoring

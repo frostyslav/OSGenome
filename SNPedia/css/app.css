@@ -434,9 +434,22 @@ body {
 .tabulator {
   font-size: 14px;
   border: none;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-primary) !important;
   height: 100%;
   width: 100%;
+}
+
+/* Force consistent row backgrounds */
+.tabulator .tabulator-tableHolder .tabulator-table .tabulator-row {
+  background-color: var(--bg-primary) !important;
+}
+
+.tabulator .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-odd {
+  background-color: var(--bg-primary) !important;
+}
+
+.tabulator .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-even {
+  background-color: var(--bg-primary) !important;
 }
 
 .tabulator-tableholder {
@@ -446,7 +459,13 @@ body {
 .tabulator-row {
   min-height: 40px;
   border-bottom: 1px solid var(--border-light);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-primary) !important;
+}
+
+/* Override any alternating row colors */
+.tabulator-row.tabulator-row-odd,
+.tabulator-row.tabulator-row-even {
+  background-color: var(--bg-primary) !important;
 }
 
 .tabulator-row:hover {
@@ -568,8 +587,23 @@ body {
   border-right: 1px solid var(--border-color);
 }
 
+[data-theme="dark"] .tabulator-header {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-header .tabulator-col {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-right: 1px solid var(--border-color) !important;
+}
+
 [data-theme="dark"] .tabulator-header .tabulator-col-content {
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-header .tabulator-col-title {
+  color: var(--text-primary) !important;
 }
 
 [data-theme="dark"] .tabulator-header-filter input {
@@ -587,4 +621,136 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
+}
+
+/* Fix alternating row colors in dark mode */
+[data-theme="dark"] .tabulator-row {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-row.tabulator-row-odd {
+  background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-row.tabulator-row-even {
+  background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-row:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .tabulator-row.tabulator-selected,
+[data-theme="dark"] .tabulator-row.tabulator-selected:hover {
+  background-color: var(--selection-bg) !important;
+  border-left: 4px solid #667eea !important;
+  box-shadow: inset 0 0 0 1px var(--selection-border);
+}
+
+/* Ensure all cells in dark mode have proper colors */
+[data-theme="dark"] .tabulator-cell {
+  background-color: inherit !important;
+  color: var(--text-primary) !important;
+}
+
+/* Fix pagination in dark mode */
+[data-theme="dark"] .tabulator-footer {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .tabulator-page {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .tabulator-page.active {
+  background-color: #667eea !important;
+  color: white !important;
+}
+
+[data-theme="dark"] .tabulator-page:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-page.active:hover {
+  background-color: #667eea !important;
+  color: white !important;
+}
+
+/* Comprehensive Tabulator row styling overrides */
+.tabulator-table .tabulator-row,
+.tabulator-table .tabulator-row.tabulator-row-odd,
+.tabulator-table .tabulator-row.tabulator-row-even,
+.tabulator-tableHolder .tabulator-table .tabulator-row,
+.tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-odd,
+.tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-even {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode comprehensive overrides */
+[data-theme="dark"] .tabulator-table .tabulator-row,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-row-odd,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-row-even,
+[data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row,
+[data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-odd,
+[data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-even {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Hover states */
+[data-theme="dark"] .tabulator-table .tabulator-row:hover,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-row-odd:hover,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-row-even:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Selection states */
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-selected,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-selected:hover {
+  background-color: var(--selection-bg) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid #667eea !important;
+}/*
+ Comprehensive header styling for dark mode */
+[data-theme="dark"] .tabulator-header,
+[data-theme="dark"] .tabulator-header .tabulator-col,
+[data-theme="dark"] .tabulator-header .tabulator-col-content,
+[data-theme="dark"] .tabulator-header .tabulator-col-title,
+[data-theme="dark"] .tabulator-header .tabulator-col-title-holder {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Header filter styling for dark mode */
+[data-theme="dark"] .tabulator-header-filter {
+  background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .tabulator-header-filter input,
+[data-theme="dark"] .tabulator-header-filter select {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .tabulator-header-filter input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Sort arrows and other header elements */
+[data-theme="dark"] .tabulator-col-sorter {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .tabulator-arrow {
+  border-bottom-color: var(--text-primary) !important;
+  border-top-color: var(--text-primary) !important;
 }

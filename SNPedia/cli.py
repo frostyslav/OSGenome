@@ -10,12 +10,16 @@ from SNPedia.services.import_service import ImportService
 from SNPedia.services.snp_service import SNPService
 
 
-def _get_missing_rsids(valid_snps: dict) -> dict:
+def _get_missing_rsids(valid_snps: dict, export_dir: str = None) -> dict:
     """Get RSIDs that are missing from existing SNPedia data."""
     import json
     import os
 
-    results_file = "data/results.json"
+    from SNPedia.core.config import get_config
+
+    config = get_config()
+    data_dir = export_dir if export_dir else config.EXPORT_DIR
+    results_file = os.path.join(data_dir, "results.json")
     existing_rsids = set()
 
     # Load existing SNPedia data
@@ -45,10 +49,10 @@ def _get_missing_rsids(valid_snps: dict) -> dict:
     return missing_rsids
 
 
-def import_genome(filepath: str, force: bool = False) -> bool:
+def import_genome(filepath: str, force: bool = False, export_dir: str = None) -> bool:
     """Import genome data from file."""
     try:
-        import_service = ImportService()
+        import_service = ImportService(export_dir=export_dir)
 
         # Check if data already exists
         if not force and import_service.has_existing_data():
@@ -69,11 +73,11 @@ def import_genome(filepath: str, force: bool = False) -> bool:
         return False
 
 
-def crawl_snpedia(use_async: bool = True) -> bool:
+def crawl_snpedia(use_async: bool = True, export_dir: str = None) -> bool:
     """Crawl SNPedia for genetic data."""
     try:
         # Load personal SNPs
-        snp_repo = SNPRepository()
+        snp_repo = SNPRepository(export_dir=export_dir)
         genome = snp_repo.get_genome()
 
         if not genome:
@@ -86,7 +90,7 @@ def crawl_snpedia(use_async: bool = True) -> bool:
             return False
 
         # Check which RSIDs are missing from existing SNPedia data
-        missing_rsids = _get_missing_rsids(valid_snps)
+        missing_rsids = _get_missing_rsids(valid_snps, export_dir)
 
         if not missing_rsids:
             logger.info("All RSIDs already have SNPedia data. Nothing to crawl.")
@@ -97,7 +101,7 @@ def crawl_snpedia(use_async: bool = True) -> bool:
         )
 
         # Create crawler service
-        crawler = CrawlerService()
+        crawler = CrawlerService(export_dir=export_dir)
 
         # Convert missing SNPs to format expected by crawler
         snps_dict = {rsid: snp.genotype for rsid, snp in missing_rsids.items()}
@@ -118,12 +122,12 @@ def crawl_snpedia(use_async: bool = True) -> bool:
         return False
 
 
-def process_results() -> bool:
+def process_results(export_dir: str = None) -> bool:
     """Process and enrich SNP data with SNPedia information."""
     try:
         logger.info("Processing SNP results...")
 
-        snp_service = SNPService()
+        snp_service = SNPService(export_dir=export_dir)
         enriched_snps = snp_service.process_genome_data()
 
         if not enriched_snps:
@@ -146,10 +150,10 @@ def process_results() -> bool:
         return False
 
 
-def show_statistics() -> bool:
+def show_statistics(export_dir: str = None) -> bool:
     """Show statistics about the genetic data."""
     try:
-        snp_service = SNPService()
+        snp_service = SNPService(export_dir=export_dir)
         stats = snp_service.get_statistics()
 
         print("\nGenetic Data Statistics:")
@@ -183,18 +187,38 @@ def main() -> None:
         action="store_true",
         help="Force reimport even if data already exists",
     )
+    import_parser.add_argument(
+        "--export-dir",
+        help="Directory where data will be exported (default: data/)",
+    )
 
     # Crawl command
     crawl_parser = subparsers.add_parser("crawl", help="Crawl SNPedia for genetic data")
     crawl_parser.add_argument(
         "--sync", action="store_true", help="Use synchronous crawling (default: async)"
     )
+    crawl_parser.add_argument(
+        "--export-dir",
+        help="Directory where data will be exported (default: data/)",
+    )
 
     # Process command
-    subparsers.add_parser("process", help="Process and enrich SNP data")
+    process_parser = subparsers.add_parser(
+        "process", help="Process and enrich SNP data"
+    )
+    process_parser.add_argument(
+        "--export-dir",
+        help="Directory where data will be exported (default: data/)",
+    )
 
     # Stats command
-    subparsers.add_parser("stats", help="Show statistics about genetic data")
+    stats_parser = subparsers.add_parser(
+        "stats", help="Show statistics about genetic data"
+    )
+    stats_parser.add_argument(
+        "--export-dir",
+        help="Directory where data will be exported (default: data/)",
+    )
 
     # Full pipeline command
     pipeline_parser = subparsers.add_parser(
@@ -211,6 +235,10 @@ def main() -> None:
         action="store_true",
         help="Force reimport even if data already exists",
     )
+    pipeline_parser.add_argument(
+        "--export-dir",
+        help="Directory where data will be exported (default: data/)",
+    )
 
     args = parser.parse_args()
 
@@ -220,40 +248,50 @@ def main() -> None:
 
     try:
         if args.command == "import":
-            success = import_genome(args.file, force=getattr(args, "force", False))
+            success = import_genome(
+                args.file,
+                force=getattr(args, "force", False),
+                export_dir=getattr(args, "export_dir", None),
+            )
 
         elif args.command == "crawl":
-            success = crawl_snpedia(use_async=not args.sync)
+            success = crawl_snpedia(
+                use_async=not args.sync, export_dir=getattr(args, "export_dir", None)
+            )
 
         elif args.command == "process":
-            success = process_results()
+            success = process_results(export_dir=getattr(args, "export_dir", None))
 
         elif args.command == "stats":
-            success = show_statistics()
+            success = show_statistics(export_dir=getattr(args, "export_dir", None))
 
         elif args.command == "pipeline":
             logger.info("Starting full pipeline...")
 
+            export_dir = getattr(args, "export_dir", None)
+
             # Step 1: Import
-            success = import_genome(args.file, force=getattr(args, "force", False))
+            success = import_genome(
+                args.file, force=getattr(args, "force", False), export_dir=export_dir
+            )
             if not success:
                 logger.error("Pipeline failed at import step")
                 return
 
             # Step 2: Crawl
-            success = crawl_snpedia(use_async=not args.sync)
+            success = crawl_snpedia(use_async=not args.sync, export_dir=export_dir)
             if not success:
                 logger.error("Pipeline failed at crawl step")
                 return
 
             # Step 3: Process
-            success = process_results()
+            success = process_results(export_dir=export_dir)
             if not success:
                 logger.error("Pipeline failed at process step")
                 return
 
             logger.info("Pipeline completed successfully!")
-            show_statistics()
+            show_statistics(export_dir=export_dir)
 
         if not success and args.command != "pipeline":
             exit(1)

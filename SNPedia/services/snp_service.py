@@ -40,14 +40,18 @@ class SNPService:
         result_repo (ResultRepository): Repository for processed results.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, export_dir: str = None) -> None:
         """Initialize the SNP service with required repositories.
+
+        Args:
+            export_dir: Custom export directory (optional)
 
         Creates instances of all required repositories for data access.
         """
-        self.snp_repo: SNPRepository = SNPRepository()
-        self.snpedia_repo: SNPediaRepository = SNPediaRepository()
-        self.result_repo: ResultRepository = ResultRepository()
+        self.export_dir = export_dir
+        self.snp_repo: SNPRepository = SNPRepository(export_dir=export_dir)
+        self.snpedia_repo: SNPediaRepository = SNPediaRepository(export_dir=export_dir)
+        self.result_repo: ResultRepository = ResultRepository(export_dir=export_dir)
 
     def get_snp_data(self, rsid: str) -> Optional[SNPData]:
         """Get SNP data by RSID.

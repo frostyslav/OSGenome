@@ -82,6 +82,7 @@ Defines configuration classes for different environments with validation.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SAVE_PROGRESS_INTERVAL` | `10` | Save progress every N requests |
+| `EXPORT_BATCH_SIZE` | `5000` | Export data every N SNPs during fetch |
 
 ### CORS
 

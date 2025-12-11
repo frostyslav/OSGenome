@@ -22,15 +22,19 @@ from SNPedia.data.repositories import SNPediaRepository, SNPRepository
 class CrawlerService:
     """Service for crawling SNPedia data."""
 
-    def __init__(self) -> None:
+    def __init__(self, export_dir: str = None) -> None:
         """Initialize the crawler service.
+
+        Args:
+            export_dir: Custom export directory (optional)
 
         Sets up configuration, repositories, loads existing data,
         and initializes common words filter for SNPedia data processing.
         """
         self.config = get_config()
-        self.snp_repo = SNPRepository()
-        self.snpedia_repo = SNPediaRepository()
+        self.export_dir = export_dir
+        self.snp_repo = SNPRepository(export_dir=export_dir)
+        self.snpedia_repo = SNPediaRepository(export_dir=export_dir)
         self.rsid_info = self._load_existing_data()
         self.common_words = [
             "common",
@@ -365,5 +369,7 @@ class CrawlerService:
         from SNPedia.utils.file_utils import export_to_file
 
         if self.rsid_info:
-            export_to_file(data=self.rsid_info, filename="results.json")
+            export_to_file(
+                data=self.rsid_info, filename="results.json", export_dir=self.export_dir
+            )
             logger.info(f"Exported {len(self.rsid_info)} entries")

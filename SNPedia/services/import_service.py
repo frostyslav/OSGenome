@@ -15,17 +15,22 @@ from SNPedia.utils.file_utils import export_to_file
 class ImportService:
     """Service for importing and processing genetic data files."""
 
-    def __init__(self) -> None:
+    def __init__(self, export_dir: str = None) -> None:
         """Initialize the import service.
+
+        Args:
+            export_dir: Custom export directory (optional)
 
         Sets up configuration for genetic data file processing
         and validation operations.
         """
         self.config = get_config()
+        self.export_dir = export_dir
 
     def has_existing_data(self) -> bool:
         """Check if personal genome data already exists."""
-        data_file = "data/personal_snps.json"
+        data_dir = self.export_dir if self.export_dir else self.config.EXPORT_DIR
+        data_file = os.path.join(data_dir, "personal_snps.json")
 
         # Check if file exists and has content
         if os.path.exists(data_file):
@@ -75,7 +80,9 @@ class ImportService:
 
             # Export to JSON for compatibility with existing system
             snp_dict = {rsid: snp.genotype for rsid, snp in snps.items()}
-            export_to_file(data=snp_dict, filename="personal_snps.json")
+            export_to_file(
+                data=snp_dict, filename="personal_snps.json", export_dir=self.export_dir
+            )
 
             logger.info(f"Successfully imported {len(snps)} SNPs")
             return genome
@@ -180,13 +187,18 @@ class ImportService:
         return self._fetch_snpedia_rsids()
 
     def _fetch_snpedia_rsids(self) -> List[Any]:
-        """Fetch known RSIDs from SNPedia API."""
+        """Fetch known RSIDs from SNPedia API with incremental export."""
         known_rsids = []
         category_member_limit = 500
         snpedia_initial_url = f"{self.config.SNPEDIA_API_URL}?action=query&list=categorymembers&cmtitle=Category:Is_a_snp&cmlimit={category_member_limit}&format=json"
 
         cmcontinue: Optional[str] = None
         count = 0
+        export_batch_size = self.config.EXPORT_BATCH_SIZE
+
+        # Reset backup flag for this fetch operation
+        if hasattr(self, "_backup_created"):
+            delattr(self, "_backup_created")
 
         try:
             while True:
@@ -213,9 +225,22 @@ class ImportService:
                             break
 
                         # Extract RSIDs
+                        batch_rsids = []
                         for item in data["query"]["categorymembers"]:
                             if "title" in item:
-                                known_rsids.append(item["title"].lower())
+                                rsid = item["title"].lower()
+                                known_rsids.append(rsid)
+                                batch_rsids.append(rsid)
+
+                        # Incremental export every batch_size SNPs
+                        if (
+                            len(known_rsids) % export_batch_size == 0
+                            and len(known_rsids) > 0
+                        ):
+                            logger.info(
+                                f"Incrementally exporting {len(known_rsids)} SNPs..."
+                            )
+                            self._export_incremental_snps(known_rsids)
 
                         # Check for continuation
                         if "continue" in data and "cmcontinue" in data["continue"]:
@@ -241,6 +266,9 @@ class ImportService:
                             logger.warning(
                                 f"Stopping after {len(known_rsids)} SNPs due to timeouts"
                             )
+                            # Export what we have so far before stopping
+                            if known_rsids:
+                                self._export_incremental_snps(known_rsids)
                             cmcontinue = None
                             break
 
@@ -254,6 +282,9 @@ class ImportService:
                             logger.warning(
                                 f"Stopping after {len(known_rsids)} SNPs due to network errors"
                             )
+                            # Export what we have so far before stopping
+                            if known_rsids:
+                                self._export_incremental_snps(known_rsids)
                             cmcontinue = None
                             break
 
@@ -262,11 +293,75 @@ class ImportService:
 
             logger.info(f"Successfully retrieved {len(known_rsids)} SNPs from SNPedia")
 
-            # Cache the results
-            export_to_file(data=known_rsids, filename="snpedia_snps.json")
+            # Final export of all results
+            self._export_incremental_snps(known_rsids, final=True)
 
             return known_rsids
 
         except Exception as e:
             logger.error(f"Error fetching SNPedia RSIDs: {e}")
-            return []
+            # Export what we have so far even on error
+            if known_rsids:
+                self._export_incremental_snps(known_rsids, final=True)
+            return known_rsids
+
+    def _export_incremental_snps(self, rsids: List[Any], final: bool = False) -> None:
+        """Export SNPs incrementally to avoid data loss.
+
+        Args:
+            rsids: List of RSIDs to export
+            final: Whether this is the final export (affects logging)
+        """
+        try:
+            # Create backup of existing file before first write (only once)
+            if not hasattr(self, "_backup_created"):
+                self._create_initial_backup()
+                self._backup_created = True
+
+            # Export to main file (updates in place)
+            export_success = export_to_file(
+                data=rsids, filename="snpedia_snps.json", export_dir=self.export_dir
+            )
+
+            if export_success:
+                if final:
+                    logger.info(
+                        f"Final export: Successfully cached {len(rsids)} SNPs to snpedia_snps.json"
+                    )
+                else:
+                    logger.debug(
+                        f"Incremental export: Updated snpedia_snps.json with {len(rsids)} SNPs"
+                    )
+            else:
+                logger.warning("Failed to export SNPs incrementally")
+
+        except Exception as e:
+            logger.error(f"Error in incremental export: {e}")
+
+    def _create_initial_backup(self) -> None:
+        """Create a backup of existing SNPedia data before starting incremental updates.
+
+        This ensures we can restore the original data if something goes wrong.
+        """
+        try:
+            data_file = "data/snpedia_snps.json"
+
+            # Only create backup if original file exists
+            if os.path.exists(data_file):
+                import time
+
+                timestamp = int(time.time())
+                backup_filename = f"snpedia_snps_backup_{timestamp}.json"
+
+                # Copy existing file to backup
+                import shutil
+
+                backup_path = os.path.join("data", backup_filename)
+                shutil.copy2(data_file, backup_path)
+
+                logger.info(f"Created backup of existing data: {backup_filename}")
+            else:
+                logger.debug("No existing SNPedia data file to backup")
+
+        except Exception as e:
+            logger.warning(f"Failed to create initial backup: {e}")

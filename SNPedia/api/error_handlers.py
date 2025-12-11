@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Tuple
 
 from flask import Flask, Response, current_app, jsonify
 
+from SNPedia.core.logger import logger
+
 if TYPE_CHECKING:
     from werkzeug.exceptions import HTTPException
-
-from SNPedia.core.logger import logger
 
 
 def register_error_handlers(app: Flask) -> None:
@@ -24,7 +24,7 @@ def register_error_handlers(app: Flask) -> None:
     """
 
     @app.errorhandler(400)
-    def bad_request(error: HTTPException) -> Tuple[Response, int]:
+    def bad_request(error: "HTTPException") -> Tuple[Response, int]:
         """Handle 400 Bad Request errors.
 
         Args:
@@ -45,7 +45,7 @@ def register_error_handlers(app: Flask) -> None:
         )
 
     @app.errorhandler(404)
-    def not_found(error: HTTPException) -> Tuple[Response, int]:
+    def not_found(error: "HTTPException") -> Tuple[Response, int]:
         """Handle 404 Not Found errors.
 
         Args:
@@ -65,7 +65,7 @@ def register_error_handlers(app: Flask) -> None:
         )
 
     @app.errorhandler(413)
-    def request_entity_too_large(error: HTTPException) -> Tuple[Response, int]:
+    def request_entity_too_large(error: "HTTPException") -> Tuple[Response, int]:
         """Handle 413 Request Entity Too Large errors.
 
         Args:
@@ -87,7 +87,7 @@ def register_error_handlers(app: Flask) -> None:
         )
 
     @app.errorhandler(500)
-    def internal_server_error(error: HTTPException) -> Tuple[Response, int]:
+    def internal_server_error(error: "HTTPException") -> Tuple[Response, int]:
         """Handle 500 Internal Server Error.
 
         Args:

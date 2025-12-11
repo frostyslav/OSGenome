@@ -26,14 +26,18 @@ class BaseRepository(ABC):
 class SNPRepository(BaseRepository):
     """Repository for managing SNP data."""
 
-    def __init__(self, data_file: str = "personal_snps.json") -> None:
+    def __init__(
+        self, data_file: str = "personal_snps.json", export_dir: str = None
+    ) -> None:
         """Initialize SNP repository.
 
         Args:
             data_file (str): Path to the personal SNP data file.
                            Defaults to "personal_snps.json".
+            export_dir (str): Custom export directory (optional).
         """
         self.data_file = data_file
+        self.export_dir = export_dir
         self._cache: Optional[Dict[str, Any]] = None
 
     def get_by_id(self, rsid: str) -> Optional[SNPData]:
@@ -76,7 +80,7 @@ class SNPRepository(BaseRepository):
     def _load_data(self) -> Optional[Dict[str, str]]:
         """Load SNP data from file with caching."""
         if self._cache is None:
-            self._cache = load_from_file(self.data_file)
+            self._cache = load_from_file(self.data_file, export_dir=self.export_dir)
         return self._cache
 
     def invalidate_cache(self) -> None:
@@ -87,14 +91,16 @@ class SNPRepository(BaseRepository):
 class SNPediaRepository(BaseRepository):
     """Repository for managing SNPedia data."""
 
-    def __init__(self, data_file: str = "results.json") -> None:
+    def __init__(self, data_file: str = "results.json", export_dir: str = None) -> None:
         """Initialize SNPedia repository.
 
         Args:
             data_file (str): Path to the SNPedia data file.
                            Defaults to "results.json".
+            export_dir (str): Custom export directory (optional).
         """
         self.data_file = data_file
+        self.export_dir = export_dir
         self._cache: Optional[Dict[str, Any]] = None
 
     def get_by_id(self, rsid: str) -> Optional[SNPediaEntry]:
@@ -141,7 +147,7 @@ class SNPediaRepository(BaseRepository):
     def _load_data(self) -> Optional[Dict[str, Dict]]:
         """Load SNPedia data from file with caching."""
         if self._cache is None:
-            self._cache = load_from_file(self.data_file)
+            self._cache = load_from_file(self.data_file, export_dir=self.export_dir)
         return self._cache
 
     def invalidate_cache(self) -> None:
@@ -152,18 +158,22 @@ class SNPediaRepository(BaseRepository):
 class ResultRepository(BaseRepository):
     """Repository for managing enriched result data."""
 
-    def __init__(self, data_file: str = "result_table.json") -> None:
+    def __init__(
+        self, data_file: str = "result_table.json", export_dir: str = None
+    ) -> None:
         """Initialize result repository.
 
         Args:
             data_file (str): Path to the enriched results data file.
                            Defaults to "result_table.json".
+            export_dir (str): Custom export directory (optional).
         """
         self.data_file = data_file
+        self.export_dir = export_dir
 
     def get_by_id(self, rsid: str) -> Optional[EnrichedSNP]:
         """Get enriched SNP by RSID."""
-        data = load_json_lazy(self.data_file)
+        data = load_json_lazy(self.data_file, export_dir=self.export_dir)
         if not data:
             return None
 
@@ -175,7 +185,7 @@ class ResultRepository(BaseRepository):
 
     def get_all(self) -> List[EnrichedSNP]:
         """Get all enriched SNPs."""
-        data = load_json_lazy(self.data_file)
+        data = load_json_lazy(self.data_file, export_dir=self.export_dir)
         if not data:
             return []
 
@@ -192,11 +202,13 @@ class ResultRepository(BaseRepository):
 
     def get_paginated(self, page: int = 1, page_size: int = 100) -> Dict[str, Any]:
         """Get paginated results."""
-        return load_json_paginated(self.data_file, page=page, page_size=page_size)
+        return load_json_paginated(
+            self.data_file, page=page, page_size=page_size, export_dir=self.export_dir
+        )
 
     def get_statistics(self) -> Dict[str, int]:
         """Get statistics about the results."""
-        data = load_json_lazy(self.data_file)
+        data = load_json_lazy(self.data_file, export_dir=self.export_dir)
         if not data:
             return {"total": 0, "interesting": 0, "uncommon": 0}
 
@@ -214,7 +226,9 @@ class ResultRepository(BaseRepository):
         """Save enriched results to file."""
         try:
             data = [result.to_dict() for result in results]
-            return export_to_file(data=data, filename=self.data_file)
+            return export_to_file(
+                data=data, filename=self.data_file, export_dir=self.export_dir
+            )
         except Exception as e:
             logger.error(f"Error saving results: {e}")
             return False

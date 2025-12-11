@@ -3,7 +3,6 @@
 import json
 import os
 import time
-from functools import lru_cache
 from threading import Lock
 from typing import Any, Dict, Optional
 
@@ -164,29 +163,39 @@ def get_cache() -> DataCache:
     return _data_cache
 
 
-@lru_cache(maxsize=10)
-def _get_file_path(filename: str) -> str:
+def _get_file_path(filename: str, export_dir: str = None) -> str:
     """Get full file path with caching.
+
+    Args:
+        filename: Name of the file
+        export_dir: Custom export directory (optional)
 
     Handles both local development and Docker environments:
     - Docker: /app/data/
     - Local: ./data/
+    - Custom: specified export_dir
     """
+    if export_dir:
+        return os.path.join(os.path.abspath(export_dir), filename)
+
     # Check for Docker environment (data mounted at /app/data)
     docker_path = os.path.join("/app", "data", filename)
     if os.path.exists(docker_path):
         return docker_path
 
     # Use root data directory for local development
-    return os.path.join(os.path.curdir, "data", filename)
+    return os.path.join(os.path.curdir, config.EXPORT_DIR, filename)
 
 
-def load_json_lazy(filename: str, use_cache: bool = True) -> Optional[Any]:
+def load_json_lazy(
+    filename: str, use_cache: bool = True, export_dir: str = None
+) -> Optional[Any]:
     """Load JSON file with caching support.
 
     Args:
         filename: Name of the JSON file to load
         use_cache: Whether to use cache
+        export_dir: Custom export directory (optional)
 
     Returns:
         Loaded data or None if error
@@ -202,7 +211,7 @@ def load_json_lazy(filename: str, use_cache: bool = True) -> Optional[Any]:
 
     # Load from file
     try:
-        filepath = _get_file_path(filename)
+        filepath = _get_file_path(filename, export_dir)
 
         if not os.path.isfile(filepath):
             logger.warning(f"File not found: {filepath}")
@@ -232,7 +241,11 @@ def load_json_lazy(filename: str, use_cache: bool = True) -> Optional[Any]:
 
 
 def load_json_paginated(
-    filename: str, page: int = 1, page_size: int = 100, use_cache: bool = True
+    filename: str,
+    page: int = 1,
+    page_size: int = 100,
+    use_cache: bool = True,
+    export_dir: str = None,
 ) -> Dict[str, Any]:
     """Load JSON file with pagination support.
 
@@ -241,12 +254,13 @@ def load_json_paginated(
         page: Page number (1-indexed)
         page_size: Number of items per page
         use_cache: Whether to use cache
+        export_dir: Custom export directory (optional)
 
     Returns:
         Dictionary with paginated data and metadata
     """
     # Load full data (will be cached)
-    data = load_json_lazy(filename, use_cache=use_cache)
+    data = load_json_lazy(filename, use_cache=use_cache, export_dir=export_dir)
 
     if data is None:
         return {

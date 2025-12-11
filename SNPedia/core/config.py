@@ -92,6 +92,7 @@ class Config:
     # Data directories
     DATA_DIR = os.environ.get("DATA_DIR", "data")
     BACKUP_DIR = os.environ.get("BACKUP_DIR", "data/backups")
+    EXPORT_DIR = os.environ.get("EXPORT_DIR", "data")
 
     # SNPedia settings
     SNPEDIA_BASE_URL = os.environ.get("SNPEDIA_BASE_URL", "https://bots.snpedia.com")
@@ -102,6 +103,11 @@ class Config:
     SAVE_PROGRESS_INTERVAL = get_env_int(
         "SAVE_PROGRESS_INTERVAL", 10
     )  # Save every N requests
+
+    # Export settings
+    EXPORT_BATCH_SIZE = get_env_int(
+        "EXPORT_BATCH_SIZE", 5000
+    )  # Export data every N SNPs during fetch
 
     # Caching
     CACHE_ENABLED = str_to_bool(os.environ.get("CACHE_ENABLED", "true"))

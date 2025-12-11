@@ -42,8 +42,15 @@
             <label><input type="checkbox" data-column="IsUncommon"> Uncommon genotype</label>
           </div>
         </div>
+        <button onclick="clearAllFilters()" title="Clear All Filters (Ctrl+X)">
+          <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+        </button>
         <button onclick="reloadData()" title="Reload Data (Ctrl+R)">
           <i class="fas fa-sync-alt"></i> Reload
+        </button>
+        <button onclick="toggleDarkMode()" class="theme-toggle" title="Toggle Dark Mode (Ctrl+D)">
+          <i class="fas fa-sun theme-icon sun-icon"></i>
+          <i class="fas fa-moon theme-icon moon-icon"></i>
         </button>
         <button onclick="showKeyboardShortcuts()" class="help-btn" title="Keyboard Shortcuts (Ctrl+/)">
           <i class="fas fa-keyboard"></i> Shortcuts
@@ -107,6 +114,16 @@
           <div class="shortcut-item">
             <div class="shortcut-keys">
               <span class="key">Ctrl</span>
+              <span class="key">X</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-filter-circle-xmark shortcut-icon"></i>
+              Clear all filters
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
               <span class="key">R</span>
             </div>
             <div class="shortcut-description">
@@ -122,6 +139,16 @@
             <div class="shortcut-description">
               <i class="fas fa-question-circle shortcut-icon"></i>
               Show this help dialog
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">D</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-moon shortcut-icon"></i>
+              Toggle dark/light mode
             </div>
           </div>
           <div class="shortcut-item">

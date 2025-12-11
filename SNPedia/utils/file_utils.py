@@ -18,12 +18,15 @@ config = get_config()
 MAX_FILE_SIZE_LOAD = config.MAX_FILE_SIZE_LOAD
 
 
-def export_to_file(data: Union[Dict[str, Any], list], filename: str) -> bool:
+def export_to_file(
+    data: Union[Dict[str, Any], list], filename: str, export_dir: str = None
+) -> bool:
     """Export data to JSON file with error handling.
 
     Args:
         data: Dictionary to export
         filename: Name of the file to create
+        export_dir: Custom export directory (optional, uses config default if not provided)
 
     Returns:
         bool: True if successful, False otherwise
@@ -33,8 +36,12 @@ def export_to_file(data: Union[Dict[str, Any], list], filename: str) -> bool:
             logger.error("No filename provided for export")
             return False
 
-        parent_path = _get_parent_path()
-        data_dir = os.path.join(parent_path, "data")
+        # Use custom export directory or default from config
+        if export_dir:
+            data_dir = os.path.abspath(export_dir)
+        else:
+            parent_path = _get_parent_path()
+            data_dir = os.path.join(parent_path, config.EXPORT_DIR)
 
         # Create data directory if it doesn't exist
         if not os.path.exists(data_dir):
@@ -73,12 +80,15 @@ def export_to_file(data: Union[Dict[str, Any], list], filename: str) -> bool:
         return False
 
 
-def load_from_file(filename: str, use_cache: bool = False) -> Dict[str, Any]:
+def load_from_file(
+    filename: str, use_cache: bool = False, export_dir: str = None
+) -> Dict[str, Any]:
     """Load data from JSON file with error handling.
 
     Args:
         filename: Name of the file to load
         use_cache: Whether to use caching (default: False for backward compatibility)
+        export_dir: Custom export directory (optional, uses config default if not provided)
 
     Returns:
         dict: Loaded data or empty dict if error
@@ -101,7 +111,13 @@ def load_from_file(filename: str, use_cache: bool = False) -> Dict[str, Any]:
             logger.error("No filename provided for load")
             return {}
 
-        filepath = os.path.join(_get_parent_path(), "data", filename)
+        # Use custom export directory or default from config
+        if export_dir:
+            data_dir = os.path.abspath(export_dir)
+        else:
+            data_dir = os.path.join(_get_parent_path(), config.EXPORT_DIR)
+
+        filepath = os.path.join(data_dir, filename)
 
         if not os.path.isfile(filepath):
             logger.warning(f"File not found: {filepath}")

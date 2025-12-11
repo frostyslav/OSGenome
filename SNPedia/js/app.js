@@ -13,6 +13,9 @@ if (typeof Tabulator === 'undefined') {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, initializing table...');
 
+  // Load saved theme first
+  loadSavedTheme();
+
   try {
     table = new Tabulator("#grid", {
       layout: "fitColumns",
@@ -66,8 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
           visible: false,
           headerFilter: "list",
           headerFilterParams: {
-            values: ["Yes", "No"],
-            clearable: true
+            values: {
+              "": "All",
+              "Yes": "Yes",
+              "No": "No"
+            },
+            clearable: true,
+            placeholder: "Filter..."
           }
         },
         {
@@ -76,8 +84,13 @@ document.addEventListener('DOMContentLoaded', function() {
           visible: false,
           headerFilter: "list",
           headerFilterParams: {
-            values: ["Yes", "No"],
-            clearable: true
+            values: {
+              "": "All",
+              "Yes": "Yes",
+              "No": "No"
+            },
+            clearable: true,
+            placeholder: "Filter..."
           }
         }
       ],
@@ -119,6 +132,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.results && data.results.length > 0) {
           table.setData(data.results);
           console.log('Data loaded into table');
+
+          // Set up filter change listeners
+          table.on("headerFilterChanged", function(field, value) {
+            console.log('Filter changed:', field, value);
+            updateFilterButtonState();
+          });
+
+          // Initial filter button state check
+          setTimeout(function() {
+            updateFilterButtonState();
+          }, 100);
 
           // Add a test to verify selectable is working
           setTimeout(function() {
@@ -233,6 +257,10 @@ function reloadData() {
       if (data.results && data.results.length > 0) {
         table.setData(data.results);
         console.log('Data reloaded');
+        // Update filter button state after reload
+        setTimeout(function() {
+          updateFilterButtonState();
+        }, 100);
       }
     })
     .catch(error => {
@@ -250,6 +278,74 @@ function focusSearch() {
   }
 }
 
+// Clear all filters
+function clearAllFilters() {
+  if (!table) return;
+
+  console.log('Clearing all filters...');
+
+  // Check if there were any active filters before clearing
+  const hadActiveFilters = table.getHeaderFilters().some(filter =>
+    filter.value !== undefined && filter.value !== null && filter.value !== ""
+  );
+
+  // Clear all header filters
+  table.clearHeaderFilter();
+
+  // Update filter button state
+  updateFilterButtonState();
+
+  // Show feedback if filters were actually cleared
+  if (hadActiveFilters) {
+    showFilterNotification('All filters cleared');
+  } else {
+    showFilterNotification('No active filters to clear');
+  }
+
+  console.log('All filters cleared');
+}
+
+// Show a brief notification about filter actions
+function showFilterNotification(message) {
+  // Create or get existing notification element
+  let notification = document.getElementById('filterNotification');
+  if (!notification) {
+    notification = document.createElement('div');
+    notification.id = 'filterNotification';
+    notification.className = 'filter-notification';
+    document.body.appendChild(notification);
+  }
+
+  notification.textContent = message;
+  notification.classList.add('show');
+
+  // Hide after 2 seconds
+  setTimeout(function() {
+    notification.classList.remove('show');
+  }, 2000);
+}
+
+// Check if any filters are active and update button state
+function updateFilterButtonState() {
+  if (!table) return;
+
+  const clearButton = document.querySelector('button[onclick="clearAllFilters()"]');
+  if (!clearButton) return;
+
+  // Check if any header filters have values
+  const hasActiveFilters = table.getHeaderFilters().some(filter =>
+    filter.value !== undefined && filter.value !== null && filter.value !== ""
+  );
+
+  if (hasActiveFilters) {
+    clearButton.classList.add('filters-active');
+    clearButton.title = 'Clear All Filters (Ctrl+X) - Filters Active';
+  } else {
+    clearButton.classList.remove('filters-active');
+    clearButton.title = 'Clear All Filters (Ctrl+X)';
+  }
+}
+
 // Clear selection and close menus
 function clearSelectionAndMenus() {
   if (table) {
@@ -260,6 +356,28 @@ function clearSelectionAndMenus() {
   if (menu && menu.classList.contains('show')) {
     menu.classList.remove('show');
   }
+}
+
+// Dark mode toggle functionality
+function toggleDarkMode() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+
+  console.log('Theme switched to:', newTheme);
+}
+
+// Load saved theme on page load
+function loadSavedTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+  document.documentElement.setAttribute('data-theme', theme);
+  console.log('Theme loaded:', theme);
 }
 
 // Keyboard shortcuts handler
@@ -295,6 +413,13 @@ document.addEventListener('keydown', function(e) {
     return;
   }
 
+  // Ctrl/Cmd + X: Clear all filters
+  if (modifier && e.key === 'x') {
+    e.preventDefault();
+    clearAllFilters();
+    return;
+  }
+
   // Ctrl/Cmd + R: Reload data
   if (modifier && e.key === 'r') {
     e.preventDefault();
@@ -306,6 +431,13 @@ document.addEventListener('keydown', function(e) {
   if (modifier && e.key === '/') {
     e.preventDefault();
     showKeyboardShortcuts();
+    return;
+  }
+
+  // Ctrl/Cmd + D: Toggle dark mode
+  if (modifier && e.key === 'd') {
+    e.preventDefault();
+    toggleDarkMode();
     return;
   }
 

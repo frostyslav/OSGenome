@@ -109,4 +109,5 @@ dev = [
     "sphinx-rtd-theme>=2.0.0",
     "sphinx-autodoc-typehints>=1.25.0",
     "myst-parser>=2.0.0",
+    "bandit>=1.9.2",
 ]

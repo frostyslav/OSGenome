@@ -4,6 +4,7 @@ import asyncio
 import time
 import urllib.request
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from urllib.parse import urlparse
 
 if TYPE_CHECKING:
     from bs4.element import Tag
@@ -41,6 +42,22 @@ class CrawlerService:
             "ancestry miscall",
             "miscall by ancestry",
         ]
+
+    def _validate_url(self, url: str) -> bool:
+        """Validate URL to ensure it uses safe schemes (HTTP/HTTPS only).
+
+        Args:
+            url: URL to validate
+
+        Returns:
+            bool: True if URL is safe, False otherwise
+        """
+        try:
+            parsed = urlparse(url)
+            # Only allow HTTP and HTTPS schemes
+            return parsed.scheme.lower() in ("http", "https")
+        except Exception:
+            return False
 
     def _load_existing_data(self) -> Dict[str, Dict[Any, Any]]:
         """Load existing SNPedia data from file."""
@@ -215,9 +232,14 @@ class CrawlerService:
         url = f"{self.config.SNPEDIA_INDEX_URL}/{rsid}"
         logger.info(f"Fetching SNP data: {rsid}")
 
+        # Validate URL scheme for security
+        if not self._validate_url(url):
+            logger.error(f"Invalid or unsafe URL scheme: {url}")
+            return None
+
         for attempt in range(self.config.MAX_RETRIES):
             try:
-                response = urllib.request.urlopen(
+                response = urllib.request.urlopen(  # nosec B310
                     url, timeout=self.config.REQUEST_TIMEOUT
                 )
                 html = response.read()

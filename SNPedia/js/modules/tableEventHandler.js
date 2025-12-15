@@ -25,7 +25,7 @@ export class TableEventHandler {
     console.log('Cell clicked!');
     const row = cell.getRow();
     console.log('Row data:', row.getData());
-    
+
     // Deselect all rows first, then select clicked row
     this.table.deselectRow();
     row.select();
@@ -55,11 +55,11 @@ export class TableEventHandler {
       if (!gridElement) return;
 
       let clickTimeout;
-      
+
       gridElement.addEventListener('click', (e) => {
         // Clear any existing timeout to prevent single click action on double click
         clearTimeout(clickTimeout);
-        
+
         clickTimeout = setTimeout(() => {
           console.log('Single click detected!', e.target.className);
 
@@ -90,7 +90,7 @@ export class TableEventHandler {
       gridElement.addEventListener('dblclick', (e) => {
         // Clear the single click timeout
         clearTimeout(clickTimeout);
-        
+
         console.log('Double click detected!', e.target.className);
 
         // Find the row element

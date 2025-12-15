@@ -10,11 +10,11 @@ export class Utils {
     console.log('window.jspdf:', typeof window.jspdf);
     console.log('window.jsPDF:', typeof window.jsPDF);
     console.log('window.Chart:', typeof window.Chart);
-    
+
     if (window.jspdf) {
       console.log('jspdf object:', Object.keys(window.jspdf));
     }
-    
+
     // Try to create a simple PDF
     try {
       let jsPDF;
@@ -23,7 +23,7 @@ export class Utils {
       } else if (window.jsPDF) {
         jsPDF = window.jsPDF;
       }
-      
+
       if (jsPDF) {
         const testDoc = new jsPDF();
         testDoc.text('Test', 10, 10);
@@ -33,7 +33,7 @@ export class Utils {
     } catch (error) {
       console.error('jsPDF test failed:', error);
     }
-    
+
     return false;
   }
 
@@ -127,7 +127,7 @@ export class Utils {
   // Simple event emitter for inter-module communication
   static createEventEmitter() {
     const events = {};
-    
+
     return {
       on(event, callback) {
         if (!events[event]) {
@@ -135,13 +135,13 @@ export class Utils {
         }
         events[event].push(callback);
       },
-      
+
       off(event, callback) {
         if (events[event]) {
           events[event] = events[event].filter(cb => cb !== callback);
         }
       },
-      
+
       emit(event, data) {
         if (events[event]) {
           events[event].forEach(callback => callback(data));

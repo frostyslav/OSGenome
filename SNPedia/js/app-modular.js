@@ -16,7 +16,7 @@ class SNPediaApp {
   constructor() {
     this.table = null;
     this.managers = {};
-    
+
     console.log('SNPedia App initializing...');
     this.init();
   }
@@ -68,7 +68,7 @@ class SNPediaApp {
 
   initializeTable() {
     const tableOptions = TableConfig.getTableOptions();
-    
+
     this.table = new Tabulator("#grid", tableOptions);
     console.log('Table initialized');
   }
@@ -80,7 +80,7 @@ class SNPediaApp {
     this.managers.filter = new FilterManager(this.table);
     this.managers.column = new ColumnManager(this.table);
     this.managers.tableEvents = new TableEventHandler(this.table);
-    
+
     // Initialize UI manager and connect it to other managers
     this.managers.ui = new UIManager(this.table);
     this.connectUIToManagers();
@@ -100,7 +100,7 @@ class SNPediaApp {
   async loadInitialData() {
     try {
       const data = await this.managers.data.loadData();
-      
+
       if (data && data.length > 0) {
         // Initialize filter state after data is loaded
         this.managers.filter.initializeFilterState();
@@ -115,7 +115,7 @@ class SNPediaApp {
   async reloadData() {
     try {
       const data = await this.managers.data.reloadData();
-      
+
       if (data && data.length > 0) {
         // Update filter button state after reload
         this.managers.filter.initializeFilterState();
@@ -132,26 +132,26 @@ class SNPediaApp {
     // Export functions
     window.exportToExcel = () => this.managers.export.exportToExcel();
     window.exportToPDF = () => this.managers.export.exportToPDF();
-    
+
     // UI functions
     window.lookupSNPedia = () => this.managers.ui.lookupSNPedia();
     window.showKeyboardShortcuts = () => this.managers.ui.showKeyboardShortcuts();
     window.hideKeyboardShortcuts = () => this.managers.ui.hideKeyboardShortcuts();
     window.focusSearch = () => this.managers.ui.focusSearch();
     window.toggleColumnMenu = () => this.managers.ui.toggleColumnMenu();
-    
+
     // Filter functions
     window.clearAllFilters = () => this.managers.filter.clearAllFilters();
-    
+
     // Data functions
     window.reloadData = () => this.reloadData();
-    
+
     // Theme functions
     window.toggleDarkMode = () => this.managers.theme.toggleDarkMode();
-    
+
     // Column functions
     window.toggleColumn = (columnName) => this.managers.column.toggleColumn(columnName);
-    
+
     console.log('Global functions setup complete');
   }
 

@@ -6,7 +6,7 @@ from flask import Blueprint, Response, abort, jsonify, request
 from werkzeug.utils import secure_filename
 
 from SNPedia.core.logger import logger
-from SNPedia.core.metrics import record_snp_query, record_error
+from SNPedia.core.metrics import record_error, record_snp_query
 from SNPedia.services.cache_service import CacheService
 from SNPedia.services.snp_service import SNPService
 from SNPedia.services.statistics_service import StatisticsService
@@ -20,9 +20,13 @@ def _create_rsids_routes(api: Blueprint, snp_service: SNPService) -> None:
         """Get RSIDs data with pagination support."""
         try:
             # Record SNP query metric
-            query_type = "paginated" if ("page" in request.args or "page_size" in request.args) else "all"
+            query_type = (
+                "paginated"
+                if ("page" in request.args or "page_size" in request.args)
+                else "all"
+            )
             record_snp_query(query_type)
-            
+
             # Get pagination parameters
             page = request.args.get("page", 1, type=int)
             page_size = request.args.get("page_size", 100, type=int)

@@ -15,9 +15,13 @@ try:
 except ImportError:
     # Fallback functions if metrics module isn't available
     def record_cache_hit(cache_type: str) -> None:
+        """Fallback function for recording cache hits when metrics module is unavailable."""
         pass
+
     def record_cache_miss(cache_type: str) -> None:
+        """Fallback function for recording cache misses when metrics module is unavailable."""
         pass
+
 
 logger = get_logger(__name__)
 config = get_config()

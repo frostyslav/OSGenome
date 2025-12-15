@@ -33,7 +33,7 @@ class StatisticsService:
             stats = self.snp_service.get_statistics()
             data_loaded = stats.total > 0
             data_count = stats.total
-            
+
             # Update metrics with current statistics
             update_rsid_counts(stats.total, stats.interesting, stats.uncommon)
 
@@ -89,8 +89,8 @@ class StatisticsService:
     def get_genetic_statistics(self) -> StatisticsResponse:
         """Get statistics about genetic data."""
         stats = self.snp_service.get_statistics()
-        
+
         # Update metrics with current statistics
         update_rsid_counts(stats.total, stats.interesting, stats.uncommon)
-        
+
         return stats

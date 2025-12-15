@@ -12,10 +12,10 @@ export class UIManager {
   setupEventListeners() {
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
-    
+
     // Modal close handlers
     document.addEventListener('click', (e) => this.handleModalClicks(e));
-    
+
     // Column menu handler
     window.onclick = (event) => this.handleColumnMenuClicks(event);
   }

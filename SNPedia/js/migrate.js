@@ -17,7 +17,7 @@ class MigrationHelper {
   captureOriginalFunctions() {
     const functionsToCheck = [
       'exportToExcel',
-      'exportToPDF', 
+      'exportToPDF',
       'lookupSNPedia',
       'showKeyboardShortcuts',
       'hideKeyboardShortcuts',
@@ -42,7 +42,7 @@ class MigrationHelper {
     const functionsToCheck = [
       'exportToExcel',
       'exportToPDF',
-      'lookupSNPedia', 
+      'lookupSNPedia',
       'showKeyboardShortcuts',
       'hideKeyboardShortcuts',
       'focusSearch',
@@ -92,7 +92,7 @@ class MigrationHelper {
   // Test basic functionality
   async testBasicFunctionality() {
     console.log('=== Testing Basic Functionality ===');
-    
+
     const tests = [
       {
         name: 'SNPediaApp exists',
@@ -134,7 +134,7 @@ class MigrationHelper {
       try {
         const result = test.test();
         const passed = result === test.expected;
-        
+
         this.testResults.push({
           name: test.name,
           passed,
@@ -156,7 +156,7 @@ class MigrationHelper {
     const passedTests = this.testResults.filter(t => t.passed).length;
     console.log(`\n=== Test Summary ===`);
     console.log(`Passed: ${passedTests}/${tests.length}`);
-    
+
     return this.testResults;
   }
 
@@ -192,10 +192,10 @@ class MigrationHelper {
   // Helper method to run full migration check
   async runFullCheck() {
     console.log('🔄 Running full migration check...');
-    
+
     // Wait a bit for everything to initialize
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     this.captureModularFunctions();
     await this.testBasicFunctionality();
     return this.generateReport();

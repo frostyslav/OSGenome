@@ -130,6 +130,7 @@ app = create_app()
 if __name__ == "__main__":
     # Never run with debug=True in production
     debug_mode: bool = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
-    host = os.environ.get("FLASK_HOST", "0.0.0.0")
+    # Bind to all interfaces for Docker compatibility - use FLASK_HOST env var to override
+    host = os.environ.get("FLASK_HOST", "0.0.0.0")  # nosec B104
     port = int(os.environ.get("FLASK_PORT", "5000"))
     app.run(debug=debug_mode, host=host, port=port)

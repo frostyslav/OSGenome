@@ -15,14 +15,14 @@ export class DataManager {
     try {
       console.log('Loading data...');
       const response = await fetch('/api/rsids');
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       console.log('Data received:', data.results ? data.results.length + ' rows' : 'no results');
-      
+
       spinner.classList.add('hidden');
 
       if (data.results && data.results.length > 0) {
@@ -49,9 +49,9 @@ export class DataManager {
     try {
       const response = await fetch('/api/rsids');
       const data = await response.json();
-      
+
       spinner.classList.add('hidden');
-      
+
       if (data.results && data.results.length > 0) {
         this.table.setData(data.results);
         console.log('Data reloaded');

@@ -17,7 +17,7 @@ export class DataManager {
       console.log('Table state:', this.table ? 'initialized' : 'not initialized');
       console.log('Spinner element:', spinner ? 'found' : 'not found');
       console.log('Fetch timestamp:', new Date().toISOString());
-      
+
       const fetchStart = performance.now();
       const response = await fetch('/api/rsids');
       const fetchEnd = performance.now();
@@ -35,18 +35,18 @@ export class DataManager {
 
       if (data.results && data.results.length > 0) {
         console.log('About to set data on table:', this.table);
-        
+
         // Ensure table is properly initialized
         if (!this.table) {
           throw new Error('Table not initialized');
         }
-        
+
         // Check if table element exists in DOM
         const tableElement = document.getElementById('grid');
         if (!tableElement) {
           throw new Error('Table element not found in DOM');
         }
-        
+
         // Use a more reliable way to set data
         try {
           this.table.setData(data.results);
@@ -77,7 +77,7 @@ export class DataManager {
       }
     } catch (error) {
       spinner.classList.add('hidden');
-      
+
       if (retryCount < maxRetries) {
         console.warn(`Error loading data, retrying in ${(retryCount + 1) * 1000}ms...`, error);
         spinner.classList.remove('hidden');
@@ -106,7 +106,7 @@ export class DataManager {
           <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
           <h3 style="color: #333; margin-bottom: 16px;">No Genetic Data Available</h3>
           <p style="margin-bottom: 20px; color: #666;">No processed genetic data was found. This could mean:</p>
-          
+
           <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px auto; max-width: 500px; text-align: left;">
             <h4 style="margin-top: 0; color: #495057;">To get started:</h4>
             <ol style="margin: 0; padding-left: 20px; line-height: 1.6;">
@@ -126,7 +126,7 @@ export class DataManager {
           <button onclick="reloadData()" style="margin-top: 20px; padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
             🔄 Try Again
           </button>
-          
+
           <p style="margin-top: 20px; font-size: 12px; color: #999;">
             See the <code>data/README.md</code> file for detailed instructions
           </p>

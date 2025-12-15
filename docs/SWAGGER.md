@@ -83,7 +83,7 @@ All API responses are documented with structured models that match the actual ap
 
 #### Statistics Response
 - `total`: Total number of SNPs
-- `interesting`: Number of interesting SNPs  
+- `interesting`: Number of interesting SNPs
 - `uncommon`: Number of uncommon SNPs
 - `message`: Optional message (only included when present)
 

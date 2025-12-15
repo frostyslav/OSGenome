@@ -18,8 +18,12 @@ Attributes:
 """
 
 import os
+from typing import TYPE_CHECKING
 
-from flask import Flask, Response, render_template, redirect
+from flask import Flask, Response, redirect, render_template
+
+if TYPE_CHECKING:
+    from werkzeug.wrappers import Response as WerkzeugResponse
 
 from SNPedia.api.error_handlers import register_error_handlers
 from SNPedia.api.file_routes import create_file_blueprint
@@ -85,11 +89,11 @@ def create_app() -> Flask:
 
     # Swagger documentation redirect
     @app.route("/swagger")
-    def swagger_redirect() -> Response:
+    def swagger_redirect() -> "WerkzeugResponse":
         """Redirect to Swagger documentation.
 
         Returns:
-            Response: Redirect response to the Swagger UI.
+            WerkzeugResponse: Redirect response to the Swagger UI.
         """
         return redirect("/api/v1/docs/")
 

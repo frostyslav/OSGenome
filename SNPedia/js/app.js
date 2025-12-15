@@ -71,7 +71,7 @@ class SNPediaApp {
 
     this.table = new Tabulator("#grid", tableOptions);
     console.log('Table initialized');
-    
+
     // Wait for table to be fully ready
     return new Promise((resolve) => {
       this.table.on("tableBuilt", () => {
@@ -109,10 +109,10 @@ class SNPediaApp {
     try {
       // Wait for backend to be ready
       await this.waitForBackend();
-      
+
       // Give a small additional delay to ensure everything is fully initialized
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       const data = await this.managers.data.loadData();
 
       if (data && data.length > 0) {
@@ -130,7 +130,7 @@ class SNPediaApp {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         console.log(`Checking backend readiness... (attempt ${attempt})`);
-        
+
         // First check if we can reach the server at all
         const healthResponse = await fetch('/api/health', {
           method: 'GET',
@@ -139,12 +139,12 @@ class SNPediaApp {
             'Cache-Control': 'no-cache'
           }
         });
-        
+
         if (healthResponse.ok) {
           const health = await healthResponse.json();
           if (health.status === 'healthy') {
             console.log('Backend health check passed');
-            
+
             // Also test the actual data endpoint
             const dataResponse = await fetch('/api/rsids', {
               method: 'GET',
@@ -153,7 +153,7 @@ class SNPediaApp {
                 'Cache-Control': 'no-cache'
               }
             });
-            
+
             if (dataResponse.ok) {
               const testData = await dataResponse.json();
               if (testData.results && testData.results.length > 0) {
@@ -169,14 +169,14 @@ class SNPediaApp {
       } catch (error) {
         console.log(`Backend not ready yet (attempt ${attempt}):`, error.message);
       }
-      
+
       // Wait before next attempt (exponential backoff, but cap at 2 seconds)
       if (attempt < maxAttempts) {
         const delay = Math.min(attempt * 200, 2000);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
-    
+
     console.warn('Backend readiness check timed out, proceeding anyway');
   }
 
@@ -207,7 +207,7 @@ class SNPediaApp {
       console.log('showKeyboardShortcuts called');
       this.managers.ui.showKeyboardShortcuts();
     };
-    
+
     // Debug function for testing
     window.testModal = () => {
       const modal = document.getElementById('shortcutsModal');
@@ -219,23 +219,23 @@ class SNPediaApp {
         console.log('Modal computed style display:', getComputedStyle(modal).display);
       }
     };
-    
+
     // Debug function for theme testing
     window.testTheme = () => {
       const html = document.documentElement;
       const currentTheme = html.getAttribute('data-theme');
       const toolbar = document.querySelector('.toolbar');
-      
+
       console.log('Current theme:', currentTheme);
       console.log('HTML data-theme attribute:', html.getAttribute('data-theme'));
       console.log('Toolbar element:', toolbar);
-      
+
       if (toolbar) {
         const computedStyle = getComputedStyle(toolbar);
         console.log('Toolbar background:', computedStyle.background);
         console.log('Toolbar background-image:', computedStyle.backgroundImage);
       }
-      
+
       return {
         theme: currentTheme,
         toolbarExists: !!toolbar

@@ -4,7 +4,7 @@
     padding: 14px 18px;
     gap: 10px;
   }
-  
+
   .toolbar button {
     padding: 9px 16px;
     font-size: 13px;
@@ -17,29 +17,29 @@
     padding: 12px 16px;
     gap: 8px;
   }
-  
+
   .toolbar button {
     padding: 8px 12px;
     font-size: 12px;
     flex: 0 1 auto;
     min-width: 0;
   }
-  
+
   .toolbar button i {
     font-size: 14px;
     margin-right: 4px;
   }
-  
+
   /* Hide button text on tablets and smaller, show only icons */
   .toolbar button span.btn-text {
     display: none;
   }
-  
+
   .toolbar button.help-btn {
     margin-left: auto;
     order: 999;
   }
-  
+
   /* Make column menu dropdown adjust to screen */
   .column-menu-content {
     right: 0;
@@ -52,15 +52,15 @@
   .tabulator {
     font-size: 13px;
   }
-  
+
   .tabulator-header {
     font-size: 12px;
   }
-  
+
   .tabulator-row {
     min-height: 36px;
   }
-  
+
   .tabulator-cell {
     padding: 6px 8px;
   }
@@ -72,20 +72,20 @@
     max-height: 90vh;
     border-radius: 8px;
   }
-  
+
   .modal-header h2 {
     font-size: 20px;
   }
-  
+
   .shortcut-keys {
     min-width: 120px;
   }
-  
+
   .key {
     padding: 4px 8px;
     font-size: 12px;
   }
-  
+
   .shortcut-description {
     font-size: 13px;
   }
@@ -96,14 +96,14 @@
     padding: 10px 12px;
     gap: 6px;
   }
-  
+
   .toolbar button {
     padding: 6px 8px;
     font-size: 11px;
     flex: 0 1 auto;
     min-width: 36px;
   }
-  
+
   .toolbar button i {
     font-size: 12px;
     margin-right: 2px;
@@ -115,19 +115,19 @@
     padding: 8px 10px;
     gap: 4px;
   }
-  
+
   .toolbar button {
     padding: 5px 6px;
     font-size: 10px;
     flex: 0 1 auto;
     min-width: 32px;
   }
-  
+
   .toolbar button i {
     font-size: 11px;
     margin-right: 1px;
   }
-  
+
   .toolbar button.help-btn {
     margin-left: auto;
     order: 999;
@@ -137,15 +137,15 @@
   .tabulator {
     font-size: 12px;
   }
-  
+
   .tabulator-header {
     font-size: 11px;
   }
-  
+
   .tabulator-row {
     min-height: 32px;
   }
-  
+
   .tabulator-cell {
     padding: 4px 6px;
   }
@@ -156,31 +156,31 @@
     width: 98%;
     max-height: 95vh;
   }
-  
+
   .modal-header {
     margin-bottom: 16px;
     padding-bottom: 12px;
   }
-  
+
   .modal-header h2 {
     font-size: 18px;
   }
-  
+
   .shortcuts-list {
     gap: 12px;
   }
-  
+
   .shortcut-item {
     padding: 8px;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .shortcut-keys {
     min-width: auto;
   }
-  
+
   .shortcut-description {
     font-size: 12px;
   }
@@ -191,14 +191,14 @@
     padding: 6px 8px;
     gap: 3px;
   }
-  
+
   .toolbar button {
     padding: 4px 5px;
     font-size: 9px;
     flex: 0 1 auto;
     min-width: 28px;
   }
-  
+
   .toolbar button i {
     font-size: 10px;
     margin-right: 0;
@@ -210,19 +210,19 @@
     padding: 4px 6px;
     gap: 2px;
   }
-  
+
   .toolbar button {
     padding: 3px 4px;
     font-size: 8px;
     flex: 0 1 auto;
     min-width: 24px;
   }
-  
+
   .toolbar button i {
     font-size: 9px;
     margin-right: 0;
   }
-  
+
   /* Hide less critical buttons on very small screens */
   .toolbar button[onclick="clearAllFilters()"],
   .toolbar button[onclick="reloadData()"] {
@@ -250,7 +250,7 @@
   .rotate-notification {
     display: block;
   }
-  
+
   .container {
     filter: blur(2px);
   }

@@ -98,7 +98,7 @@ export class UIManager {
   handleColumnMenuClicks(event) {
     const menu = document.getElementById('columnMenu');
     const columnMenuContainer = document.querySelector('.column-menu');
-    
+
     // Only close if menu is open and click is outside the entire column menu area
     if (menu && menu.classList.contains('show')) {
       if (!columnMenuContainer.contains(event.target)) {
@@ -126,10 +126,10 @@ export class UIManager {
     }
     console.log('Showing shortcuts modal', modal);
     modal.classList.add('show');
-    
+
     // Force a reflow to ensure the class is applied
     modal.offsetHeight;
-    
+
     // Double-check that the class was added
     console.log('Modal classes after show:', modal.className);
   }
@@ -150,11 +150,11 @@ export class UIManager {
       console.error('Column menu element not found!');
       return;
     }
-    
+
     const wasVisible = menu.classList.contains('show');
     menu.classList.toggle('show');
     const isVisible = menu.classList.contains('show');
-    
+
     console.log(`Column menu toggled: ${wasVisible} -> ${isVisible}`);
   }
 

@@ -17,6 +17,10 @@
 
     <!-- SheetJS for Excel export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- PDF export libraries -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js"></script>
   </head>
 
   <body>
@@ -24,6 +28,9 @@
       <div class="toolbar">
         <button onclick="exportToExcel()" title="Export to Excel (Ctrl+E)">
           <i class="fas fa-file-excel"></i> Export to Excel
+        </button>
+        <button onclick="exportToPDF()" title="Export to PDF with Charts (Ctrl+P)">
+          <i class="fas fa-file-pdf"></i> Export to PDF
         </button>
         <button onclick="lookupSNPedia()" title="Lookup on SNPedia (Ctrl+L)">
           <i class="fas fa-search"></i> Lookup on SNPedia
@@ -79,6 +86,16 @@
             <div class="shortcut-description">
               <i class="fas fa-file-excel shortcut-icon"></i>
               Export table to Excel
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">P</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-file-pdf shortcut-icon"></i>
+              Export to PDF with charts
             </div>
           </div>
           <div class="shortcut-item">

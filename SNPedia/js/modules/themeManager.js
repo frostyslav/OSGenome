@@ -13,9 +13,19 @@ export class ThemeManager {
     const currentTheme = html.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
+    console.log('Current theme:', currentTheme);
+    console.log('Switching to theme:', newTheme);
+    
     html.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
 
+    // Verify the attribute was set
+    console.log('Theme attribute after change:', html.getAttribute('data-theme'));
+    console.log('HTML element classes:', html.className);
+    
+    // Force a style recalculation
+    html.offsetHeight;
+    
     console.log('Theme switched to:', newTheme);
   }
 

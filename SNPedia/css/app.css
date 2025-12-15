@@ -119,6 +119,8 @@ body {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
+
+
 /* Mobile responsive styles */
 @media (max-width: 1024px) {
   .toolbar {
@@ -1053,4 +1055,53 @@ body {
 [data-theme="dark"] .tabulator-arrow {
   border-bottom-color: var(--text-primary) !important;
   border-top-color: var(--text-primary) !important;
+}
+
+/* CRITICAL: Dark mode toolbar overrides - MUST be at end of file for proper specificity */
+html[data-theme="dark"] .toolbar {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+  box-shadow: 0 2px 8px var(--shadow-heavy) !important;
+}
+
+html[data-theme="dark"] .toolbar button {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+html[data-theme="dark"] .toolbar button:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px var(--shadow-heavy) !important;
+}
+
+html[data-theme="dark"] .toolbar button.help-btn {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] .toolbar button.help-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-theme="dark"] .toolbar button[onclick="clearAllFilters()"] {
+  background-color: rgba(255, 87, 34, 0.2) !important;
+  border-color: rgba(255, 87, 34, 0.4) !important;
+  color: white !important;
+}
+
+html[data-theme="dark"] .toolbar button[onclick="clearAllFilters()"]:hover {
+  background-color: rgba(255, 87, 34, 0.3) !important;
+  border-color: rgba(255, 87, 34, 0.5) !important;
+}
+
+html[data-theme="dark"] .toolbar button[onclick="clearAllFilters()"].filters-active {
+  background-color: rgba(255, 87, 34, 0.4) !important;
+  border-color: rgba(255, 87, 34, 0.6) !important;
+}
+
+html[data-theme="dark"] .theme-toggle {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme="dark"] .theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
 }

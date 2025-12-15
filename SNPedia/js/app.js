@@ -151,6 +151,28 @@ class SNPediaApp {
         console.log('Modal computed style display:', getComputedStyle(modal).display);
       }
     };
+    
+    // Debug function for theme testing
+    window.testTheme = () => {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const toolbar = document.querySelector('.toolbar');
+      
+      console.log('Current theme:', currentTheme);
+      console.log('HTML data-theme attribute:', html.getAttribute('data-theme'));
+      console.log('Toolbar element:', toolbar);
+      
+      if (toolbar) {
+        const computedStyle = getComputedStyle(toolbar);
+        console.log('Toolbar background:', computedStyle.background);
+        console.log('Toolbar background-image:', computedStyle.backgroundImage);
+      }
+      
+      return {
+        theme: currentTheme,
+        toolbarExists: !!toolbar
+      };
+    };
     window.hideKeyboardShortcuts = () => this.managers.ui.hideKeyboardShortcuts();
     window.focusSearch = () => this.managers.ui.focusSearch();
     window.toggleColumnMenu = () => this.managers.ui.toggleColumnMenu();

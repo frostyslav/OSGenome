@@ -46,8 +46,8 @@ class SNPediaApp {
     console.log('DOM loaded, initializing application...');
 
     try {
-      // Initialize Tabulator table
-      this.initializeTable();
+      // Initialize Tabulator table and wait for it to be ready
+      await this.initializeTable();
 
       // Initialize all managers
       this.initializeManagers();
@@ -66,11 +66,19 @@ class SNPediaApp {
     }
   }
 
-  initializeTable() {
+  async initializeTable() {
     const tableOptions = TableConfig.getTableOptions();
 
     this.table = new Tabulator("#grid", tableOptions);
     console.log('Table initialized');
+    
+    // Wait for table to be fully ready
+    return new Promise((resolve) => {
+      this.table.on("tableBuilt", () => {
+        console.log('Table built and ready');
+        resolve();
+      });
+    });
   }
 
   initializeManagers() {
@@ -99,6 +107,12 @@ class SNPediaApp {
 
   async loadInitialData() {
     try {
+      // Wait for backend to be ready
+      await this.waitForBackend();
+      
+      // Give a small additional delay to ensure everything is fully initialized
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const data = await this.managers.data.loadData();
 
       if (data && data.length > 0) {
@@ -110,6 +124,60 @@ class SNPediaApp {
       console.error('Error loading initial data:', error);
       alert('Error loading data: ' + error.message);
     }
+  }
+
+  async waitForBackend(maxAttempts = 10) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`Checking backend readiness... (attempt ${attempt})`);
+        
+        // First check if we can reach the server at all
+        const healthResponse = await fetch('/api/health', {
+          method: 'GET',
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (healthResponse.ok) {
+          const health = await healthResponse.json();
+          if (health.status === 'healthy') {
+            console.log('Backend health check passed');
+            
+            // Also test the actual data endpoint
+            const dataResponse = await fetch('/api/rsids', {
+              method: 'GET',
+              cache: 'no-cache',
+              headers: {
+                'Cache-Control': 'no-cache'
+              }
+            });
+            
+            if (dataResponse.ok) {
+              const testData = await dataResponse.json();
+              if (testData.results && testData.results.length > 0) {
+                console.log('Backend is ready with data');
+                return;
+              } else {
+                console.log('Backend ready but no data available');
+                return;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.log(`Backend not ready yet (attempt ${attempt}):`, error.message);
+      }
+      
+      // Wait before next attempt (exponential backoff, but cap at 2 seconds)
+      if (attempt < maxAttempts) {
+        const delay = Math.min(attempt * 200, 2000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    console.warn('Backend readiness check timed out, proceeding anyway');
   }
 
   async reloadData() {

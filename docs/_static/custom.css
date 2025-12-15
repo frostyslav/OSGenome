@@ -1,0 +1,94 @@
+/* Custom CSS for OSGenome documentation */
+
+/* Improve code block styling */
+.highlight {
+    background-color: #f8f8f8;
+    border: 1px solid #e1e4e5;
+    border-radius: 4px;
+    margin: 1em 0;
+}
+
+/* Style for API documentation */
+.py.class > dt {
+    background-color: #f0f0f0;
+    border-left: 4px solid #2980b9;
+    padding-left: 10px;
+}
+
+.py.method > dt {
+    background-color: #f9f9f9;
+    border-left: 3px solid #27ae60;
+    padding-left: 8px;
+}
+
+.py.function > dt {
+    background-color: #f9f9f9;
+    border-left: 3px solid #e67e22;
+    padding-left: 8px;
+}
+
+/* Improve parameter lists */
+.field-list {
+    margin: 1em 0;
+}
+
+.field-list > dt {
+    font-weight: bold;
+    color: #2980b9;
+}
+
+/* Style for type hints */
+.sig-param {
+    font-style: italic;
+}
+
+.sig-return-typehint {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+/* Improve admonition styling */
+.admonition {
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+}
+
+.admonition.note {
+    background-color: #e7f3ff;
+    border-left: 4px solid #2980b9;
+}
+
+.admonition.warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #f39c12;
+}
+
+.admonition.example {
+    background-color: #f0fff0;
+    border-left: 4px solid #27ae60;
+}
+
+/* Improve table styling */
+.docutils table {
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.docutils th,
+.docutils td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+}
+
+.docutils th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* Code highlighting improvements */
+.highlight .k { color: #0000ff; } /* Keyword */
+.highlight .s { color: #008000; } /* String */
+.highlight .c { color: #808080; font-style: italic; } /* Comment */
+.highlight .n { color: #000000; } /* Name */
+.highlight .o { color: #666666; } /* Operator */

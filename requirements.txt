@@ -1,7 +1,8 @@
-beautifulsoup4==4.11.1
-xlrd==1.0.0
-Flask==2.3.2
-argparse==1.4.0
-jsonify==0.5
-requests>=2.20.0
-
+beautifulsoup4==4.13.4
+xlrd==2.0.2
+Flask==3.1.1
+requests==2.32.4
+aiohttp==3.10.11
+gunicorn==23.0.0
+python-dotenv==1.0.1
+Werkzeug==3.1.3

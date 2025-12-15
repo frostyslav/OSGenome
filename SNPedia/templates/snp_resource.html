@@ -1,157 +1,211 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <style>
-        html {
-            font-size: 14px;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-    </style>
-    <title></title>
-    <link rel="stylesheet" href="css/kendo.common-material.min.css" />
-    <link rel="stylesheet" href="css/kendo.material.min.css" />
-    <link rel="stylesheet" href="css/kendo.material.mobile.min.css" />
+  <head>
+    <title>OSGenome - SNP Analysis</title>
 
-    <script src="js/jszip.min.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/kendo.all.min.js"></script>
-    <style>
-        html,
-        body,
-        .grid,
-        #grid {
-            margin: 0;
-            padding: 0;
-            border-width: 0;
-            height: 100%;
-        }
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-        .image {
-            float: left;
-            height: 100vh;
-            width: 350px;
-            background-image: url('../images/dna-body.png');
-            background-size: cover;
-        }
+    <!-- Tabulator CSS - Basic theme -->
+    <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 
-        .grid {
-            float: right;
-            width: calc(100% - 350px);
-        }
+    <!-- Custom CSS -->
+    <link href="css/app.css" rel="stylesheet">
 
-        @media (max-width: 1000px) {
-            .image { width: 125px; }
-            .grid { width: calc(100% - 125px); }
-        }
+    <!-- Tabulator JavaScript -->
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.2.5/dist/js/tabulator.min.js"></script>
 
-        @media (max-width: 800px) {
-            .image { display: none; }
-            .grid { float: none; width: 100%; }
-        }
-    </style>
-</head>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- PDF export libraries -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/chart.js@4.4.0/dist/chart.umd.js"></script>
+  </head>
 
-<body>
-
-    <div class="image"></div>
-    <div class="grid">
-        <div id="grid"></div>
-        <script>
-
-            function exportExcel() {
-                return '<a class="k-button" href="#" id="selectallelements" onclick="exportToExcel()">Export to Excel</a>';
-
-            }
-
-            function exportToExcel() {
-                var grid1 = $("#grid").data("kendoGrid");
-                oldPageSize = grid1.dataSource.pageSize();
-                grid1.dataSource.pageSize(grid1.dataSource.data().length);
-                grid1.saveAsExcel()
-            };
-
-            $(window).resize(function () {
-                var gridElement = $("#grid"),
-                dataArea = gridElement.find(".k-grid-content"),
-                gridHeight = gridElement.innerHeight(),
-                otherElements = gridElement.children().not(".k-grid-content"),
-                otherElementsHeight = 0;
-                otherElements.each(function () {
-                    otherElementsHeight += $(this).outerHeight();
-                });
-                console.log('resizing to', gridHeight - otherElementsHeight)
-                dataArea.height(gridHeight - otherElementsHeight);
-            })
-
-            $(document).ready(function () {
-
-                $("#grid").kendoGrid({
-                    toolbar: [{
-                        name: 'exportExcel1',
-                        template: '#= exportExcel()#',
-                    },
-                    {
-                        name: 'lookupsnp',
-                        template: '#= snplookup()#'
-                    }
-                    ],
-                    excel: {
-                        fileName: "SNP Report.xlsx",
-                        proxyURL: "/excel",
-                        filterable: true
-                    },
-
-                    dataSource: {
-                        dataType: "json",
-                        transport: {
-                            read: "/api/rsids"
-                        },
-                        sort: {
-                            field: "Variations",
-                            dir: "desc"
-                        },
-                        schema: {
-                            data: function (response) {
-                                return response.results;
-                            }
-                        },
-                        pageSize: 50
-                    },
-                    columns: [
-                        { field: "Name", width: '190px', title: "Name" },
-                        { field: "Description", width: '290px', title: "Short Description" },
-                        { field: "StabilizedOrientation", width: '200px', title: "Stabilized Orientation", encoded: false },
-                        { field: "Genotype", width: '190px', title: "Individual Genotype" },
-                        { field: "Variations", width: '490px', title: "Genotype variations", encoded: false }
-                    ],
-                    height: '100%',
-                    filterable: true,
-                    sortable: true,
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [25, 50, 100, 250],
-                        buttonCount: 5
-                    },
-                    selectable: "row",
-                    allowCopy: true,
-                    reorderable: true,
-                    resizable: true,
-                });
-            });
-            function snplookup(e) {
-                return '<a class="k-button" href="#" id="lookupsnp" onclick="snpedia()">Lookup on SNPedia</a>';
-            };
-            function snpedia() {
-                var entityGrid = $("#grid").data("kendoGrid");
-                var rows = entityGrid.select();
-                var rsid = rows[0].cells[0].innerText
-
-                var html = "https://bots.snpedia.com/index.php/"
-                var link = html.concat(rsid)
-                window.open(link);
-            };
-        </script>
+  <body>
+    <div class="container">
+      <div class="toolbar">
+        <button onclick="exportToExcel()" title="Export to Excel (Ctrl+E)">
+          <i class="fas fa-file-excel"></i> Export to Excel
+        </button>
+        <button onclick="exportToPDF()" title="Export to PDF with Charts (Ctrl+P)">
+          <i class="fas fa-file-pdf"></i> Export to PDF
+        </button>
+        <button onclick="lookupSNPedia()" title="Lookup on SNPedia (Ctrl+L)">
+          <i class="fas fa-search"></i> Lookup on SNPedia
+        </button>
+        <div class="column-menu">
+          <button onclick="toggleColumnMenu()" title="Show/Hide Columns (Ctrl+K)">
+            <i class="fas fa-columns"></i> Show/Hide Columns
+          </button>
+          <div id="columnMenu" class="column-menu-content">
+            <label><input type="checkbox" data-column="Name" checked> Name</label>
+            <label><input type="checkbox" data-column="Description" checked> Short Description</label>
+            <label><input type="checkbox" data-column="StabilizedOrientation"> Stabilized Orientation</label>
+            <label><input type="checkbox" data-column="Genotype"> Individual Genotype</label>
+            <label><input type="checkbox" data-column="Variations" checked> Genotype variations</label>
+            <label><input type="checkbox" data-column="IsInteresting"> Interesting genotype</label>
+            <label><input type="checkbox" data-column="IsUncommon"> Uncommon genotype</label>
+          </div>
+        </div>
+        <button onclick="clearAllFilters()" title="Clear All Filters (Ctrl+X)">
+          <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+        </button>
+        <button onclick="reloadData()" title="Reload Data (Ctrl+R)">
+          <i class="fas fa-sync-alt"></i> Reload
+        </button>
+        <button onclick="toggleDarkMode()" class="theme-toggle" title="Toggle Dark Mode (Ctrl+D)">
+          <i class="fas fa-sun theme-icon sun-icon"></i>
+          <i class="fas fa-moon theme-icon moon-icon"></i>
+        </button>
+        <button onclick="showKeyboardShortcuts()" class="help-btn" title="Keyboard Shortcuts (Ctrl+/)">
+          <i class="fas fa-keyboard"></i> Shortcuts
+        </button>
+      </div>
+      <div id="grid"></div>
+      <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading data...</p>
+      </div>
     </div>
 
-</body>
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcutsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h2>
+          <button class="modal-close" onclick="hideKeyboardShortcuts()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="shortcuts-list">
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">E</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-file-excel shortcut-icon"></i>
+              Export table to Excel
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">P</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-file-pdf shortcut-icon"></i>
+              Export to PDF with charts
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">L</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-search shortcut-icon"></i>
+              Lookup selected SNP on SNPedia
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">F</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-filter shortcut-icon"></i>
+              Focus search/filter field
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">K</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-columns shortcut-icon"></i>
+              Toggle column visibility menu
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">X</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-filter-circle-xmark shortcut-icon"></i>
+              Clear all filters
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">R</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-sync-alt shortcut-icon"></i>
+              Reload data from server
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">/</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-question-circle shortcut-icon"></i>
+              Show this help dialog
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Ctrl</span>
+              <span class="key">D</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-moon shortcut-icon"></i>
+              Toggle dark/light mode
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Escape</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-times-circle shortcut-icon"></i>
+              Clear selection and close menus
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key"><i class="fas fa-arrow-up"></i></span>
+              <span class="key"><i class="fas fa-arrow-down"></i></span>
+              <span class="key"><i class="fas fa-arrow-left"></i></span>
+              <span class="key"><i class="fas fa-arrow-right"></i></span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-arrows-alt shortcut-icon"></i>
+              Navigate table rows and cells
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <div class="shortcut-keys">
+              <span class="key">Enter</span>
+            </div>
+            <div class="shortcut-description">
+              <i class="fas fa-check-circle shortcut-icon"></i>
+              Select focused row
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <i class="fab fa-apple"></i> On Mac, use <strong>Cmd</strong> instead of <strong>Ctrl</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="js/app.js"></script>
+  </body>
 </html>

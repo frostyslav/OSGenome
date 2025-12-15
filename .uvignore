@@ -1,0 +1,20 @@
+# Ignore test files
+tests/
+
+# Ignore documentation (except main README)
+docs/
+
+
+
+# Ignore data directory
+data/
+
+# Ignore git
+.git/
+
+# Ignore IDE files
+.vscode/
+
+# Ignore cache
+__pycache__/
+*.pyc

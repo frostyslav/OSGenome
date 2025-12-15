@@ -86,37 +86,7 @@ export class TableEventHandler {
         }, 250); // Delay to allow double-click detection
       });
 
-      // Add double-click handler
-      gridElement.addEventListener('dblclick', (e) => {
-        // Clear the single click timeout
-        clearTimeout(clickTimeout);
-
-        console.log('Double click detected!', e.target.className);
-
-        // Find the row element
-        let rowElement = e.target;
-        while (rowElement && !rowElement.classList.contains('tabulator-row')) {
-          rowElement = rowElement.parentElement;
-        }
-
-        if (rowElement && rowElement.classList.contains('tabulator-row')) {
-          console.log('Row element found for double-click!');
-          // Get the row component from Tabulator
-          const rows = this.table.getRows();
-          for (let i = 0; i < rows.length; i++) {
-            if (rows[i].getElement() === rowElement) {
-              const rowData = rows[i].getData();
-              const rsid = rowData.Name;
-              if (rsid) {
-                console.log('Looking up RSid:', rsid);
-                const url = 'https://snpedia.com/index.php/' + rsid;
-                window.open(url, '_blank');
-              }
-              break;
-            }
-          }
-        }
-      });
+      // Double-click is handled by Tabulator's rowDblClick event, no need for DOM handler
     }, 1000);
   }
 

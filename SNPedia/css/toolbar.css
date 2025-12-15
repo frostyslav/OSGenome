@@ -10,8 +10,9 @@
   min-height: 60px;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   justify-content: flex-start;
+  position: relative;
 }
 
 .toolbar button {
@@ -89,6 +90,7 @@
 .column-menu {
   position: relative;
   display: inline-block;
+  z-index: 10000;
 }
 
 .column-menu-content {
@@ -97,7 +99,7 @@
   background-color: var(--bg-primary);
   min-width: 220px;
   box-shadow: 0 8px 24px var(--shadow-medium);
-  z-index: 1000;
+  z-index: 9999;
   padding: 12px;
   border-radius: 8px;
   top: 100%;

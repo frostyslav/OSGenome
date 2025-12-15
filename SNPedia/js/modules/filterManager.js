@@ -86,7 +86,17 @@ export class FilterManager {
   // Initialize filter button state after data load
   initializeFilterState() {
     setTimeout(() => {
+      this.setDefaultFilters();
       this.updateFilterButtonState();
     }, 100);
+  }
+
+  // Set default filters
+  setDefaultFilters() {
+    if (!this.table) return;
+
+    // Set IsUncommon filter to "Yes" by default
+    this.table.setHeaderFilterValue("IsUncommon", "Yes");
+    console.log('Default filter set: IsUncommon = Yes');
   }
 }

@@ -114,11 +114,30 @@ export class UIManager {
 
   showKeyboardShortcuts() {
     const modal = document.getElementById('shortcutsModal');
+    if (!modal) {
+      console.error('Shortcuts modal not found!');
+      // Try to find it with a different approach
+      const allModals = document.querySelectorAll('.modal-overlay');
+      console.log('Found modals:', allModals);
+      return;
+    }
+    console.log('Showing shortcuts modal', modal);
     modal.classList.add('show');
+    
+    // Force a reflow to ensure the class is applied
+    modal.offsetHeight;
+    
+    // Double-check that the class was added
+    console.log('Modal classes after show:', modal.className);
   }
 
   hideKeyboardShortcuts() {
     const modal = document.getElementById('shortcutsModal');
+    if (!modal) {
+      console.error('Shortcuts modal not found!');
+      return;
+    }
+    console.log('Hiding shortcuts modal');
     modal.classList.remove('show');
   }
 

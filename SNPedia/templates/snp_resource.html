@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSGenome - SNP Analysis</title>
 
     <!-- Font Awesome -->
@@ -27,17 +29,17 @@
     <div class="container">
       <div class="toolbar">
         <button onclick="exportToExcel()" title="Export to Excel (Ctrl+E)">
-          <i class="fas fa-file-excel"></i> Export to Excel
+          <i class="fas fa-file-excel"></i><span class="btn-text"> Export to Excel</span>
         </button>
         <button onclick="exportToPDF()" title="Export to PDF with Charts (Ctrl+P)">
-          <i class="fas fa-file-pdf"></i> Export to PDF
+          <i class="fas fa-file-pdf"></i><span class="btn-text"> Export to PDF</span>
         </button>
         <button onclick="lookupSNPedia()" title="Lookup on SNPedia (Ctrl+L)">
-          <i class="fas fa-search"></i> Lookup on SNPedia
+          <i class="fas fa-search"></i><span class="btn-text"> Lookup on SNPedia</span>
         </button>
         <div class="column-menu">
           <button onclick="toggleColumnMenu()" title="Show/Hide Columns (Ctrl+K)">
-            <i class="fas fa-columns"></i> Show/Hide Columns
+            <i class="fas fa-columns"></i><span class="btn-text"> Show/Hide Columns</span>
           </button>
           <div id="columnMenu" class="column-menu-content">
             <label><input type="checkbox" data-column="Name" checked> Name</label>
@@ -50,17 +52,17 @@
           </div>
         </div>
         <button onclick="clearAllFilters()" title="Clear All Filters (Ctrl+X)">
-          <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+          <i class="fas fa-filter-circle-xmark"></i><span class="btn-text"> Clear Filters</span>
         </button>
         <button onclick="reloadData()" title="Reload Data (Ctrl+R)">
-          <i class="fas fa-sync-alt"></i> Reload
+          <i class="fas fa-sync-alt"></i><span class="btn-text"> Reload</span>
         </button>
         <button onclick="toggleDarkMode()" class="theme-toggle" title="Toggle Dark Mode (Ctrl+D)">
           <i class="fas fa-sun theme-icon sun-icon"></i>
           <i class="fas fa-moon theme-icon moon-icon"></i>
         </button>
         <button onclick="showKeyboardShortcuts()" class="help-btn" title="Keyboard Shortcuts (Ctrl+/)">
-          <i class="fas fa-keyboard"></i> Shortcuts
+          <i class="fas fa-keyboard"></i><span class="btn-text"> Shortcuts</span>
         </button>
       </div>
       <div id="grid"></div>
@@ -68,6 +70,14 @@
         <div class="spinner"></div>
         <p>Loading data...</p>
       </div>
+    </div>
+
+    <!-- Rotate Device Notification -->
+    <div class="rotate-notification">
+      <i class="fas fa-mobile-alt" style="font-size: 24px; margin-bottom: 10px;"></i>
+      <p style="margin: 0; font-size: 14px; font-weight: 500;">
+        For the best experience, please rotate your device to landscape mode
+      </p>
     </div>
 
     <!-- Keyboard Shortcuts Modal -->

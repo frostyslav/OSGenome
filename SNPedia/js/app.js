@@ -135,7 +135,22 @@ class SNPediaApp {
 
     // UI functions
     window.lookupSNPedia = () => this.managers.ui.lookupSNPedia();
-    window.showKeyboardShortcuts = () => this.managers.ui.showKeyboardShortcuts();
+    window.showKeyboardShortcuts = () => {
+      console.log('showKeyboardShortcuts called');
+      this.managers.ui.showKeyboardShortcuts();
+    };
+    
+    // Debug function for testing
+    window.testModal = () => {
+      const modal = document.getElementById('shortcutsModal');
+      console.log('Modal element:', modal);
+      if (modal) {
+        console.log('Modal classes before:', modal.className);
+        modal.classList.add('show');
+        console.log('Modal classes after:', modal.className);
+        console.log('Modal computed style display:', getComputedStyle(modal).display);
+      }
+    };
     window.hideKeyboardShortcuts = () => this.managers.ui.hideKeyboardShortcuts();
     window.focusSearch = () => this.managers.ui.focusSearch();
     window.toggleColumnMenu = () => this.managers.ui.toggleColumnMenu();

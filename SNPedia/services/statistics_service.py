@@ -4,6 +4,7 @@ import os
 
 from SNPedia.core.config import get_config
 from SNPedia.core.logger import logger
+from SNPedia.core.metrics import update_rsid_counts
 from SNPedia.models.response_models import (
     ConfigResponse,
     HealthCheckResponse,
@@ -32,6 +33,9 @@ class StatisticsService:
             stats = self.snp_service.get_statistics()
             data_loaded = stats.total > 0
             data_count = stats.total
+
+            # Update metrics with current statistics
+            update_rsid_counts(stats.total, stats.interesting, stats.uncommon)
 
             # Check configuration
             config = get_config()
@@ -84,4 +88,9 @@ class StatisticsService:
 
     def get_genetic_statistics(self) -> StatisticsResponse:
         """Get statistics about genetic data."""
-        return self.snp_service.get_statistics()
+        stats = self.snp_service.get_statistics()
+
+        # Update metrics with current statistics
+        update_rsid_counts(stats.total, stats.interesting, stats.uncommon)
+
+        return stats

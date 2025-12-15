@@ -10,8 +10,7 @@ The original `app.js` file (1425 lines) has been split into multiple focused mod
 
 ```
 SNPedia/js/
-├── app.js                    # Original monolithic file (kept for reference)
-├── app-modular.js           # New main application entry point
+├── app.js                   # Main application entry point
 ├── README.md                # This documentation
 └── modules/
     ├── tableConfig.js       # Table configuration and column definitions
@@ -96,7 +95,7 @@ SNPedia/js/
   - LocalStorage helpers
   - Event emitter for inter-module communication
 
-## Main Application (`app-modular.js`)
+## Main Application (`app.js`)
 
 The main application file coordinates all modules and provides:
 - Application initialization
@@ -115,7 +114,7 @@ The main application file coordinates all modules and provides:
    ```
    to:
    ```html
-   <script type="module" src="/static/js/app-modular.js"></script>
+   <script type="module" src="/static/js/app.js"></script>
    ```
 
 2. **Backward Compatibility**: All existing global functions are preserved, so no HTML changes are required for button onclick handlers.

@@ -5,6 +5,7 @@ services:
   osgenome:
     build:
       dockerfile: Dockerfile.dev  # Use development Dockerfile with dev dependencies
+      target: development  # Override the production target
     environment:
       - FLASK_ENV=development
       - LOG_LEVEL=DEBUG
@@ -28,6 +29,6 @@ services:
           memory: 1G
           cpus: '2.0'
     # Enable hot reloading (if using development server)
-    command: ["uv", "run", "python", "SNPedia/app.py"]
+    command: ["/app/.venv/bin/python", "SNPedia/app.py"]
     ports:
       - "5000:5000"  # Development port

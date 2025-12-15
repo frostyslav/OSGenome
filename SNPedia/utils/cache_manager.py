@@ -9,6 +9,20 @@ from typing import Any, Dict, Optional
 from SNPedia.core.config import get_config
 from SNPedia.core.logger import get_logger
 
+# Import metrics functions with error handling for cases where metrics aren't available
+try:
+    from SNPedia.core.metrics import record_cache_hit, record_cache_miss
+except ImportError:
+    # Fallback functions if metrics module isn't available
+    def record_cache_hit(cache_type: str) -> None:
+        """Fallback function for recording cache hits when metrics module is unavailable."""
+        pass
+
+    def record_cache_miss(cache_type: str) -> None:
+        """Fallback function for recording cache misses when metrics module is unavailable."""
+        pass
+
+
 logger = get_logger(__name__)
 config = get_config()
 
@@ -67,6 +81,7 @@ class DataCache:
         with self._lock:
             if key not in self._cache:
                 self._misses += 1
+                record_cache_miss("data_cache")
                 return None
 
             entry = self._cache[key]
@@ -75,10 +90,12 @@ class DataCache:
             if entry.is_expired():
                 del self._cache[key]
                 self._misses += 1
+                record_cache_miss("data_cache")
                 logger.debug(f"Cache expired for key: {key}")
                 return None
 
             self._hits += 1
+            record_cache_hit("data_cache")
             return entry.access()
 
     def set(self, key: str, data: Any, ttl: Optional[int] = None) -> None:

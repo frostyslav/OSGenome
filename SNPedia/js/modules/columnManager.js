@@ -95,13 +95,13 @@ export class ColumnManager {
     if (this.table) {
       this.table.showColumn(columnName);
       this.saveColumnVisibility(columnName, true);
-      
+
       // Update checkbox if it exists
       const checkbox = document.querySelector(`#columnMenu input[data-column="${columnName}"]`);
       if (checkbox) {
         checkbox.checked = true;
       }
-      
+
       this.table.redraw(true);
     }
   }
@@ -110,13 +110,13 @@ export class ColumnManager {
     if (this.table) {
       this.table.hideColumn(columnName);
       this.saveColumnVisibility(columnName, false);
-      
+
       // Update checkbox if it exists
       const checkbox = document.querySelector(`#columnMenu input[data-column="${columnName}"]`);
       if (checkbox) {
         checkbox.checked = false;
       }
-      
+
       this.table.redraw(true);
     }
   }
@@ -124,7 +124,7 @@ export class ColumnManager {
   toggleColumn(columnName) {
     const visibility = this.loadColumnVisibility();
     const isVisible = visibility[columnName];
-    
+
     if (isVisible) {
       this.hideColumn(columnName);
     } else {

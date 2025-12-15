@@ -19,14 +19,16 @@ Attributes:
 
 import os
 
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, redirect
 
 from SNPedia.api.error_handlers import register_error_handlers
 from SNPedia.api.file_routes import create_file_blueprint
 from SNPedia.api.routes import create_api_blueprint
 from SNPedia.api.static_routes import create_static_blueprint
+from SNPedia.api.swagger_routes import create_swagger_blueprint
 from SNPedia.core.config import load_config
 from SNPedia.core.logger import logger
+from SNPedia.core.metrics import init_metrics
 
 
 def create_app() -> Flask:
@@ -63,9 +65,13 @@ def create_app() -> Flask:
     app.register_blueprint(create_api_blueprint())
     app.register_blueprint(create_file_blueprint())
     app.register_blueprint(create_static_blueprint())
+    app.register_blueprint(create_swagger_blueprint())
 
     # Register error handlers
     register_error_handlers(app)
+
+    # Initialize Prometheus metrics
+    init_metrics(app)
 
     # Main route
     @app.route("/", methods=["GET", "POST"])
@@ -76,6 +82,16 @@ def create_app() -> Flask:
             str: Rendered HTML template for the main SNP resource page.
         """
         return render_template("snp_resource.html")
+
+    # Swagger documentation redirect
+    @app.route("/swagger")
+    def swagger_redirect() -> Response:
+        """Redirect to Swagger documentation.
+
+        Returns:
+            Response: Redirect response to the Swagger UI.
+        """
+        return redirect("/api/v1/docs/")
 
     # Security headers
     @app.after_request
@@ -126,4 +142,7 @@ app = create_app()
 if __name__ == "__main__":
     # Never run with debug=True in production
     debug_mode: bool = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
-    app.run(debug=debug_mode, host="127.0.0.1")
+    # Bind to all interfaces for Docker compatibility - use FLASK_HOST env var to override
+    host = os.environ.get("FLASK_HOST", "0.0.0.0")  # nosec B104
+    port = int(os.environ.get("FLASK_PORT", "5000"))
+    app.run(debug=debug_mode, host=host, port=port)

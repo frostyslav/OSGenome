@@ -16,8 +16,8 @@ export class UIManager {
     // Modal close handlers
     document.addEventListener('click', (e) => this.handleModalClicks(e));
 
-    // Column menu handler
-    window.onclick = (event) => this.handleColumnMenuClicks(event);
+    // Column menu handler - close menu when clicking outside
+    document.addEventListener('click', (event) => this.handleColumnMenuClicks(event));
   }
 
   handleKeyboardShortcuts(e) {
@@ -96,9 +96,12 @@ export class UIManager {
   }
 
   handleColumnMenuClicks(event) {
-    if (!event.target.matches('.column-menu button')) {
-      const menu = document.getElementById('columnMenu');
-      if (menu.classList.contains('show')) {
+    const menu = document.getElementById('columnMenu');
+    const columnMenuContainer = document.querySelector('.column-menu');
+    
+    // Only close if menu is open and click is outside the entire column menu area
+    if (menu && menu.classList.contains('show')) {
+      if (!columnMenuContainer.contains(event.target)) {
         menu.classList.remove('show');
       }
     }
@@ -143,7 +146,16 @@ export class UIManager {
 
   toggleColumnMenu() {
     const menu = document.getElementById('columnMenu');
+    if (!menu) {
+      console.error('Column menu element not found!');
+      return;
+    }
+    
+    const wasVisible = menu.classList.contains('show');
     menu.classList.toggle('show');
+    const isVisible = menu.classList.contains('show');
+    
+    console.log(`Column menu toggled: ${wasVisible} -> ${isVisible}`);
   }
 
   clearSelectionAndMenus() {

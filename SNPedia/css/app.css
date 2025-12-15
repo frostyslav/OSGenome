@@ -14,7 +14,7 @@
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --modal-overlay: rgba(0, 0, 0, 0.6);
   --selection-bg: #e3f2fd;
-  --selection-border: rgba(102, 126, 234, 0.2);
+  --selection-border: rgba(102, 126, 234, 0.3);
   --hover-bg: #f5f7fa;
 }
 
@@ -693,6 +693,18 @@ body {
   color: var(--text-primary) !important;
 }
 
+/* Selection overrides with matching specificity */
+.tabulator-table .tabulator-row.tabulator-selected,
+.tabulator-table .tabulator-row.tabulator-selected.tabulator-row-odd,
+.tabulator-table .tabulator-row.tabulator-selected.tabulator-row-even,
+.tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-selected,
+.tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-selected.tabulator-row-odd,
+.tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-selected.tabulator-row-even {
+  background-color: var(--selection-bg) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid #667eea !important;
+}
+
 /* Dark mode comprehensive overrides */
 [data-theme="dark"] .tabulator-table .tabulator-row,
 [data-theme="dark"] .tabulator-table .tabulator-row.tabulator-row-odd,
@@ -702,6 +714,18 @@ body {
 [data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-row-even {
   background-color: var(--bg-primary) !important;
   color: var(--text-primary) !important;
+}
+
+/* Dark mode selection overrides with matching specificity */
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-selected,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-selected.tabulator-row-odd,
+[data-theme="dark"] .tabulator-table .tabulator-row.tabulator-selected.tabulator-row-even,
+[data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-selected,
+[data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-selected.tabulator-row-odd,
+[data-theme="dark"] .tabulator-tableHolder .tabulator-table .tabulator-row.tabulator-selected.tabulator-row-even {
+  background-color: var(--selection-bg) !important;
+  color: var(--text-primary) !important;
+  border-left: 4px solid #667eea !important;
 }
 
 /* Hover states */

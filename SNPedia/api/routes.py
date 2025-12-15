@@ -6,6 +6,7 @@ from flask import Blueprint, Response, abort, jsonify, request
 from werkzeug.utils import secure_filename
 
 from SNPedia.core.logger import logger
+from SNPedia.core.metrics import record_snp_query, record_error
 from SNPedia.services.cache_service import CacheService
 from SNPedia.services.snp_service import SNPService
 from SNPedia.services.statistics_service import StatisticsService
@@ -18,6 +19,10 @@ def _create_rsids_routes(api: Blueprint, snp_service: SNPService) -> None:
     def get_rsids() -> Tuple[Response, int]:
         """Get RSIDs data with pagination support."""
         try:
+            # Record SNP query metric
+            query_type = "paginated" if ("page" in request.args or "page_size" in request.args) else "all"
+            record_snp_query(query_type)
+            
             # Get pagination parameters
             page = request.args.get("page", 1, type=int)
             page_size = request.args.get("page_size", 100, type=int)
@@ -48,6 +53,7 @@ def _create_rsids_routes(api: Blueprint, snp_service: SNPService) -> None:
 
         except Exception as e:
             logger.error(f"Error fetching RSIDs: {str(e)}")
+            record_error("api_error", "get_rsids")
             abort(500, description="Error fetching data")
 
 
@@ -58,10 +64,12 @@ def _create_statistics_routes(api: Blueprint, stats_service: StatisticsService) 
     def get_statistics() -> Tuple[Response, int]:
         """Get statistics about the genetic data."""
         try:
+            record_snp_query("statistics")
             stats = stats_service.get_genetic_statistics()
             return jsonify(stats.to_dict()), 200
         except Exception as e:
             logger.error(f"Error calculating statistics: {str(e)}")
+            record_error("statistics_error", "get_statistics")
             abort(500, description="Error calculating statistics")
 
     @api.route("/config", methods=["GET"])
@@ -93,23 +101,28 @@ def _create_cache_routes(api: Blueprint, cache_service: CacheService) -> None:
     def get_cache_stats() -> Tuple[Response, int]:
         """Get cache statistics."""
         try:
+            record_snp_query("cache_stats")
             stats = cache_service.get_stats()
             return jsonify(stats), 200
         except Exception as e:
             logger.error(f"Error fetching cache stats: {str(e)}")
+            record_error("cache_error", "get_cache_stats")
             abort(500, description="Error fetching cache statistics")
 
     @api.route("/cache/clear", methods=["POST"])
     def clear_cache() -> Tuple[Response, int]:
         """Clear all cache entries."""
         try:
+            record_snp_query("cache_clear")
             success = cache_service.clear_all()
             if success:
                 return jsonify({"message": "Cache cleared successfully"}), 200
             else:
+                record_error("cache_error", "clear_cache")
                 abort(500, description="Error clearing cache")
         except Exception as e:
             logger.error(f"Error clearing cache: {str(e)}")
+            record_error("cache_error", "clear_cache")
             abort(500, description="Error clearing cache")
 
     @api.route("/cache/invalidate/<filename>", methods=["POST"])

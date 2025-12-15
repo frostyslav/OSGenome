@@ -27,6 +27,7 @@ from SNPedia.api.routes import create_api_blueprint
 from SNPedia.api.static_routes import create_static_blueprint
 from SNPedia.core.config import load_config
 from SNPedia.core.logger import logger
+from SNPedia.core.metrics import init_metrics
 
 
 def create_app() -> Flask:
@@ -66,6 +67,9 @@ def create_app() -> Flask:
 
     # Register error handlers
     register_error_handlers(app)
+
+    # Initialize Prometheus metrics
+    init_metrics(app)
 
     # Main route
     @app.route("/", methods=["GET", "POST"])
@@ -126,4 +130,6 @@ app = create_app()
 if __name__ == "__main__":
     # Never run with debug=True in production
     debug_mode: bool = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
-    app.run(debug=debug_mode, host="127.0.0.1")
+    host = os.environ.get("FLASK_HOST", "0.0.0.0")
+    port = int(os.environ.get("FLASK_PORT", "5000"))
+    app.run(debug=debug_mode, host=host, port=port)

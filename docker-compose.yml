@@ -14,6 +14,7 @@ services:
       - GUNICORN_PROCESSES=2
       - GUNICORN_THREADS=4
       - GUNICORN_BIND=0.0.0.0:8080
+      - SECRET_KEY=your-secret-key-change-in-production
     volumes:
       # Mount data directory for genetic data files
       - ./data:/app/data:rw

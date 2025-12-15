@@ -11,6 +11,7 @@ For detailed information about specific aspects of OSGenome, see our comprehensi
 - **[Configuration Guide](docs/CONFIGURATION.md)** - Environment setup, configuration options, and deployment settings
 - **[Security Documentation](docs/SECURITY.md)** - Security features, best practices, and privacy information
 - **[Caching & Performance](docs/CACHING.md)** - Performance optimization, caching strategies, and memory management
+- **[Metrics & Monitoring](docs/METRICS.md)** - Prometheus metrics, monitoring setup, and Grafana dashboards
 - **[Error Handling](docs/ERROR_HANDLING.md)** - Troubleshooting guide, common issues, and error resolution
 - **[Keyboard Shortcuts](docs/KEYBOARD_SHORTCUTS.md)** - Complete list of keyboard shortcuts and navigation tips
 - **[Repository Structure](docs/REPOSITORY_STRUCTURE.md)** - Project organization, file structure, and development workflow
@@ -61,6 +62,26 @@ GET /api/cache/stats
 ```
 
 See our [Caching & Performance](docs/CACHING.md) documentation for detailed caching information and configuration.
+
+## Monitoring & Metrics 📊
+
+OSGenome includes Prometheus metrics for monitoring application performance and usage:
+
+- ✅ **HTTP Metrics**: Request counts, response times, and status codes
+- ✅ **Application Metrics**: SNP queries, cache hit/miss rates, and errors
+- ✅ **Performance Monitoring**: Response time percentiles and throughput
+- ✅ **Cache Analytics**: Cache efficiency and memory usage
+
+### Metrics Endpoint
+```bash
+# Access Prometheus metrics
+GET /metrics
+
+# Example metrics queries
+curl http://localhost:5000/metrics | grep snp_queries_total
+```
+
+See our [Metrics Documentation](docs/METRICS.md) for detailed monitoring setup and Grafana dashboard examples.
 
 ## Async Data Crawler 🚀
 

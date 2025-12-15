@@ -107,6 +107,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Row selected, isSelected:', row.isSelected());
         console.log('Selected rows:', table.getSelectedRows().length);
       },
+      rowDblClick: function(e, row) {
+        console.log('Row double-clicked!');
+        const rowData = row.getData();
+        const rsid = rowData.Name;
+        if (rsid) {
+          console.log('Looking up RSid:', rsid);
+          const url = 'https://snpedia.com/index.php/' + rsid;
+          window.open(url, '_blank');
+        }
+      },
       rowSelectionChanged: function(data, rows) {
         console.log('Selection changed:', rows.length, 'rows selected');
       }
@@ -151,8 +161,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Add direct DOM listener to handle row selection
             const gridElement = document.getElementById('grid');
+            let clickTimeout;
+            
             gridElement.addEventListener('click', function(e) {
-              console.log('Click detected!', e.target.className);
+              // Clear any existing timeout to prevent single click action on double click
+              clearTimeout(clickTimeout);
+              
+              clickTimeout = setTimeout(function() {
+                console.log('Single click detected!', e.target.className);
+
+                // Find the row element
+                let rowElement = e.target;
+                while (rowElement && !rowElement.classList.contains('tabulator-row')) {
+                  rowElement = rowElement.parentElement;
+                }
+
+                if (rowElement && rowElement.classList.contains('tabulator-row')) {
+                  console.log('Row element found!');
+                  // Get the row component from Tabulator
+                  const rows = table.getRows();
+                  for (let i = 0; i < rows.length; i++) {
+                    if (rows[i].getElement() === rowElement) {
+                      console.log('Matching row found, selecting...');
+                      table.deselectRow();
+                      rows[i].select();
+                      console.log('Row selected!');
+                      break;
+                    }
+                  }
+                }
+              }, 250); // Delay to allow double-click detection
+            });
+
+            // Add double-click handler
+            gridElement.addEventListener('dblclick', function(e) {
+              // Clear the single click timeout
+              clearTimeout(clickTimeout);
+              
+              console.log('Double click detected!', e.target.className);
 
               // Find the row element
               let rowElement = e.target;
@@ -161,15 +207,18 @@ document.addEventListener('DOMContentLoaded', function() {
               }
 
               if (rowElement && rowElement.classList.contains('tabulator-row')) {
-                console.log('Row element found!');
+                console.log('Row element found for double-click!');
                 // Get the row component from Tabulator
                 const rows = table.getRows();
                 for (let i = 0; i < rows.length; i++) {
                   if (rows[i].getElement() === rowElement) {
-                    console.log('Matching row found, selecting...');
-                    table.deselectRow();
-                    rows[i].select();
-                    console.log('Row selected!');
+                    const rowData = rows[i].getData();
+                    const rsid = rowData.Name;
+                    if (rsid) {
+                      console.log('Looking up RSid:', rsid);
+                      const url = 'https://snpedia.com/index.php/' + rsid;
+                      window.open(url, '_blank');
+                    }
                     break;
                   }
                 }

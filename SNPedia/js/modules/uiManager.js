@@ -18,6 +18,23 @@ export class UIManager {
 
     // Column menu handler - close menu when clicking outside
     document.addEventListener('click', (event) => this.handleColumnMenuClicks(event));
+
+    // Window resize handler for column menu repositioning
+    window.addEventListener('resize', () => this.handleWindowResize());
+  }
+
+  handleWindowResize() {
+    const menu = document.getElementById('columnMenu');
+    if (menu && menu.classList.contains('show')) {
+      // Reset inline styles to let CSS take over
+      menu.style.left = '';
+      menu.style.right = '';
+      menu.style.transform = '';
+      menu.style.maxWidth = '';
+
+      // Reapply positioning logic
+      setTimeout(() => this.adjustColumnMenuPosition(menu), 10);
+    }
   }
 
   handleKeyboardShortcuts(e) {
@@ -155,7 +172,57 @@ export class UIManager {
     menu.classList.toggle('show');
     const isVisible = menu.classList.contains('show');
 
+    // If menu is now visible, adjust positioning for mobile
+    if (isVisible) {
+      this.adjustColumnMenuPosition(menu);
+    }
+
     console.log(`Column menu toggled: ${wasVisible} -> ${isVisible}`);
+  }
+
+  adjustColumnMenuPosition(menu) {
+    // Get the column menu container (parent button)
+    const columnMenuContainer = menu.closest('.column-menu');
+    if (!columnMenuContainer) return;
+
+    // Get viewport width and menu dimensions
+    const viewportWidth = window.innerWidth;
+    const menuRect = menu.getBoundingClientRect();
+    const containerRect = columnMenuContainer.getBoundingClientRect();
+
+    // Check if menu extends beyond the left edge of the viewport
+    const menuLeft = containerRect.left;
+    const menuWidth = menuRect.width || 220; // fallback to default width
+
+    // If menu would extend beyond left edge, adjust positioning
+    if (menuLeft < 0 || (menuLeft + menuWidth) > viewportWidth) {
+      // For mobile screens, always align to the right edge of the container
+      if (viewportWidth <= 768) {
+        menu.style.left = 'auto';
+        menu.style.right = '0';
+        menu.style.transform = 'none';
+      } else {
+        // For larger screens, try to keep it within viewport
+        const spaceOnRight = viewportWidth - containerRect.right;
+        const spaceOnLeft = containerRect.left;
+
+        if (spaceOnRight >= menuWidth) {
+          // Enough space on right, align to left of container
+          menu.style.left = '0';
+          menu.style.right = 'auto';
+        } else if (spaceOnLeft >= menuWidth) {
+          // Enough space on left, align to right of container
+          menu.style.left = 'auto';
+          menu.style.right = '0';
+        } else {
+          // Not enough space on either side, center and constrain width
+          menu.style.left = '50%';
+          menu.style.right = 'auto';
+          menu.style.transform = 'translateX(-50%)';
+          menu.style.maxWidth = `${Math.min(menuWidth, viewportWidth - 40)}px`;
+        }
+      }
+    }
   }
 
   clearSelectionAndMenus() {

@@ -108,6 +108,15 @@
     font-size: 12px;
     margin-right: 2px;
   }
+
+  /* Ensure column menu stays within viewport on small screens */
+  .column-menu-content {
+    right: 0;
+    left: auto;
+    min-width: 180px;
+    max-width: calc(100vw - 24px);
+    margin-right: 0;
+  }
 }
 
 @media (max-width: 480px) {
@@ -131,6 +140,16 @@
   .toolbar button.help-btn {
     margin-left: auto;
     order: 999;
+  }
+
+  /* Column menu positioning for very small screens */
+  .column-menu-content {
+    right: 0;
+    left: auto;
+    min-width: 160px;
+    max-width: calc(100vw - 20px);
+    margin-right: 0;
+    transform: translateX(0);
   }
 
   /* Mobile table responsiveness */
@@ -203,6 +222,21 @@
     font-size: 10px;
     margin-right: 0;
   }
+
+  /* Column menu positioning for extra small screens */
+  .column-menu-content {
+    right: 0;
+    left: auto;
+    min-width: 140px;
+    max-width: calc(100vw - 16px);
+    margin-right: 0;
+    font-size: 12px;
+  }
+
+  .column-menu-content label {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 320px) {
@@ -227,6 +261,22 @@
   .toolbar button[onclick="clearAllFilters()"],
   .toolbar button[onclick="reloadData()"] {
     display: none;
+  }
+
+  /* Column menu positioning for ultra-small screens */
+  .column-menu-content {
+    right: 0;
+    left: auto;
+    min-width: 120px;
+    max-width: calc(100vw - 12px);
+    margin-right: 0;
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .column-menu-content label {
+    padding: 4px 6px;
+    font-size: 11px;
   }
 }
 
